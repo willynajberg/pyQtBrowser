@@ -13,6 +13,9 @@
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
+  <property name="styleSheet">
+   <string notr="true">QWidget#centralwidget {background-color:white}</string>
+  </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout">
     <property name="spacing">
@@ -138,6 +141,12 @@
           <height>26</height>
          </size>
         </property>
+        <property name="focusPolicy">
+         <enum>Qt::StrongFocus</enum>
+        </property>
+        <property name="clearButtonEnabled">
+         <bool>true</bool>
+        </property>
        </widget>
       </item>
       <item>
@@ -205,7 +214,9 @@
     <item>
      <widget class="QTabWidget" name="tabWidget">
       <property name="styleSheet">
-       <string notr="true">QTabBar::tab { max-width: 250px; }</string>
+       <string notr="true">QTabBar {background-color:rgb(245, 245, 245);
+border-top: 1px solid rgb(70, 70, 70)}
+QTabBar::tab { max-width: 250px; }</string>
       </property>
       <property name="currentIndex">
        <number>0</number>

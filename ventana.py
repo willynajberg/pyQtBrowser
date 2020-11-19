@@ -15,6 +15,7 @@ class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(800, 600)
+        MainWindow.setStyleSheet("QWidget#centralwidget {background-color:white}")
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.verticalLayout = QtWidgets.QVBoxLayout(self.centralwidget)
@@ -64,6 +65,8 @@ class Ui_MainWindow(object):
         self.horizontalLayout.addWidget(self.btnHome)
         self.editUrl = QtWidgets.QLineEdit(self.centralwidget)
         self.editUrl.setMinimumSize(QtCore.QSize(0, 26))
+        self.editUrl.setFocusPolicy(QtCore.Qt.StrongFocus)
+        self.editUrl.setClearButtonEnabled(True)
         self.editUrl.setObjectName("editUrl")
         self.horizontalLayout.addWidget(self.editUrl)
         self.btnFav = QtWidgets.QPushButton(self.centralwidget)
@@ -95,7 +98,9 @@ class Ui_MainWindow(object):
         self.horizontalLayout.addWidget(self.btnMenu)
         self.verticalLayout.addLayout(self.horizontalLayout)
         self.tabWidget = QtWidgets.QTabWidget(self.centralwidget)
-        self.tabWidget.setStyleSheet("QTabBar::tab { max-width: 250px; }")
+        self.tabWidget.setStyleSheet("QTabBar {background-color:rgb(245, 245, 245);\n"
+"border-top: 1px solid rgb(70, 70, 70)}\n"
+"QTabBar::tab { max-width: 250px; }")
         self.tabWidget.setDocumentMode(True)
         self.tabWidget.setTabsClosable(True)
         self.tabWidget.setObjectName("tabWidget")

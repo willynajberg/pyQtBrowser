@@ -49,7 +49,7 @@ class Main(QMainWindow):
             # conexion de eventos del objeto QWebEngineView con funciones del navegadorÑ
 
             navegador.urlChanged.connect(lambda qurl, nav=navegador:
-                                         self.actualizar_url(qurl, nav))
+                                         self.cambiar_url(qurl, nav))
             navegador.iconChanged.connect(lambda icon, nav=navegador:
                                           self.actualizar_icono(icon, nav))
 
@@ -105,7 +105,7 @@ class Main(QMainWindow):
         except Exception as error:
             print("Error: %s" % str(error))
 
-    def actualizar_url(self, url, navegador):
+    def cambiar_url(self, url, navegador):
         # Esta funcion es llamada por el evento urlChanged de un QWebEngineView. Cuando este evento se ejecute
         # cambiara la barra de url del navegador, el icono de la pestana, habilitará los botones de atras y adelante
         # si es posible y cambiara el boton de refrescar por el de cancelar
@@ -113,12 +113,18 @@ class Main(QMainWindow):
             if navegador == var.ui.tabWidget.currentWidget():
                 self.cambiar_btnrefrescar(True)
                 self.actualizar_icono(None, navegador)
-                var.ui.editUrl.setText(url.toString())
-                # Asegura que veremos el principio de la url en el LineEdit
-                var.ui.editUrl.setCursorPosition(0)
+                self.actualizar_url(url)
 
                 var.ui.btnAtras.setEnabled(navegador.history().canGoBack())
                 var.ui.btnAdelante.setEnabled(navegador.history().canGoForward())
+        except Exception as error:
+            print("Error: %s" % str(error))
+
+    def actualizar_url(self, url):
+        try:
+            var.ui.editUrl.setText(url.toString())
+            # Asegura que veremos el principio de la url en el LineEdit
+            var.ui.editUrl.setCursorPosition(0)
         except Exception as error:
             print("Error: %s" % str(error))
 
@@ -130,7 +136,6 @@ class Main(QMainWindow):
                 icon = QtGui.QIcon()
                 icon.addPixmap(QtGui.QPixmap("img/close.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
                 var.ui.btnRefrescar.setIcon(icon)
-                var.ui.btnRefrescar.clicked.disconnect()
                 var.ui.btnRefrescar.clicked.connect(self.cancelar_actualizacion)
             else:
                 icon = QtGui.QIcon()
@@ -215,7 +220,7 @@ class Main(QMainWindow):
                 widget_actual = var.ui.tabWidget.currentWidget()
                 self.cambiar_btnrefrescar(False)
                 self.actualizar_titulo(widget_actual)
-                self.actualizar_url(widget_actual.url(), widget_actual)
+                self.actualizar_url(widget_actual.url())
 
                 var.ui.btnAtras.setEnabled(widget_actual.history().canGoBack())
                 var.ui.btnAdelante.setEnabled(widget_actual.history().canGoForward())
