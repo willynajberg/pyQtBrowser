@@ -3,11 +3,9 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.QtWebEngineWidgets import *
 from ventana import *
+from datetime import datetime
 
-import sys, var, re
-
-URL_HOME = "https://www.google.es/"
-URL_BUSQUEDA = "http://www.google.es/search?query=%s"
+import sys, var, re, conexion
 
 
 class Main(QMainWindow):
@@ -16,7 +14,12 @@ class Main(QMainWindow):
         var.ui = Ui_MainWindow()
         var.ui.setupUi(self)
 
-        self.nueva_pestana(URL_HOME)
+        self.nueva_pestana(var.URL_HOME)
+
+        var.menu = QMenu(var.ui.btnMenu)
+        var.menu.addAction("hola")
+        var.menu.addAction("si")
+        var.ui.btnMenu.setMenu(var.menu)
 
         # conexión de funciones con eventos del navegador:
         var.ui.editUrl.returnPressed.connect(self.navegar_a_url)
@@ -26,6 +29,7 @@ class Main(QMainWindow):
         var.ui.btnRefrescar.clicked.connect(self.refrescar)
         var.ui.btnAtras.clicked.connect(lambda: var.ui.tabWidget.currentWidget().back())
         var.ui.btnAdelante.clicked.connect(lambda: var.ui.tabWidget.currentWidget().forward())
+        var.ui.btnMenu.clicked.connect(self.mostrar_menu)
 
         # al principio deshabilita los botones de atras y de delante
         var.ui.btnAtras.setDisabled(True)
@@ -57,9 +61,7 @@ class Main(QMainWindow):
             # que llaman a este evento 2 veces:
             # navegador.loadStarted.connect(lambda: self.cambiar_btnrefrescar(True))
 
-            navegador.loadFinished.connect(self.actualizacion_completada)
-            navegador.loadFinished.connect(lambda _, nav=navegador:
-                                           self.actualizar_titulo(nav))
+            self.conectar_nav(navegador)
 
             # para que la pestaña de añadir pestañas aparezca al final, la borra y la vuelve a añadir
             var.ui.tabWidget.removeTab(var.ui.tabWidget.indexOf(var.ui.tabAnadir))
@@ -70,12 +72,24 @@ class Main(QMainWindow):
         except Exception as error:
             print("Error: %s" % str(error))
 
+    def conectar_nav(self, navegador):
+        try:
+            navegador.loadFinished.connect(self.actualizacion_completada)
+            navegador.loadFinished.connect(lambda _, nav=navegador:
+                                           self.actualizar_titulo(nav))
+            navegador.loadFinished.connect(lambda loadOK, nav=navegador:
+                                           conexion.insertar_historial(nav.url(), nav.page().title()))
+        except Exception as error:
+            print("Error: %s" % str(error))
+
     def actualizar_titulo(self, navegador):
         # Funcion conectada al evento loadFinished de un objeto QWebEngineView. Cuando una página acabe de cargar,
         # cambiará el título de la pestaña asignada a ese QWebEngineView al título de la página web
         try:
             titulo = navegador.page().title()
 
+            if len(titulo) == 0:
+                titulo = "Pestaña nueva"
             # Este código se asegurará de que los títulos de páginas largos se acortarán
             fm = var.ui.tabWidget.fontMetrics()
             i = len(titulo)
@@ -194,7 +208,7 @@ class Main(QMainWindow):
             else:
                 # Si lo que el usuario ha puesto no es un enlace, reemplaza los espacios en blanco por + y utiliza
                 # el enlace de busqueda establecido para buscar lo introducido en internet.
-                qurl = QUrl(URL_BUSQUEDA % url.replace(" ", "+"))
+                qurl = QUrl(var.URL_BUSQUEDA % url.replace(" ", "+"))
 
             # Finalmente cambia a la QUrl generada.
             var.ui.tabWidget.currentWidget().setUrl(qurl)
@@ -205,7 +219,7 @@ class Main(QMainWindow):
         # Funcion conectada al boton home del navegador que simplemente navegara al enlace establecido como enlace home
         try:
             self.cambiar_btnrefrescar(True)
-            var.ui.tabWidget.currentWidget().setUrl(QUrl(URL_HOME))
+            var.ui.tabWidget.currentWidget().setUrl(QUrl(var.URL_HOME))
         except Exception as error:
             print("Error: %s" % str(error))
 
@@ -215,7 +229,7 @@ class Main(QMainWindow):
         try:
             # Si la pestaña a la que el usuario se quiere desplazar es la pestaña de añadir, añade una nueva
             if i == var.ui.tabWidget.indexOf(var.ui.tabAnadir):
-                self.nueva_pestana(URL_HOME)
+                self.nueva_pestana(var.URL_HOME)
             else:
                 widget_actual = var.ui.tabWidget.currentWidget()
                 self.cambiar_btnrefrescar(False)
@@ -246,9 +260,15 @@ class Main(QMainWindow):
         except Exception as error:
             print("Error: %s" % str(error))
 
+    def mostrar_menu(self):
+        try:
+            var.ui.btnMenu.showMenu()
+        except Exception as error:
+            print("Error: %s" % str(error))
 
 if __name__ == '__main__':
     app = QApplication([])
+    conexion.conectardb(var.NOMBRE_BD)
     window = Main()
     window.showMaximized()
     sys.exit(app.exec())

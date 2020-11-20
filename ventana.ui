@@ -57,9 +57,20 @@
        <widget class="QPushButton" name="btnAtras">
         <property name="minimumSize">
          <size>
-          <width>0</width>
+          <width>26</width>
           <height>26</height>
          </size>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">:hover {
+	background:rgba(80, 170, 255, 50);
+}
+
+:pressed {
+	background:rgba(80, 170, 255, 100);
+}
+
+QPushButton {background: white; border:none}</string>
         </property>
         <property name="text">
          <string/>
@@ -77,9 +88,20 @@
        <widget class="QPushButton" name="btnAdelante">
         <property name="minimumSize">
          <size>
-          <width>0</width>
+          <width>26</width>
           <height>26</height>
          </size>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">:hover {
+	background:rgba(80, 170, 255, 50);
+}
+
+:pressed {
+	background:rgba(80, 170, 255, 100);
+}
+
+QPushButton {background: white; border:none}</string>
         </property>
         <property name="text">
          <string/>
@@ -97,9 +119,20 @@
        <widget class="QPushButton" name="btnRefrescar">
         <property name="minimumSize">
          <size>
-          <width>0</width>
+          <width>26</width>
           <height>26</height>
          </size>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">:hover {
+	background:rgba(80, 170, 255, 50);
+}
+
+:pressed {
+	background:rgba(80, 170, 255, 100);
+}
+
+QPushButton {background: white; border:none}</string>
         </property>
         <property name="text">
          <string/>
@@ -117,9 +150,20 @@
        <widget class="QPushButton" name="btnHome">
         <property name="minimumSize">
          <size>
-          <width>0</width>
+          <width>26</width>
           <height>26</height>
          </size>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">:hover {
+	background:rgba(80, 170, 255, 50);
+}
+
+:pressed {
+	background:rgba(80, 170, 255, 100);
+}
+
+QPushButton {background: white; border:none}</string>
         </property>
         <property name="text">
          <string/>
@@ -153,9 +197,20 @@
        <widget class="QPushButton" name="btnFav">
         <property name="minimumSize">
          <size>
-          <width>0</width>
+          <width>26</width>
           <height>26</height>
          </size>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">:hover {
+	background:rgba(80, 170, 255, 50);
+}
+
+:pressed {
+	background:rgba(80, 170, 255, 100);
+}
+
+QPushButton {background: white; border:none}</string>
         </property>
         <property name="text">
          <string/>
@@ -173,9 +228,20 @@
        <widget class="QPushButton" name="btnHist">
         <property name="minimumSize">
          <size>
-          <width>0</width>
+          <width>26</width>
           <height>26</height>
          </size>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">:hover {
+	background:rgba(80, 170, 255, 50);
+}
+
+:pressed {
+	background:rgba(80, 170, 255, 100);
+}
+
+QPushButton {background: white; border:none}</string>
         </property>
         <property name="text">
          <string/>
@@ -193,9 +259,22 @@
        <widget class="QPushButton" name="btnMenu">
         <property name="minimumSize">
          <size>
-          <width>0</width>
+          <width>26</width>
           <height>26</height>
          </size>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">:hover {
+	background:rgba(80, 170, 255, 50);
+}
+
+:pressed {
+	background:rgba(80, 170, 255, 100);
+}
+
+QPushButton {background: white; border:none}
+
+</string>
         </property>
         <property name="text">
          <string/>
@@ -205,7 +284,7 @@
           <normaloff>img/menu.png</normaloff>img/menu.png</iconset>
         </property>
         <property name="flat">
-         <bool>true</bool>
+         <bool>false</bool>
         </property>
        </widget>
       </item>
@@ -214,9 +293,83 @@
     <item>
      <widget class="QTabWidget" name="tabWidget">
       <property name="styleSheet">
-       <string notr="true">QTabBar {background-color:rgb(245, 245, 245);
-border-top: 1px solid rgb(70, 70, 70)}
-QTabBar::tab { max-width: 250px; }</string>
+       <string notr="true">QTabBar {
+	background-color:rgb(233, 233, 233);
+	border-top: 1px solid rgb(70, 70, 70);
+}
+
+QTabBar::tab { 
+	max-width: 250px;
+	margin-top: 1px; 
+}
+
+QTabWidget::pane {
+    border: 1px solid black;
+    background: white;
+}
+
+QTabWidget::tab-bar:top {
+    top: 1px;
+}
+
+QTabWidget::tab-bar:bottom {
+    bottom: 1px;
+}
+
+QTabWidget::tab-bar:left {
+    right: 1px;
+}
+
+QTabWidget::tab-bar:right {
+    left: 1px;
+}
+
+QTabBar::tab:selected {
+    background: white;
+	margin-right: 1px;
+}
+
+QTabBar::tab:selected:!first {
+	margin-left: 1px;
+}
+
+QTabBar::tab:!selected {
+    background: rgb(240, 240, 240);
+}
+
+QTabBar::tab:!selected:hover {
+    background: rgb(245, 245, 245);
+}
+
+QTabBar::tab:!selected:!previous-selected:middle {
+	border-left: 1px solid rgb(150, 150, 150); 
+}
+
+QTabBar::tab:last:!previous-selected {
+	border-left: 1px solid rgb(150, 150, 150); 
+}
+
+QTabBar::tab:top:last {
+    margin-right: 0;
+	width: 4ex;
+}
+
+QTabBar::tab:top, QTabBar::tab:bottom {
+
+    padding: 5px 10px 5px 10px;
+}
+
+QTabBar::tab:top:selected {
+    border-bottom-color: none;
+}
+
+QTabBar::close-button {
+	image: url(&quot;img/close-tab.png&quot;);
+}
+
+QTabBar::close-button:hover {
+	image: url(&quot;img/close-tab-hover.png&quot;);
+}</string>
       </property>
       <property name="currentIndex">
        <number>0</number>

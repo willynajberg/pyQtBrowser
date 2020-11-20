@@ -28,7 +28,16 @@ class Ui_MainWindow(object):
         self.horizontalLayout.setSpacing(5)
         self.horizontalLayout.setObjectName("horizontalLayout")
         self.btnAtras = QtWidgets.QPushButton(self.centralwidget)
-        self.btnAtras.setMinimumSize(QtCore.QSize(0, 26))
+        self.btnAtras.setMinimumSize(QtCore.QSize(26, 26))
+        self.btnAtras.setStyleSheet(":hover {\n"
+"    background:rgba(80, 170, 255, 50);\n"
+"}\n"
+"\n"
+":pressed {\n"
+"    background:rgba(80, 170, 255, 100);\n"
+"}\n"
+"\n"
+"QPushButton {background: white; border:none}")
         self.btnAtras.setText("")
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap("img/left-arrow.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
@@ -37,7 +46,16 @@ class Ui_MainWindow(object):
         self.btnAtras.setObjectName("btnAtras")
         self.horizontalLayout.addWidget(self.btnAtras)
         self.btnAdelante = QtWidgets.QPushButton(self.centralwidget)
-        self.btnAdelante.setMinimumSize(QtCore.QSize(0, 26))
+        self.btnAdelante.setMinimumSize(QtCore.QSize(26, 26))
+        self.btnAdelante.setStyleSheet(":hover {\n"
+"    background:rgba(80, 170, 255, 50);\n"
+"}\n"
+"\n"
+":pressed {\n"
+"    background:rgba(80, 170, 255, 100);\n"
+"}\n"
+"\n"
+"QPushButton {background: white; border:none}")
         self.btnAdelante.setText("")
         icon1 = QtGui.QIcon()
         icon1.addPixmap(QtGui.QPixmap("img/next.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
@@ -46,7 +64,16 @@ class Ui_MainWindow(object):
         self.btnAdelante.setObjectName("btnAdelante")
         self.horizontalLayout.addWidget(self.btnAdelante)
         self.btnRefrescar = QtWidgets.QPushButton(self.centralwidget)
-        self.btnRefrescar.setMinimumSize(QtCore.QSize(0, 26))
+        self.btnRefrescar.setMinimumSize(QtCore.QSize(26, 26))
+        self.btnRefrescar.setStyleSheet(":hover {\n"
+"    background:rgba(80, 170, 255, 50);\n"
+"}\n"
+"\n"
+":pressed {\n"
+"    background:rgba(80, 170, 255, 100);\n"
+"}\n"
+"\n"
+"QPushButton {background: white; border:none}")
         self.btnRefrescar.setText("")
         icon2 = QtGui.QIcon()
         icon2.addPixmap(QtGui.QPixmap("img/refresh.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
@@ -55,7 +82,16 @@ class Ui_MainWindow(object):
         self.btnRefrescar.setObjectName("btnRefrescar")
         self.horizontalLayout.addWidget(self.btnRefrescar)
         self.btnHome = QtWidgets.QPushButton(self.centralwidget)
-        self.btnHome.setMinimumSize(QtCore.QSize(0, 26))
+        self.btnHome.setMinimumSize(QtCore.QSize(26, 26))
+        self.btnHome.setStyleSheet(":hover {\n"
+"    background:rgba(80, 170, 255, 50);\n"
+"}\n"
+"\n"
+":pressed {\n"
+"    background:rgba(80, 170, 255, 100);\n"
+"}\n"
+"\n"
+"QPushButton {background: white; border:none}")
         self.btnHome.setText("")
         icon3 = QtGui.QIcon()
         icon3.addPixmap(QtGui.QPixmap("img/home.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
@@ -70,7 +106,16 @@ class Ui_MainWindow(object):
         self.editUrl.setObjectName("editUrl")
         self.horizontalLayout.addWidget(self.editUrl)
         self.btnFav = QtWidgets.QPushButton(self.centralwidget)
-        self.btnFav.setMinimumSize(QtCore.QSize(0, 26))
+        self.btnFav.setMinimumSize(QtCore.QSize(26, 26))
+        self.btnFav.setStyleSheet(":hover {\n"
+"    background:rgba(80, 170, 255, 50);\n"
+"}\n"
+"\n"
+":pressed {\n"
+"    background:rgba(80, 170, 255, 100);\n"
+"}\n"
+"\n"
+"QPushButton {background: white; border:none}")
         self.btnFav.setText("")
         icon4 = QtGui.QIcon()
         icon4.addPixmap(QtGui.QPixmap("img/star.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
@@ -79,7 +124,16 @@ class Ui_MainWindow(object):
         self.btnFav.setObjectName("btnFav")
         self.horizontalLayout.addWidget(self.btnFav)
         self.btnHist = QtWidgets.QPushButton(self.centralwidget)
-        self.btnHist.setMinimumSize(QtCore.QSize(0, 26))
+        self.btnHist.setMinimumSize(QtCore.QSize(26, 26))
+        self.btnHist.setStyleSheet(":hover {\n"
+"    background:rgba(80, 170, 255, 50);\n"
+"}\n"
+"\n"
+":pressed {\n"
+"    background:rgba(80, 170, 255, 100);\n"
+"}\n"
+"\n"
+"QPushButton {background: white; border:none}")
         self.btnHist.setText("")
         icon5 = QtGui.QIcon()
         icon5.addPixmap(QtGui.QPixmap("img/calendar.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
@@ -88,19 +142,104 @@ class Ui_MainWindow(object):
         self.btnHist.setObjectName("btnHist")
         self.horizontalLayout.addWidget(self.btnHist)
         self.btnMenu = QtWidgets.QPushButton(self.centralwidget)
-        self.btnMenu.setMinimumSize(QtCore.QSize(0, 26))
+        self.btnMenu.setMinimumSize(QtCore.QSize(26, 26))
+        self.btnMenu.setStyleSheet(":hover {\n"
+"    background:rgba(80, 170, 255, 50);\n"
+"}\n"
+"\n"
+":pressed {\n"
+"    background:rgba(80, 170, 255, 100);\n"
+"}\n"
+"\n"
+"QPushButton {background: white; border:none}\n"
+"\n"
+"")
         self.btnMenu.setText("")
         icon6 = QtGui.QIcon()
         icon6.addPixmap(QtGui.QPixmap("img/menu.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.btnMenu.setIcon(icon6)
-        self.btnMenu.setFlat(True)
+        self.btnMenu.setFlat(False)
         self.btnMenu.setObjectName("btnMenu")
         self.horizontalLayout.addWidget(self.btnMenu)
         self.verticalLayout.addLayout(self.horizontalLayout)
         self.tabWidget = QtWidgets.QTabWidget(self.centralwidget)
-        self.tabWidget.setStyleSheet("QTabBar {background-color:rgb(245, 245, 245);\n"
-"border-top: 1px solid rgb(70, 70, 70)}\n"
-"QTabBar::tab { max-width: 250px; }")
+        self.tabWidget.setStyleSheet("QTabBar {\n"
+"    background-color:rgb(233, 233, 233);\n"
+"    border-top: 1px solid rgb(70, 70, 70);\n"
+"}\n"
+"\n"
+"QTabBar::tab { \n"
+"    max-width: 250px;\n"
+"    margin-top: 1px; \n"
+"}\n"
+"\n"
+"QTabWidget::pane {\n"
+"    border: 1px solid black;\n"
+"    background: white;\n"
+"}\n"
+"\n"
+"QTabWidget::tab-bar:top {\n"
+"    top: 1px;\n"
+"}\n"
+"\n"
+"QTabWidget::tab-bar:bottom {\n"
+"    bottom: 1px;\n"
+"}\n"
+"\n"
+"QTabWidget::tab-bar:left {\n"
+"    right: 1px;\n"
+"}\n"
+"\n"
+"QTabWidget::tab-bar:right {\n"
+"    left: 1px;\n"
+"}\n"
+"\n"
+"QTabBar::tab:selected {\n"
+"    background: white;\n"
+"    margin-right: 1px;\n"
+"}\n"
+"\n"
+"QTabBar::tab:selected:!first {\n"
+"    margin-left: 1px;\n"
+"}\n"
+"\n"
+"QTabBar::tab:!selected {\n"
+"    background: rgb(240, 240, 240);\n"
+"}\n"
+"\n"
+"QTabBar::tab:!selected:hover {\n"
+"    background: rgb(245, 245, 245);\n"
+"}\n"
+"\n"
+"QTabBar::tab:!selected:!previous-selected:middle {\n"
+"    border-left: 1px solid rgb(150, 150, 150); \n"
+"}\n"
+"\n"
+"QTabBar::tab:last:!previous-selected {\n"
+"    border-left: 1px solid rgb(150, 150, 150); \n"
+"}\n"
+"\n"
+"QTabBar::tab:top:last {\n"
+"    margin-right: 0;\n"
+"    width: 4ex;\n"
+"}\n"
+"\n"
+"QTabBar::tab:top, QTabBar::tab:bottom {\n"
+"\n"
+"    padding: 5px 10px 5px 10px;\n"
+"}\n"
+"\n"
+"QTabBar::tab:top:selected {\n"
+"    border-bottom-color: none;\n"
+"}\n"
+"\n"
+"QTabBar::close-button {\n"
+"    image: url(\"img/close-tab.png\");\n"
+"}\n"
+"\n"
+"QTabBar::close-button:hover {\n"
+"    image: url(\"img/close-tab-hover.png\");\n"
+"}")
         self.tabWidget.setDocumentMode(True)
         self.tabWidget.setTabsClosable(True)
         self.tabWidget.setObjectName("tabWidget")
