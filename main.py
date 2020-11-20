@@ -3,9 +3,17 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.QtWebEngineWidgets import *
 from ventana import *
+from dlghistorial import *
 from datetime import datetime
 
 import sys, var, re, conexion
+
+
+class DialogHistorial(QtWidgets.QDialog):
+    def __init__(self):
+        super(DialogHistorial, self).__init__()
+        self.ui = Ui_dlgHistorial()
+        self.ui.setupUi(self)
 
 
 class Main(QMainWindow):
@@ -13,6 +21,7 @@ class Main(QMainWindow):
         super(Main, self).__init__()
         var.ui = Ui_MainWindow()
         var.ui.setupUi(self)
+        var.dlgHistorial = DialogHistorial()
 
         self.nueva_pestana(var.URL_HOME)
 
@@ -30,6 +39,7 @@ class Main(QMainWindow):
         var.ui.btnAtras.clicked.connect(lambda: var.ui.tabWidget.currentWidget().back())
         var.ui.btnAdelante.clicked.connect(lambda: var.ui.tabWidget.currentWidget().forward())
         var.ui.btnMenu.clicked.connect(self.mostrar_menu)
+        var.ui.btnHist.clicked.connect(self.abrir_historial)
 
         # al principio deshabilita los botones de atras y de delante
         var.ui.btnAtras.setDisabled(True)
@@ -50,17 +60,7 @@ class Main(QMainWindow):
             navegador.setUrl(QUrl(url))
             var.ui.editUrl.setText(url)
 
-            # conexion de eventos del objeto QWebEngineView con funciones del navegadorÑ
-
-            navegador.urlChanged.connect(lambda qurl, nav=navegador:
-                                         self.cambiar_url(qurl, nav))
-            navegador.iconChanged.connect(lambda icon, nav=navegador:
-                                          self.actualizar_icono(icon, nav))
-
-            # esto seria lo optimo, pero no funciona bien, por algun motivo hay paginas como el buscador de google
-            # que llaman a este evento 2 veces:
-            # navegador.loadStarted.connect(lambda: self.cambiar_btnrefrescar(True))
-
+            # conexion de eventos del objeto QWebEngineView con funciones del navegador
             self.conectar_nav(navegador)
 
             # para que la pestaña de añadir pestañas aparezca al final, la borra y la vuelve a añadir
@@ -74,11 +74,20 @@ class Main(QMainWindow):
 
     def conectar_nav(self, navegador):
         try:
+            navegador.urlChanged.connect(lambda qurl, nav=navegador:
+                                         self.cambiar_url(qurl, nav))
+            navegador.iconChanged.connect(lambda icon, nav=navegador:
+                                          self.actualizar_icono(icon, nav))
+
+            # esto seria lo optimo, pero no funciona bien, por algun motivo hay paginas como el buscador de google
+            # que llaman a este evento 2 veces:
+            # navegador.loadStarted.connect(lambda: self.cambiar_btnrefrescar(True))
+
             navegador.loadFinished.connect(self.actualizacion_completada)
             navegador.loadFinished.connect(lambda _, nav=navegador:
                                            self.actualizar_titulo(nav))
-            navegador.loadFinished.connect(lambda loadOK, nav=navegador:
-                                           conexion.insertar_historial(nav.url(), nav.page().title()))
+            navegador.loadFinished.connect(lambda loadok, nav=navegador:
+                                           conexion.insertar_historial(loadok, nav.url(), nav.page().title()))
         except Exception as error:
             print("Error: %s" % str(error))
 
@@ -259,6 +268,10 @@ class Main(QMainWindow):
                 var.ui.tabWidget.removeTab(i)
         except Exception as error:
             print("Error: %s" % str(error))
+
+    def abrir_historial(self):
+        var.dlgHistorial.show()
+        conexion.cargar_historial()
 
     def mostrar_menu(self):
         try:
