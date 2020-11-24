@@ -26,8 +26,10 @@ class Main(QMainWindow):
         self.nueva_pestana(var.URL_HOME)
 
         var.menu = QMenu(var.ui.btnMenu)
-        var.menu.addAction("hola")
-        var.menu.addAction("si")
+        var.menu.addAction(var.ui.actionNewTab)
+        var.menu.addAction(var.ui.actionCloseTab)
+        var.menu.addSeparator();
+        var.menu.addAction(var.ui.actionSalir)
         var.ui.btnMenu.setMenu(var.menu)
 
         # conexión de funciones con eventos del navegador:
@@ -40,6 +42,12 @@ class Main(QMainWindow):
         var.ui.btnAdelante.clicked.connect(lambda: var.ui.tabWidget.currentWidget().forward())
         var.ui.btnMenu.clicked.connect(self.mostrar_menu)
         var.ui.btnHist.clicked.connect(self.abrir_historial)
+
+        # conexion de funciones con acciones del navegador
+        var.ui.actionNewTab.triggered.connect(lambda: self.nueva_pestana(var.URL_HOME))
+        var.ui.actionCloseTab.triggered.connect(lambda: self.cerrar_pestana(var.ui.tabWidget.indexOf(
+            var.ui.tabWidget.currentWidget())))
+        var.ui.actionSalir.triggered.connect(self.close)
 
         # al principio deshabilita los botones de atras y de delante
         var.ui.btnAtras.setDisabled(True)

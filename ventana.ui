@@ -389,6 +389,53 @@ QTabBar::close-button:hover {
     </item>
    </layout>
   </widget>
+  <action name="actionNewTab">
+   <property name="icon">
+    <iconset>
+     <activeon>img/new-tab.png</activeon>
+    </iconset>
+   </property>
+   <property name="text">
+    <string>Nueva pestaña</string>
+   </property>
+   <property name="toolTip">
+    <string>Abrir una nueva pestaña</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+T</string>
+   </property>
+  </action>
+  <action name="actionCloseTab">
+   <property name="icon">
+    <iconset>
+     <normaloff>img/close.png</normaloff>img/close.png</iconset>
+   </property>
+   <property name="text">
+    <string>Cerrar pestaña</string>
+   </property>
+   <property name="toolTip">
+    <string>Cierra la pestaña actual</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+W</string>
+   </property>
+  </action>
+  <action name="actionSalir">
+   <property name="icon">
+    <iconset>
+     <activeon>img/logout.png</activeon>
+    </iconset>
+   </property>
+   <property name="text">
+    <string>Salir del programa</string>
+   </property>
+   <property name="toolTip">
+    <string>Salir del programa</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Q</string>
+   </property>
+  </action>
  </widget>
  <resources/>
  <connections/>
