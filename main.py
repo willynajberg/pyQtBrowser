@@ -2,6 +2,7 @@ import conexion
 import re
 import sys
 import var
+import threading
 
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
@@ -18,6 +19,9 @@ class Main(QMainWindow):
         var.ui = Ui_MainWindow()
         var.nav = self
         var.ui.setupUi(self)
+
+        var.carga_finalizada = False
+        var.progreso_actual = 0
 
         self.nueva_pestana(var.URL_HOME)
 
@@ -58,7 +62,7 @@ class Main(QMainWindow):
             var.ui.tabWidget.setCurrentIndex(i)
 
             # cargamos la url nueva en el nuevo objeto y en la barra de urls
-            navegador.setUrl(QUrl(url))
+            navegador.page().setUrl(QUrl(url))
             var.ui.editUrl.setText(url)
 
             # conexion de eventos del objeto QWebEngineView con funciones del navegador
@@ -75,13 +79,29 @@ class Main(QMainWindow):
 
     def conectar_nav(self, navegador):
         try:
-            navegador.urlChanged.connect(lambda qurl, nav=navegador:
-                                         self.cambiar_url(qurl, nav))
-            navegador.iconChanged.connect(lambda icon, nav=navegador:
-                                          self.actualizar_icono(icon, nav))
+            navegador.page().urlChanged.connect(lambda qurl, nav=navegador:
+                                                self.cambiar_url(qurl, nav))
+            navegador.page().iconChanged.connect(lambda icon, nav=navegador:
+                                                 self.actualizar_icono(icon, nav))
 
-            navegador.loadStarted.connect(lambda: self.cambiar_btnrefrescar(True))
-            navegador.loadFinished.connect(lambda _, nav=navegador: self.carga_completada(nav))
+            navegador.page().loadStarted.connect(lambda nav=navegador: self.carga_iniciada(nav))
+            navegador.page().loadProgress.connect(lambda progreso, nav=navegador: self.progreso_carga(progreso, nav))
+            navegador.page().loadFinished.connect(lambda _, nav=navegador: self.carga_completada(nav))
+        except Exception as error:
+            print("Error: %s" % str(error))
+
+    def carga_iniciada(self, navegador):
+        try:
+            self.cambiar_btnrefrescar(True)
+        except Exception as error:
+            print("Error: %s" % str(error))
+
+    def progreso_carga(self, progreso, navegador):
+        try:
+            if progreso == 100:
+                # En algunas paginas como YouTube el evento loadFinished no es emitido, la unica forma que he encontrado
+                # de solucionar esto es con un timer
+                QTimer.singleShot(1000, lambda nav=navegador: self.carga_completada(navegador))
         except Exception as error:
             print("Error: %s" % str(error))
 
@@ -90,15 +110,16 @@ class Main(QMainWindow):
         # al de refrescar, de actualizar el título y de insertar una nueva entrada en el historial, o en caso de que
         # la última entrada del historial sea la misma url, actualizar su título
         try:
-            self.actualizacion_completada()
-            self.actualizar_titulo(navegador)
-            no_insertar = conexion.seleccionar_ultima_url() and str(conexion.seleccionar_ultima_url()) == \
-                          str(navegador.url().toString())
+            no_insertar = conexion.seleccionar_ultima_url() and str(conexion.seleccionar_ultima_url()) == str(navegador.url().toString())
 
             if not no_insertar:
                 conexion.insertar_historial(True, navegador.url().toString(), navegador.page().title())
             else:
                 conexion.cambiar_titulo_historial(var.LAST_INSERT_HISTORIAL, navegador.page().title())
+
+            self.actualizacion_completada()
+            self.actualizar_icono(navegador.page().icon(), navegador)
+            self.actualizar_titulo(navegador)
         except Exception as error:
             print("Error en la funcion carga completada: %s" % str(error))
 
@@ -144,10 +165,6 @@ class Main(QMainWindow):
         # cambiara la barra de url del navegador, el icono de la pestana, habilitará los botones de atras y adelante
         # si es posible
         try:
-            # Llamar a esta función arregla fallos relacionados con páginas que ejecutan el evento loadStarted varias
-            # veces
-            navegador.load(url)
-
             if navegador == var.ui.tabWidget.currentWidget():
                 self.actualizar_icono(None, navegador)
                 self.actualizar_url(url)
@@ -231,7 +248,7 @@ class Main(QMainWindow):
                 qurl = QUrl(var.URL_BUSQUEDA % url.replace(" ", "+"))
 
             # Finalmente cambia a la QUrl generada.
-            var.ui.tabWidget.currentWidget().setUrl(qurl)
+            var.ui.tabWidget.currentWidget().page().setUrl(qurl)
         except Exception as error:
             print("Error: %s" % str(error))
 
@@ -314,4 +331,5 @@ if __name__ == '__main__':
     conexion.conectardb(var.NOMBRE_BD)
     window = Main()
     window.showMaximized()
+
     sys.exit(app.exec())

@@ -23,8 +23,9 @@ class WidgetHistorial(QWidget):
         self.tableWidget.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
         self.tableWidget.setAlternatingRowColors(True)
         self.tableWidget.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
-        self.tableWidget.setColumnCount(4)
+        self.tableWidget.setColumnCount(5)
         self.tableWidget.setRowCount(0)
+        self.tableWidget.hideColumn(4)
 
         item = QtWidgets.QTableWidgetItem()
         font = QtGui.QFont()
@@ -83,6 +84,7 @@ class WidgetHistorial(QWidget):
         self.tableWidget.viewport().installEventFilter(self)
         self.tableWidget.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
         self.tableWidget.customContextMenuRequested.connect(self.generateMenu)
+        self.btnBorrarSel.clicked.connect(self.borrar_seleccion)
 
     def eventFilter(self, source, event):
         try:
@@ -97,7 +99,8 @@ class WidgetHistorial(QWidget):
                     if self.nav:
                         self.menu.addAction("Ir a sitio", lambda i=item: var.nav.nueva_pestana(
                             self.tableWidget.selectedItems()[3].text()))
-                    self.menu.addAction("Borrar entrada", lambda i=item: self.borrar_entrada(i.row().numerator))
+                    self.menu.addAction("Borrar entrada", lambda i=item: self.borrar_entrada(
+                        int(self.tableWidget.item(i.row().numerator, 4).text())))
         except Exception as error:
             print("Error en event filter de historial: %s" % str(error))
         return super(WidgetHistorial, self).eventFilter(source, event)
@@ -107,7 +110,21 @@ class WidgetHistorial(QWidget):
 
     def borrar_entrada(self, idx=0):
         try:
-            conexion.borrar_entrada_historial(conexion.ultima_entrada_historial() - idx)
+            conexion.borrar_entrada_historial(idx)
+            self.tableWidget.clearContents()
+            self.tableWidget.setRowCount(0)
             conexion.cargar_historial(self)
         except Exception as error:
             print("Error al borrar entrada: %s" % str(error))
+
+    def borrar_seleccion(self):
+        try:
+            for x in range(0, len(self.tableWidget.selectedItems()), 4):
+                conexion.borrar_entrada_historial(int(self.tableWidget.item(
+                    self.tableWidget.selectedItems()[x].row().numerator, 4).text()))
+
+            self.tableWidget.clearContents()
+            self.tableWidget.setRowCount(0)
+            conexion.cargar_historial(self)
+        except Exception as error:
+            print("Error al borrar seleccion: %s" % str(error))

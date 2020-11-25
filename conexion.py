@@ -1,4 +1,4 @@
-from PyQt5 import QtSql
+from PyQt5 import QtSql, Qt
 from datetime import datetime
 import var
 from ventana import *
@@ -111,34 +111,19 @@ def cargar_historial(historial):
                 historial.tableWidget.setItem(index - 1, 1, QtWidgets.QTableWidgetItem(time.strftime("%d/%m/%Y")))
                 historial.tableWidget.setItem(index - 1, 2, QtWidgets.QTableWidgetItem(time.strftime("%H:%M")))
                 historial.tableWidget.setItem(index - 1, 3, QtWidgets.QTableWidgetItem(query.value(1)))
+                historial.tableWidget.setItem(index - 1, 4, QtWidgets.QTableWidgetItem(str(query.value(0))))
                 index += 1
     except Exception as error:
         print("Error al cargar historial %s" % str(error))
 
 
-def ultima_entrada_historial():
-    try:
-        query = QtSql.QSqlQuery()
-        query.prepare("SELECT idEntrada FROM historial ORDER BY idEntrada DESC LIMIT 1")
-
-        if query.exec_():
-            if query.next():
-                return query.value(0)
-            else:
-                return None
-        else:
-            return None
-    except Exception as error:
-        print("Error al obtener ultima entrada: %s" % str(error))
-
-
-def borrar_entrada_historial(id):
+def borrar_entrada_historial(idx):
     try:
         query = QtSql.QSqlQuery()
         query.prepare("DELETE FROM historial WHERE idEntrada=:id")
-        query.bindValue(":id", id)
+        query.bindValue(":id", idx)
 
         if not query.exec_():
-            print(query.lastError().text())
+            print(query.lastError())
     except Exception as error:
         print("Error al borrar historial: %s" % str(error))
