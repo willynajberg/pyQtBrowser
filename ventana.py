@@ -136,7 +136,7 @@ class Ui_MainWindow(object):
 "QPushButton {background: white; border:none}")
         self.btnHist.setText("")
         icon5 = QtGui.QIcon()
-        icon5.addPixmap(QtGui.QPixmap("img/calendar.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon5.addPixmap(QtGui.QPixmap("img/history.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.btnHist.setIcon(icon5)
         self.btnHist.setFlat(True)
         self.btnHist.setObjectName("btnHist")

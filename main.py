@@ -1,27 +1,23 @@
+import conexion
+import re
+import sys
+import var
+
 from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.QtWebEngineWidgets import *
+from PyQt5.QtWidgets import *
+
+from WidgetHistorial import WidgetHistorial
 from ventana import *
-from dlghistorial import *
-from datetime import datetime
-
-import sys, var, re, conexion
-
-
-class DialogHistorial(QtWidgets.QDialog):
-    def __init__(self):
-        super(DialogHistorial, self).__init__()
-        self.ui = Ui_dlgHistorial()
-        self.ui.setupUi(self)
 
 
 class Main(QMainWindow):
     def __init__(self):
         super(Main, self).__init__()
         var.ui = Ui_MainWindow()
+        var.nav = self
         var.ui.setupUi(self)
-        var.dlgHistorial = DialogHistorial()
 
         self.nueva_pestana(var.URL_HOME)
 
@@ -55,9 +51,6 @@ class Main(QMainWindow):
 
     def nueva_pestana(self, url):
         try:
-            # antes de nada cambia el botón de refrescar por el boton de cancelar carga
-            self.cambiar_btnrefrescar(True)
-
             # crea un objeto QWebEngineView nuevo y lo asignamos a una pestaña nueva del TableWidget
             navegador = QWebEngineView()
             self.setWindowTitle("PyQtBrowser - Pestaña nueva")
@@ -87,17 +80,27 @@ class Main(QMainWindow):
             navegador.iconChanged.connect(lambda icon, nav=navegador:
                                           self.actualizar_icono(icon, nav))
 
-            # esto seria lo optimo, pero no funciona bien, por algun motivo hay paginas como el buscador de google
-            # que llaman a este evento 2 veces:
-            # navegador.loadStarted.connect(lambda: self.cambiar_btnrefrescar(True))
-
-            navegador.loadFinished.connect(self.actualizacion_completada)
-            navegador.loadFinished.connect(lambda _, nav=navegador:
-                                           self.actualizar_titulo(nav))
-            navegador.loadFinished.connect(lambda loadok, nav=navegador:
-                                           conexion.insertar_historial(loadok, nav.url(), nav.page().title()))
+            navegador.loadStarted.connect(lambda: self.cambiar_btnrefrescar(True))
+            navegador.loadFinished.connect(lambda _, nav=navegador: self.carga_completada(nav))
         except Exception as error:
             print("Error: %s" % str(error))
+
+    def carga_completada(self, navegador):
+        # Función conectada al evento loadFinished del navegador. Se encargará de cambiar el boton de cancelar carga
+        # al de refrescar, de actualizar el título y de insertar una nueva entrada en el historial, o en caso de que
+        # la última entrada del historial sea la misma url, actualizar su título
+        try:
+            self.actualizacion_completada()
+            self.actualizar_titulo(navegador)
+            no_insertar = conexion.seleccionar_ultima_url() and str(conexion.seleccionar_ultima_url()) == \
+                          str(navegador.url().toString())
+
+            if not no_insertar:
+                conexion.insertar_historial(True, navegador.url().toString(), navegador.page().title())
+            else:
+                conexion.cambiar_titulo_historial(var.LAST_INSERT_HISTORIAL, navegador.page().title())
+        except Exception as error:
+            print("Error en la funcion carga completada: %s" % str(error))
 
     def actualizar_titulo(self, navegador):
         # Funcion conectada al evento loadFinished de un objeto QWebEngineView. Cuando una página acabe de cargar,
@@ -139,10 +142,13 @@ class Main(QMainWindow):
     def cambiar_url(self, url, navegador):
         # Esta funcion es llamada por el evento urlChanged de un QWebEngineView. Cuando este evento se ejecute
         # cambiara la barra de url del navegador, el icono de la pestana, habilitará los botones de atras y adelante
-        # si es posible y cambiara el boton de refrescar por el de cancelar
+        # si es posible
         try:
+            # Llamar a esta función arregla fallos relacionados con páginas que ejecutan el evento loadStarted varias
+            # veces
+            navegador.load(url)
+
             if navegador == var.ui.tabWidget.currentWidget():
-                self.cambiar_btnrefrescar(True)
                 self.actualizar_icono(None, navegador)
                 self.actualizar_url(url)
 
@@ -181,7 +187,6 @@ class Main(QMainWindow):
         # Funcion conectada al evento clicked del boton de refrescar. Refresca la página actual y cambia el boton de
         # refrescar por el de cancelar carga
         try:
-            self.cambiar_btnrefrescar(True)
             var.ui.tabWidget.currentWidget().reload()
         except Exception as error:
             print("Error: %s" % str(error))
@@ -207,8 +212,6 @@ class Main(QMainWindow):
         # Esta funcion esta conectada al evento returnPressed del lineEdit de la barra de URL. Es decir, se activara
         # cuando el usuario pulse Enter en la barra de url.
         try:
-            # Primero cambia el boton de refrescar al de cancelar carga.
-            self.cambiar_btnrefrescar(True)
             # Coge el texto del line edit
             url = var.ui.editUrl.text()
 
@@ -235,7 +238,6 @@ class Main(QMainWindow):
     def navegar_a_home(self):
         # Funcion conectada al boton home del navegador que simplemente navegara al enlace establecido como enlace home
         try:
-            self.cambiar_btnrefrescar(True)
             var.ui.tabWidget.currentWidget().setUrl(QUrl(var.URL_HOME))
         except Exception as error:
             print("Error: %s" % str(error))
@@ -249,12 +251,13 @@ class Main(QMainWindow):
                 self.nueva_pestana(var.URL_HOME)
             else:
                 widget_actual = var.ui.tabWidget.currentWidget()
-                self.cambiar_btnrefrescar(False)
-                self.actualizar_titulo(widget_actual)
-                self.actualizar_url(widget_actual.url())
+                if isinstance(widget_actual, QWebEngineView):
+                    self.cambiar_btnrefrescar(False)
+                    self.actualizar_titulo(widget_actual)
+                    self.actualizar_url(widget_actual.url())
 
-                var.ui.btnAtras.setEnabled(widget_actual.history().canGoBack())
-                var.ui.btnAdelante.setEnabled(widget_actual.history().canGoForward())
+                    var.ui.btnAtras.setEnabled(widget_actual.history().canGoBack())
+                    var.ui.btnAdelante.setEnabled(widget_actual.history().canGoForward())
         except Exception as error:
             print("Error: %s" % str(error))
 
@@ -278,14 +281,33 @@ class Main(QMainWindow):
             print("Error: %s" % str(error))
 
     def abrir_historial(self):
-        var.dlgHistorial.show()
-        conexion.cargar_historial()
+        try:
+            historial = WidgetHistorial(self)
+            self.setWindowTitle("PyQtBrowser - Historial")
+            icon = QtGui.QIcon()
+            icon.addPixmap(QtGui.QPixmap("img/history.png"), QtGui.QIcon.Active, QtGui.QIcon.On)
+            i = var.ui.tabWidget.addTab(historial, icon, "Historial")
+            var.ui.tabWidget.setCurrentIndex(i)
+
+            var.ui.editUrl.setText("pyqtbrowser:historial")
+
+            conexion.cargar_historial(historial)
+
+            # para que la pestaña de añadir pestañas aparezca al final, la borra y la vuelve a añadir
+            var.ui.tabWidget.removeTab(var.ui.tabWidget.indexOf(var.ui.tabAnadir))
+            i2 = var.ui.tabWidget.addTab(var.ui.tabAnadir, "+")
+
+            # esta funcion oculta el boton de cerrar de la pestaña de añadir
+            var.ui.tabWidget.tabBar().tabButton(i2, var.ui.tabWidget.tabBar().RightSide).resize(0, 0)
+        except Exception as error:
+            print("Error al abrir historial: %s" % str(error))
 
     def mostrar_menu(self):
         try:
             var.ui.btnMenu.showMenu()
         except Exception as error:
             print("Error: %s" % str(error))
+
 
 if __name__ == '__main__':
     app = QApplication([])

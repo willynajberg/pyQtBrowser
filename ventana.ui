@@ -248,7 +248,7 @@ QPushButton {background: white; border:none}</string>
         </property>
         <property name="icon">
          <iconset>
-          <normaloff>img/calendar.png</normaloff>img/calendar.png</iconset>
+          <normaloff>img/history.png</normaloff>img/history.png</iconset>
         </property>
         <property name="flat">
          <bool>true</bool>
