@@ -436,6 +436,22 @@ QTabBar::close-button:hover {
     <string>Ctrl+Q</string>
    </property>
   </action>
+  <action name="actionHistorial">
+   <property name="icon">
+    <iconset>
+     <activeon>img/history.png</activeon>
+    </iconset>
+   </property>
+   <property name="text">
+    <string>Abrir historial</string>
+   </property>
+   <property name="toolTip">
+    <string>Abrir el historial de busqueda</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+H</string>
+   </property>
+  </action>
  </widget>
  <resources/>
  <connections/>

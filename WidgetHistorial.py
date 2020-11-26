@@ -1,9 +1,13 @@
-from PyQt5 import QtWidgets, QtGui, QtCore
+from datetime import datetime
+
+from PyQt5 import QtWidgets, QtGui, QtCore, QtSql
 from PyQt5.QtWidgets import QWidget, QMenu
-import conexion, var
+import conexion
 
 
 class WidgetHistorial(QWidget):
+    historialRecibido = QtCore.pyqtSignal(QtSql.QSqlQuery)
+
     def __init__(self, nav):
         super(WidgetHistorial, self).__init__()
 
@@ -97,7 +101,7 @@ class WidgetHistorial(QWidget):
                     self.menu = QMenu(self)
                     self.tableWidget.selectRow(item.row())
                     if self.nav:
-                        self.menu.addAction("Ir a sitio", lambda i=item: var.nav.nueva_pestana(
+                        self.menu.addAction("Ir a sitio", lambda i=item: self.nav.nueva_pestana(
                             self.tableWidget.selectedItems()[3].text()))
                     self.menu.addAction("Borrar entrada", lambda i=item: self.borrar_entrada(
                         int(self.tableWidget.item(i.row().numerator, 4).text())))
@@ -105,26 +109,45 @@ class WidgetHistorial(QWidget):
             print("Error en event filter de historial: %s" % str(error))
         return super(WidgetHistorial, self).eventFilter(source, event)
 
+    def reload(self):
+        self.nav.cargar_historial(self)
+
     def generateMenu(self, pos):
         self.menu.exec_(self.tableWidget.mapToGlobal(pos))
 
-    def borrar_entrada(self, idx=0):
+    def cargar_historial(self, query):
         try:
-            conexion.borrar_entrada_historial(idx)
+            index = 1
             self.tableWidget.clearContents()
             self.tableWidget.setRowCount(0)
-            conexion.cargar_historial(self)
+
+            while query.next():
+                time = datetime.strptime(query.value(3) + " " + query.value(4), "%d/%m/%Y %H:%M:%S")
+                self.tableWidget.setRowCount(index)
+                self.tableWidget.setItem(index - 1, 0, QtWidgets.QTableWidgetItem(query.value(2)))
+                self.tableWidget.setItem(index - 1, 1, QtWidgets.QTableWidgetItem(time.strftime("%d/%m/%Y")))
+                self.tableWidget.setItem(index - 1, 2, QtWidgets.QTableWidgetItem(time.strftime("%H:%M")))
+                self.tableWidget.setItem(index - 1, 3, QtWidgets.QTableWidgetItem(query.value(1)))
+                self.tableWidget.setItem(index - 1, 4, QtWidgets.QTableWidgetItem(str(query.value(0))))
+                index += 1
+        except Exception as error:
+            print("Error al cargar historial en la pestana: %s" % str(error))
+
+    def borrar_entrada(self, idx=0):
+        try:
+            if idx > 0:
+                self.nav.borrar_entrada_historial(idx)
+                self.nav.cargar_historial(self)
         except Exception as error:
             print("Error al borrar entrada: %s" % str(error))
 
     def borrar_seleccion(self):
         try:
             for x in range(0, len(self.tableWidget.selectedItems()), 4):
-                conexion.borrar_entrada_historial(int(self.tableWidget.item(
+                self.nav.borrar_entrada_historial(int(self.tableWidget.item(
                     self.tableWidget.selectedItems()[x].row().numerator, 4).text()))
 
-            self.tableWidget.clearContents()
-            self.tableWidget.setRowCount(0)
-            conexion.cargar_historial(self)
+            self.nav.cargar_historial(self)
+
         except Exception as error:
             print("Error al borrar seleccion: %s" % str(error))

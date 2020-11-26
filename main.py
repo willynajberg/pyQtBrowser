@@ -1,8 +1,9 @@
+from PyQt5 import QtSql
+
 import conexion
 import re
 import sys
 import var
-import threading
 
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
@@ -14,21 +15,72 @@ from ventana import *
 
 
 class Main(QMainWindow):
+    class HiloHistorial(QThread):
+        historialRecibido = QtCore.pyqtSignal(object)
+
+        def __init__(self):
+            super(Main.HiloHistorial, self).__init__()
+            self.running = False
+            self.tareas = []
+
+        def run(self):
+            conexion.conectardb(var.NOMBRE_BD)
+            self.running = True
+
+            while self.running:
+                for tarea in self.tareas:
+                    tarea()
+                    self.tareas.remove(tarea)
+
+                # Ahorra recursos reduciendo la frecuencia con la que se ejecuta el hilo
+                self.msleep(20)
+
+        def anadir_tarea(self, tarea):
+            self.tareas.append(tarea)
+
+            if not self.running:
+                self.start()
+
+        def anadir_historial(self, navegador):
+            no_insertar = conexion.seleccionar_ultima_url() and str(conexion.seleccionar_ultima_url()) == str(
+                navegador.url().toString())
+
+            if not no_insertar:
+                conexion.insertar_historial(navegador.url().toString(), navegador.page().title())
+            else:
+                conexion.cambiar_titulo_historial(var.LAST_INSERT_HISTORIAL, navegador.page().title())
+
+        def cargar_historial(self):
+            query = conexion.cargar_historial()
+
+            try:
+                self.historialRecibido.emit(query)
+            except Exception as error:
+                print("Error: %s" % str(error))
+
+        def borrar_entrada(self, idx):
+            conexion.borrar_entrada_historial(idx)
+
+        def parar(self):
+            while len(self.tareas) > 0:
+                continue
+
+            self.running = False
+
     def __init__(self):
         super(Main, self).__init__()
         var.ui = Ui_MainWindow()
-        var.nav = self
         var.ui.setupUi(self)
 
         var.carga_finalizada = False
         var.progreso_actual = 0
 
-        self.nueva_pestana(var.URL_HOME)
-
         var.menu = QMenu(var.ui.btnMenu)
         var.menu.addAction(var.ui.actionNewTab)
         var.menu.addAction(var.ui.actionCloseTab)
-        var.menu.addSeparator();
+        var.menu.addSeparator()
+        var.menu.addAction(var.ui.actionHistorial)
+        var.menu.addSeparator()
         var.menu.addAction(var.ui.actionSalir)
         var.ui.btnMenu.setMenu(var.menu)
 
@@ -47,16 +99,23 @@ class Main(QMainWindow):
         var.ui.actionNewTab.triggered.connect(lambda: self.nueva_pestana(var.URL_HOME))
         var.ui.actionCloseTab.triggered.connect(lambda: self.cerrar_pestana(var.ui.tabWidget.indexOf(
             var.ui.tabWidget.currentWidget())))
+        var.ui.actionHistorial.triggered.connect(self.abrir_historial)
         var.ui.actionSalir.triggered.connect(self.close)
 
         # al principio deshabilita los botones de atras y de delante
         var.ui.btnAtras.setDisabled(True)
         var.ui.btnAdelante.setDisabled(True)
 
+        self.nueva_pestana(var.URL_HOME)
+
+        self.hilo_historial = Main.HiloHistorial()
+        self.hilo_historial.historialRecibido.connect(lambda query: print("a"))
+
     def nueva_pestana(self, url):
         try:
             # crea un objeto QWebEngineView nuevo y lo asignamos a una pestaña nueva del TableWidget
             navegador = QWebEngineView()
+
             self.setWindowTitle("PyQtBrowser - Pestaña nueva")
             i = var.ui.tabWidget.addTab(navegador, "Pestaña nueva")
             var.ui.tabWidget.setCurrentIndex(i)
@@ -74,6 +133,7 @@ class Main(QMainWindow):
 
             # esta funcion oculta el boton de cerrar de la pestaña de añadir
             var.ui.tabWidget.tabBar().tabButton(i2, var.ui.tabWidget.tabBar().RightSide).resize(0, 0)
+
         except Exception as error:
             print("Error: %s" % str(error))
 
@@ -110,12 +170,7 @@ class Main(QMainWindow):
         # al de refrescar, de actualizar el título y de insertar una nueva entrada en el historial, o en caso de que
         # la última entrada del historial sea la misma url, actualizar su título
         try:
-            no_insertar = conexion.seleccionar_ultima_url() and str(conexion.seleccionar_ultima_url()) == str(navegador.url().toString())
-
-            if not no_insertar:
-                conexion.insertar_historial(True, navegador.url().toString(), navegador.page().title())
-            else:
-                conexion.cambiar_titulo_historial(var.LAST_INSERT_HISTORIAL, navegador.page().title())
+            self.hilo_historial.anadir_tarea(lambda nav=navegador: self.hilo_historial.anadir_historial(nav))
 
             self.actualizacion_completada()
             self.actualizar_icono(navegador.page().icon(), navegador)
@@ -167,7 +222,7 @@ class Main(QMainWindow):
         try:
             if navegador == var.ui.tabWidget.currentWidget():
                 self.actualizar_icono(None, navegador)
-                self.actualizar_url(url)
+                self.actualizar_url(url.toString())
 
                 var.ui.btnAtras.setEnabled(navegador.history().canGoBack())
                 var.ui.btnAdelante.setEnabled(navegador.history().canGoForward())
@@ -176,7 +231,7 @@ class Main(QMainWindow):
 
     def actualizar_url(self, url):
         try:
-            var.ui.editUrl.setText(url.toString())
+            var.ui.editUrl.setText(url)
             # Asegura que veremos el principio de la url en el LineEdit
             var.ui.editUrl.setCursorPosition(0)
         except Exception as error:
@@ -271,10 +326,14 @@ class Main(QMainWindow):
                 if isinstance(widget_actual, QWebEngineView):
                     self.cambiar_btnrefrescar(False)
                     self.actualizar_titulo(widget_actual)
-                    self.actualizar_url(widget_actual.url())
+                    self.actualizar_url(widget_actual.url().toString())
 
                     var.ui.btnAtras.setEnabled(widget_actual.history().canGoBack())
                     var.ui.btnAdelante.setEnabled(widget_actual.history().canGoForward())
+                elif isinstance(widget_actual, WidgetHistorial):
+                    var.ui.btnAtras.setEnabled(False)
+                    var.ui.btnAdelante.setEnabled(False)
+                    self.actualizar_url("pyqtbrowser:historial")
         except Exception as error:
             print("Error: %s" % str(error))
 
@@ -286,6 +345,9 @@ class Main(QMainWindow):
             if i == var.ui.tabWidget.indexOf(var.ui.tabAnadir):
                 return
             else:
+                # Cierra el objeto navegador
+                var.ui.tabWidget.currentWidget().close()
+
                 # Si la pestaña a cerrar esta justo antes de la de añadir, cambia la vista a una pestaña anterior, si es
                 # que la hay
                 if var.ui.tabWidget.count() > 2:
@@ -308,7 +370,7 @@ class Main(QMainWindow):
 
             var.ui.editUrl.setText("pyqtbrowser:historial")
 
-            conexion.cargar_historial(historial)
+            self.cargar_historial(historial)
 
             # para que la pestaña de añadir pestañas aparezca al final, la borra y la vuelve a añadir
             var.ui.tabWidget.removeTab(var.ui.tabWidget.indexOf(var.ui.tabAnadir))
@@ -319,6 +381,17 @@ class Main(QMainWindow):
         except Exception as error:
             print("Error al abrir historial: %s" % str(error))
 
+    def cargar_historial(self, historial):
+        try:
+            self.hilo_historial.historialRecibido.disconnect()
+            self.hilo_historial.historialRecibido.connect(historial.cargar_historial)
+            self.hilo_historial.anadir_tarea(self.hilo_historial.cargar_historial)
+        except Exception as error:
+            print("Error al cargar historial: %s" % str(error))
+
+    def borrar_entrada_historial(self, idx):
+        self.hilo_historial.anadir_tarea(lambda id=idx: self.hilo_historial.borrar_entrada(idx))
+
     def mostrar_menu(self):
         try:
             var.ui.btnMenu.showMenu()
@@ -328,8 +401,7 @@ class Main(QMainWindow):
 
 if __name__ == '__main__':
     app = QApplication([])
-    conexion.conectardb(var.NOMBRE_BD)
-    window = Main()
-    window.showMaximized()
+    var.nav = Main()
+    var.nav.showMaximized()
 
     sys.exit(app.exec())

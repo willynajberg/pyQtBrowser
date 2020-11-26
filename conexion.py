@@ -45,26 +45,25 @@ def crear_tablas():
         print("Error al crear tablas de BD: %s" % str(error))
 
 
-def insertar_historial(loadok, url, titulo=""):
+def insertar_historial(url, titulo=""):
     try:
-        if loadok:
-            query = QtSql.QSqlQuery()
-            query.prepare("INSERT INTO historial (url, titulo, fecha, hora) VALUES "
-                          "(:url, :titulo, :fecha, :hora);")
-            query.bindValue(":url", url)
-            query.bindValue(":titulo", titulo)
-            now = datetime.now()
-            query.bindValue(":fecha", now.strftime("%d/%m/%Y"))
-            query.bindValue(":hora", now.strftime("%H:%M:%S"))
+        query = QtSql.QSqlQuery()
+        query.prepare("INSERT INTO historial (url, titulo, fecha, hora) VALUES "
+                      "(:url, :titulo, :fecha, :hora);")
+        query.bindValue(":url", url)
+        query.bindValue(":titulo", titulo)
+        now = datetime.now()
+        query.bindValue(":fecha", now.strftime("%d/%m/%Y"))
+        query.bindValue(":hora", now.strftime("%H:%M:%S"))
 
-            if not query.exec_():
-                print("Error: %s" % query.lastError().text())
-            else:
-                query.prepare("SELECT last_insert_rowid() FROM historial")
+        if not query.exec_():
+            print("Error: %s" % query.lastError().text())
+        else:
+            query.prepare("SELECT last_insert_rowid() FROM historial")
 
-                if query.exec_():
-                    if query.next():
-                        var.LAST_INSERT_HISTORIAL = query.value(0)
+            if query.exec_():
+                if query.next():
+                    var.LAST_INSERT_HISTORIAL = query.value(0)
     except Exception as error:
         print("Error al insertar historial: %s" % str(error))
 
@@ -97,22 +96,12 @@ def cambiar_titulo_historial(id, titulo=""):
         print("Error al cambiar titulo historial: %s" % str(error))
 
 
-def cargar_historial(historial):
+def cargar_historial():
     try:
-        index = 1
         query = QtSql.QSqlQuery()
         query.prepare("SELECT * FROM historial ORDER BY idEntrada DESC")
-
         if query.exec_():
-            while query.next():
-                time = datetime.strptime(query.value(3) + " " + query.value(4), "%d/%m/%Y %H:%M:%S")
-                historial.tableWidget.setRowCount(index)
-                historial.tableWidget.setItem(index - 1, 0, QtWidgets.QTableWidgetItem(query.value(2)))
-                historial.tableWidget.setItem(index - 1, 1, QtWidgets.QTableWidgetItem(time.strftime("%d/%m/%Y")))
-                historial.tableWidget.setItem(index - 1, 2, QtWidgets.QTableWidgetItem(time.strftime("%H:%M")))
-                historial.tableWidget.setItem(index - 1, 3, QtWidgets.QTableWidgetItem(query.value(1)))
-                historial.tableWidget.setItem(index - 1, 4, QtWidgets.QTableWidgetItem(str(query.value(0))))
-                index += 1
+            return query
     except Exception as error:
         print("Error al cargar historial %s" % str(error))
 

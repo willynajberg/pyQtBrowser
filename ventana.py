@@ -263,6 +263,11 @@ class Ui_MainWindow(object):
         icon9.addPixmap(QtGui.QPixmap("img/logout.png"), QtGui.QIcon.Active, QtGui.QIcon.On)
         self.actionSalir.setIcon(icon9)
         self.actionSalir.setObjectName("actionSalir")
+        self.actionHistorial = QtWidgets.QAction(MainWindow)
+        icon10 = QtGui.QIcon()
+        icon10.addPixmap(QtGui.QPixmap("img/history.png"), QtGui.QIcon.Active, QtGui.QIcon.On)
+        self.actionHistorial.setIcon(icon10)
+        self.actionHistorial.setObjectName("actionHistorial")
 
         self.retranslateUi(MainWindow)
         self.tabWidget.setCurrentIndex(0)
@@ -281,3 +286,6 @@ class Ui_MainWindow(object):
         self.actionSalir.setText(_translate("MainWindow", "Salir del programa"))
         self.actionSalir.setToolTip(_translate("MainWindow", "Salir del programa"))
         self.actionSalir.setShortcut(_translate("MainWindow", "Ctrl+Q"))
+        self.actionHistorial.setText(_translate("MainWindow", "Abrir historial"))
+        self.actionHistorial.setToolTip(_translate("MainWindow", "Abrir el historial de busqueda"))
+        self.actionHistorial.setShortcut(_translate("MainWindow", "Ctrl+H"))
