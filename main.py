@@ -1,5 +1,3 @@
-from PyQt5 import QtSql
-
 import conexion
 import re
 import sys
@@ -17,6 +15,8 @@ from ventana import *
 class Main(QMainWindow):
     class HiloHistorial(QThread):
         historialRecibido = QtCore.pyqtSignal(object)
+        favoritosRecibidos = QtCore.pyqtSignal(object)
+        paginaFavorita = QtCore.pyqtSignal(bool)
 
         def __init__(self):
             super(Main.HiloHistorial, self).__init__()
@@ -58,6 +58,19 @@ class Main(QMainWindow):
             except Exception as error:
                 print("Error: %s" % str(error))
 
+        def cargar_favoritos(self):
+            query = conexion.cargar_favoritos()
+
+            try:
+                self.favoritosRecibidos.emit(query)
+            except Exception as error:
+                print("Error: %s" % str(error))
+
+        def comprobar_favorito(self, url):
+            es_fav = conexion.comprobar_favorito(url)
+
+            self.paginaFavorita.emit(es_fav)
+
         def borrar_entrada(self, idx):
             conexion.borrar_entrada_historial(idx)
 
@@ -80,12 +93,13 @@ class Main(QMainWindow):
         var.menu.addAction(var.ui.actionCloseTab)
         var.menu.addSeparator()
         var.menu.addAction(var.ui.actionHistorial)
+        var.menu.addAction(var.ui.actionMostrar_marcadores)
         var.menu.addSeparator()
         var.menu.addAction(var.ui.actionSalir)
         var.ui.btnMenu.setMenu(var.menu)
 
         # conexión de funciones con eventos del navegador:
-        var.ui.editUrl.returnPressed.connect(self.navegar_a_url)
+        var.ui.editUrl.returnPressed.connect(lambda: self.navegar_a_url(var.ui.editUrl.text()))
         var.ui.tabWidget.currentChanged.connect(self.pestana_cambiada)
         var.ui.tabWidget.tabCloseRequested.connect(self.cerrar_pestana)
         var.ui.btnHome.clicked.connect(self.navegar_a_home)
@@ -94,6 +108,7 @@ class Main(QMainWindow):
         var.ui.btnAdelante.clicked.connect(lambda: var.ui.tabWidget.currentWidget().forward())
         var.ui.btnMenu.clicked.connect(self.mostrar_menu)
         var.ui.btnHist.clicked.connect(self.abrir_historial)
+        var.ui.btnFav.clicked.connect(self.anadir_favorito)
 
         # conexion de funciones con acciones del navegador
         var.ui.actionNewTab.triggered.connect(lambda: self.nueva_pestana(var.URL_HOME))
@@ -106,10 +121,12 @@ class Main(QMainWindow):
         var.ui.btnAtras.setDisabled(True)
         var.ui.btnAdelante.setDisabled(True)
 
-        self.nueva_pestana(var.URL_HOME)
-
         self.hilo_historial = Main.HiloHistorial()
-        self.hilo_historial.historialRecibido.connect(lambda query: print("a"))
+
+        self.hilo_historial.favoritosRecibidos.connect(self.mostrar_favoritos)
+        self.cargar_favoritos()
+
+        self.nueva_pestana(var.URL_HOME)
 
     def nueva_pestana(self, url):
         try:
@@ -133,7 +150,6 @@ class Main(QMainWindow):
 
             # esta funcion oculta el boton de cerrar de la pestaña de añadir
             var.ui.tabWidget.tabBar().tabButton(i2, var.ui.tabWidget.tabBar().RightSide).resize(0, 0)
-
         except Exception as error:
             print("Error: %s" % str(error))
 
@@ -152,6 +168,8 @@ class Main(QMainWindow):
 
     def carga_iniciada(self, navegador):
         try:
+            self.comprobar_fav(navegador.page().url().toString())
+
             self.cambiar_btnrefrescar(True)
         except Exception as error:
             print("Error: %s" % str(error))
@@ -217,12 +235,14 @@ class Main(QMainWindow):
 
     def cambiar_url(self, url, navegador):
         # Esta funcion es llamada por el evento urlChanged de un QWebEngineView. Cuando este evento se ejecute
-        # cambiara la barra de url del navegador, el icono de la pestana, habilitará los botones de atras y adelante
-        # si es posible
+        # cambiara la barra de url del navegador, el icono de la pestana, cambiara el icono de favorito
+        # habilitará los botones de atras y adelante si es posible
         try:
             if navegador == var.ui.tabWidget.currentWidget():
                 self.actualizar_icono(None, navegador)
                 self.actualizar_url(url.toString())
+
+                self.comprobar_fav(url.toString())
 
                 var.ui.btnAtras.setEnabled(navegador.history().canGoBack())
                 var.ui.btnAdelante.setEnabled(navegador.history().canGoForward())
@@ -234,6 +254,22 @@ class Main(QMainWindow):
             var.ui.editUrl.setText(url)
             # Asegura que veremos el principio de la url en el LineEdit
             var.ui.editUrl.setCursorPosition(0)
+        except Exception as error:
+            print("Error: %s" % str(error))
+
+    def actualizar_icono_fav(self, es_fav=False):
+        try:
+            if es_fav:
+                icon = QtGui.QIcon()
+                icon.addPixmap(QtGui.QPixmap("img/star_blue.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+                var.ui.btnFav.setIcon(icon)
+                if var.ui.btnFav.receivers(var.ui.btnFav.clicked) > 0:
+                    var.ui.btnFav.clicked.disconnect()
+            else:
+                icon = QtGui.QIcon()
+                icon.addPixmap(QtGui.QPixmap("img/star.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+                var.ui.btnFav.setIcon(icon)
+                var.ui.btnFav.clicked.connect(self.anadir_favorito)
         except Exception as error:
             print("Error: %s" % str(error))
 
@@ -280,13 +316,10 @@ class Main(QMainWindow):
         except Exception as error:
             print("Error: %s" % str(error))
 
-    def navegar_a_url(self):
+    def navegar_a_url(self, url):
         # Esta funcion esta conectada al evento returnPressed del lineEdit de la barra de URL. Es decir, se activara
         # cuando el usuario pulse Enter en la barra de url.
         try:
-            # Coge el texto del line edit
-            url = var.ui.editUrl.text()
-
             # Usa un patron de RegEx para comprobar si lo que el usuario ha introducido es un enlace o una IP
             es_enlace = re.search("(([a-zA-Z]|[0-9])[.]([a-zA-Z]|[0-9]))|[a-z][/]$", url)
 
@@ -327,12 +360,14 @@ class Main(QMainWindow):
                     self.cambiar_btnrefrescar(False)
                     self.actualizar_titulo(widget_actual)
                     self.actualizar_url(widget_actual.url().toString())
+                    self.comprobar_fav(widget_actual.url().toString())
 
                     var.ui.btnAtras.setEnabled(widget_actual.history().canGoBack())
                     var.ui.btnAdelante.setEnabled(widget_actual.history().canGoForward())
                 elif isinstance(widget_actual, WidgetHistorial):
                     var.ui.btnAtras.setEnabled(False)
                     var.ui.btnAdelante.setEnabled(False)
+                    self.setWindowTitle("PyQtBrowser - Historial")
                     self.actualizar_url("pyqtbrowser:historial")
         except Exception as error:
             print("Error: %s" % str(error))
@@ -346,7 +381,7 @@ class Main(QMainWindow):
                 return
             else:
                 # Cierra el objeto navegador
-                var.ui.tabWidget.currentWidget().close()
+                var.ui.tabWidget.widget(i).close()
 
                 # Si la pestaña a cerrar esta justo antes de la de añadir, cambia la vista a una pestaña anterior, si es
                 # que la hay
@@ -383,20 +418,111 @@ class Main(QMainWindow):
 
     def cargar_historial(self, historial):
         try:
-            self.hilo_historial.historialRecibido.disconnect()
+            if self.hilo_historial.receivers(self.hilo_historial.historialRecibido) > 0:
+                self.hilo_historial.historialRecibido.disconnect()
             self.hilo_historial.historialRecibido.connect(historial.cargar_historial)
             self.hilo_historial.anadir_tarea(self.hilo_historial.cargar_historial)
         except Exception as error:
             print("Error al cargar historial: %s" % str(error))
 
-    def borrar_entrada_historial(self, idx):
+    def borrar_entrada_historial(self, idx, historial):
         self.hilo_historial.anadir_tarea(lambda id=idx: self.hilo_historial.borrar_entrada(idx))
+        self.hilo_historial.anadir_tarea(lambda his=historial: self.cargar_historial(his))
+
+    def anadir_favorito(self):
+        try:
+            self.hilo_historial.anadir_tarea(lambda pag=var.ui.tabWidget.currentWidget().page():
+                                             conexion.anadir_favorito(pag))
+        except Exception as error:
+            print("Error al anadir favorito: %s " % str(error))
+
+    def cargar_favoritos(self):
+        try:
+            self.hilo_historial.anadir_tarea(self.hilo_historial.cargar_favoritos)
+        except Exception as error:
+            print("Error al cargar favoritos: %s" % str(error))
+
+    def mostrar_favoritos(self, query):
+        index = 0
+
+        try:
+            while query.next():
+                pixmap = QtGui.QPixmap()
+                if query.value(4) is not None and not isinstance(query.value(4), str):
+                    ba = QtCore.QByteArray(query.value(4))
+                    pixmap.loadFromData(ba, "PNG")
+
+                boton = QtWidgets.QPushButton(var.ui.widgetMarcadores)
+                tam = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed)
+                tam.setHorizontalStretch(0)
+                tam.setVerticalStretch(0)
+                tam.setHeightForWidth(boton.sizePolicy().hasHeightForWidth())
+                boton.setSizePolicy(tam)
+                boton.setMinimumSize(QtCore.QSize(50, 24))
+                boton.setMaximumSize(QtCore.QSize(170, 24))
+
+                boton.setStyleSheet(":hover {\n"
+                                         "    background:rgba(80, 170, 255, 50);\n"
+                                         "}\n"
+                                         "\n"
+                                         ":pressed {\n"
+                                         "    background:rgba(80, 170, 255, 100);\n"
+                                         "}\n"
+                                         "\n"
+                                         "QPushButton {background: white; border:none; padding: 4px}")
+                icon = QIcon()
+                icon.addPixmap(pixmap, QtGui.QIcon.Normal, QtGui.QIcon.Off)
+                boton.setIcon(icon)
+
+                text = query.value(2)
+
+                fm = boton.fontMetrics()
+                i = len(text)
+                while fm.width(text) > 145:
+                    text = text[:i] + "..."
+                    i = i - 1
+
+                boton.setText(text)
+                boton.setFlat(False)
+
+                var.ui.layoutMarcadores.insertWidget(index, boton)
+
+                boton.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+
+                menu = QMenu(self)
+                menu.addAction("Abrir en nueva pestaña", lambda url=query.value(1): self.nueva_pestana(url))
+                menu.addAction("Borrar marcador")
+                menu.addAction("Editar")
+
+                boton.customContextMenuRequested.connect(lambda point, cmenu=menu, btn=boton:
+                                                              cmenu.exec_(btn.mapToGlobal(point)))
+
+                boton.clicked.connect(lambda _, url=query.value(1): self.navegar_a_url(url))
+                index += 1
+        except Exception as error:
+            print("Error al mostrar favoritos: %s" % str(error))
+
+    def comprobar_fav(self, url):
+        try:
+            if self.hilo_historial.receivers(self.hilo_historial.paginaFavorita) > 0:
+                self.hilo_historial.paginaFavorita.disconnect()
+            self.hilo_historial.paginaFavorita.connect(self.actualizar_icono_fav)
+            self.hilo_historial.anadir_tarea(lambda url=url:
+                                             self.hilo_historial.comprobar_favorito(url))
+        except Exception as error:
+            print("Error al comprobar favorito : %s" % str(error))
 
     def mostrar_menu(self):
         try:
             var.ui.btnMenu.showMenu()
         except Exception as error:
             print("Error: %s" % str(error))
+
+    def toggle_barra_marcadores(self):
+        if var.ui.widgetMarcadores.isHidden():
+            var.ui.widgetMarcadores.show()
+        else:
+            var.ui.widgetMarcadores.hide()
 
 
 if __name__ == '__main__':

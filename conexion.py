@@ -20,11 +20,14 @@ def crear_tablas():
         query = QtSql.QSqlQuery()
         if not query.exec_(
                 'CREATE TABLE IF NOT EXISTS favoritos (idEntrada INTEGER NOT NULL, url TEXT NOT NULL, titulo '
-                'TEXT, carpeta TEXT NOT NULL, PRIMARY KEY(idEntrada AUTOINCREMENT));'):
+                'TEXT, carpeta TEXT NOT NULL, icono BLOB, PRIMARY KEY(idEntrada AUTOINCREMENT));'):
             print(query.lastError().text())
 
         if not query.exec_('CREATE TABLE IF NOT EXISTS historial (idEntrada INTEGER, url TEXT NOT NULL, titulo TEXT, '
                            'fecha TEXT NOT NULL, hora TEXT NOT NULL, PRIMARY KEY(idEntrada AUTOINCREMENT));'):
+            print(query.lastError().text())
+
+        if not query.exec_('CREATE TABLE IF NOT EXISTS preferencias (mostrarfav INTEGER);'):
             print(query.lastError().text())
 
         if not query.exec_('CREATE INDEX IF NOT EXISTS idx_fav_url ON favoritos (url);'):
@@ -116,3 +119,54 @@ def borrar_entrada_historial(idx):
             print(query.lastError())
     except Exception as error:
         print("Error al borrar historial: %s" % str(error))
+
+
+def anadir_favorito(pag):
+    try:
+        query = QtSql.QSqlQuery()
+        query.prepare("INSERT INTO favoritos (url, titulo, carpeta, icono) VALUES (:url, :titulo, :carpeta, :icono)")
+        query.bindValue(":url", pag.url().toString())
+        query.bindValue(":titulo", pag.title())
+        query.bindValue(":carpeta", "marcadores")
+        pixmap = pag.icon().pixmap(pag.icon().actualSize(QtCore.QSize(16, 16)))
+
+        ba = QtCore.QByteArray()
+        buff = QtCore.QBuffer(ba)
+        buff.open(QtCore.QIODevice.WriteOnly)
+        pixmap.save(buff, "PNG")
+
+        query.bindValue(":icono", ba)
+
+        if not query.exec_():
+            print(query.lastError().text())
+    except Exception as error:
+        print("Error al insertar favorito: %s" % str(error))
+
+
+def cargar_favoritos():
+    try:
+        query = QtSql.QSqlQuery()
+        query.prepare("SELECT * FROM favoritos ORDER BY idEntrada ASC")
+
+        if query.exec_():
+            return query
+    except Exception as error:
+        print("Error al cargar favoritos: %s" % str(error))
+
+
+def comprobar_favorito(url):
+    try:
+        query = QtSql.QSqlQuery()
+        query.prepare("SELECT idEntrada FROM favoritos WHERE url=:url")
+        query.bindValue(":url", url)
+
+        if query.exec_():
+            if query.next():
+                return True
+            else:
+                return False
+        else:
+            query.lastError().text()
+            return False
+    except Exception as error:
+        print("Error al comprobar favorito: %s" % str(error))

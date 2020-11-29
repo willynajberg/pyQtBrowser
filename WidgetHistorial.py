@@ -2,7 +2,6 @@ from datetime import datetime
 
 from PyQt5 import QtWidgets, QtGui, QtCore, QtSql
 from PyQt5.QtWidgets import QWidget, QMenu
-import conexion
 
 
 class WidgetHistorial(QWidget):
@@ -97,7 +96,7 @@ class WidgetHistorial(QWidget):
                     source is self.tableWidget.viewport()):
                 item = self.tableWidget.itemAt(event.pos())
 
-                if item:
+                if item is not None:
                     self.menu = QMenu(self)
                     self.tableWidget.selectRow(item.row())
                     if self.nav:
@@ -136,8 +135,7 @@ class WidgetHistorial(QWidget):
     def borrar_entrada(self, idx=0):
         try:
             if idx > 0:
-                self.nav.borrar_entrada_historial(idx)
-                self.nav.cargar_historial(self)
+                self.nav.borrar_entrada_historial(idx, self)
         except Exception as error:
             print("Error al borrar entrada: %s" % str(error))
 
@@ -145,9 +143,7 @@ class WidgetHistorial(QWidget):
         try:
             for x in range(0, len(self.tableWidget.selectedItems()), 4):
                 self.nav.borrar_entrada_historial(int(self.tableWidget.item(
-                    self.tableWidget.selectedItems()[x].row().numerator, 4).text()))
-
-            self.nav.cargar_historial(self)
+                    self.tableWidget.selectedItems()[x].row().numerator, 4).text()), self)
 
         except Exception as error:
             print("Error al borrar seleccion: %s" % str(error))
