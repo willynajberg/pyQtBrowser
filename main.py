@@ -269,6 +269,8 @@ class Main(QMainWindow):
                 icon = QtGui.QIcon()
                 icon.addPixmap(QtGui.QPixmap("img/star.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
                 var.ui.btnFav.setIcon(icon)
+                if var.ui.btnFav.receivers(var.ui.btnFav.clicked) > 0:
+                    var.ui.btnFav.clicked.disconnect()
                 var.ui.btnFav.clicked.connect(self.anadir_favorito)
         except Exception as error:
             print("Error: %s" % str(error))
@@ -431,8 +433,12 @@ class Main(QMainWindow):
 
     def anadir_favorito(self):
         try:
-            self.hilo_historial.anadir_tarea(lambda pag=var.ui.tabWidget.currentWidget().page():
+            curpage = var.ui.tabWidget.currentWidget().page()
+            self.hilo_historial.anadir_tarea(lambda pag=curpage:
                                              conexion.anadir_favorito(pag))
+            self.insertar_marcador(curpage.title(), curpage.url().toString(), curpage.icon().pixmap(
+                curpage.icon().actualSize(QtCore.QSize(16, 16))))
+            self.actualizar_icono_fav(True)
         except Exception as error:
             print("Error al anadir favorito: %s " % str(error))
 
@@ -443,8 +449,6 @@ class Main(QMainWindow):
             print("Error al cargar favoritos: %s" % str(error))
 
     def mostrar_favoritos(self, query):
-        index = 0
-
         try:
             while query.next():
                 pixmap = QtGui.QPixmap()
@@ -452,55 +456,59 @@ class Main(QMainWindow):
                     ba = QtCore.QByteArray(query.value(4))
                     pixmap.loadFromData(ba, "PNG")
 
-                boton = QtWidgets.QPushButton(var.ui.widgetMarcadores)
-                tam = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed)
-                tam.setHorizontalStretch(0)
-                tam.setVerticalStretch(0)
-                tam.setHeightForWidth(boton.sizePolicy().hasHeightForWidth())
-                boton.setSizePolicy(tam)
-                boton.setMinimumSize(QtCore.QSize(50, 24))
-                boton.setMaximumSize(QtCore.QSize(170, 24))
-
-                boton.setStyleSheet(":hover {\n"
-                                         "    background:rgba(80, 170, 255, 50);\n"
-                                         "}\n"
-                                         "\n"
-                                         ":pressed {\n"
-                                         "    background:rgba(80, 170, 255, 100);\n"
-                                         "}\n"
-                                         "\n"
-                                         "QPushButton {background: white; border:none; padding: 4px}")
-                icon = QIcon()
-                icon.addPixmap(pixmap, QtGui.QIcon.Normal, QtGui.QIcon.Off)
-                boton.setIcon(icon)
-
-                text = query.value(2)
-
-                fm = boton.fontMetrics()
-                i = len(text)
-                while fm.width(text) > 145:
-                    text = text[:i] + "..."
-                    i = i - 1
-
-                boton.setText(text)
-                boton.setFlat(False)
-
-                var.ui.layoutMarcadores.insertWidget(index, boton)
-
-                boton.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
-
-                menu = QMenu(self)
-                menu.addAction("Abrir en nueva pestaña", lambda url=query.value(1): self.nueva_pestana(url))
-                menu.addAction("Borrar marcador")
-                menu.addAction("Editar")
-
-                boton.customContextMenuRequested.connect(lambda point, cmenu=menu, btn=boton:
-                                                              cmenu.exec_(btn.mapToGlobal(point)))
-
-                boton.clicked.connect(lambda _, url=query.value(1): self.navegar_a_url(url))
-                index += 1
+                self.insertar_marcador(query.value(2), query.value(1), pixmap)
         except Exception as error:
             print("Error al mostrar favoritos: %s" % str(error))
+
+    def insertar_marcador(self, titulo, url, icono):
+        try:
+            boton = QtWidgets.QPushButton(var.ui.widgetMarcadores)
+            tam = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed)
+            tam.setHorizontalStretch(0)
+            tam.setVerticalStretch(0)
+            tam.setHeightForWidth(boton.sizePolicy().hasHeightForWidth())
+            boton.setSizePolicy(tam)
+            boton.setMinimumSize(QtCore.QSize(50, 24))
+            boton.setMaximumSize(QtCore.QSize(170, 24))
+
+            boton.setStyleSheet(":hover {\n"
+                                "    background:rgba(80, 170, 255, 50);\n"
+                                "}\n"
+                                "\n"
+                                ":pressed {\n"
+                                "    background:rgba(80, 170, 255, 100);\n"
+                                "}\n"
+                                "\n"
+                                "QPushButton {background: white; border:none; padding: 4px}")
+            icon = QIcon()
+            icon.addPixmap(icono, QtGui.QIcon.Normal, QtGui.QIcon.Off)
+            boton.setIcon(icon)
+
+            text = titulo
+
+            fm = boton.fontMetrics()
+            i = len(text)
+            while fm.width(text) > 145:
+                text = text[:i] + "..."
+                i = i - 1
+
+            boton.setText(text)
+
+            var.ui.layoutMarcadores.insertWidget(var.ui.layoutMarcadores.count() - 1, boton)
+
+            boton.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+
+            menu = QMenu(self)
+            menu.addAction("Abrir en nueva pestaña", lambda url=url: self.nueva_pestana(url))
+            menu.addAction("Borrar marcador")
+            menu.addAction("Editar")
+
+            boton.customContextMenuRequested.connect(lambda point, cmenu=menu, btn=boton:
+                                                     cmenu.exec_(btn.mapToGlobal(point)))
+
+            boton.clicked.connect(lambda _, url=url: self.navegar_a_url(url))
+        except Exception as error:
+            print("Error al insertar marcador: %s" % str(error))
 
     def comprobar_fav(self, url):
         try:
