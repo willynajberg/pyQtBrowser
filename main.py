@@ -416,29 +416,17 @@ class Main(QMainWindow):
 
                 # Pasa la tarea de añadir la pagina actual a favoritos a la base de datos al hilo trabajador
                 self.hilo_trab.anadir_tarea(lambda pag=curpage: self.hilo_trab.anadir_favorito(pag))
-
-                if self.hilo_trab.receivers(self.hilo_trab.favoritoAnadido) > 0:
-                    self.hilo_trab.favoritoAnadido.disconnect()
-
-                # Inserta un marcador en la barra de marcadores
-                self.hilo_trab.favoritoAnadido.connect(lambda idEntrada, curpage=curpage:
-                                                       self.insertar_marcador(curpage.title(), curpage.url().toString(),
-                                                                              curpage.icon().pixmap(
-                                                                                  curpage.icon().actualSize(
-                                                                                      QtCore.QSize(16, 16))), idEntrada
-                                                                              ))
+                self.hilo_trab.anadir_tarea(self.hilo_trab.cargar_favoritos)
 
                 # Actualiza el icono del boton de favoritos del navegador
                 self.actualizar_icono_fav(True)
         except Exception as error:
             print("Error al anadir favorito: %s " % str(error))
 
-    def borrar_favorito(self, idEntrada, btn=None):
+    def borrar_favorito(self, idEntrada):
         try:
             self.hilo_trab.anadir_tarea(lambda idx=idEntrada: conexion.borrar_favorito(idx))
-            print(btn)
-            if btn is not None:
-                var.ui.layoutMarcadores.removeWidget(btn)
+            self.hilo_trab.anadir_tarea(self.hilo_trab.cargar_favoritos)
         except Exception as error:
             print("Error al borrar favorito: %s " % str(error))
 
@@ -446,6 +434,8 @@ class Main(QMainWindow):
         # Esta funcion recibe un objeto de QSqlQuery del evento favoritosRecibidos emitido por el hilo trabajador
         # E itera el objeto QSqlQuery para insertar los marcadores en la barra
         try:
+            self.limpiar_marcadores()
+
             while query.next():
                 pixmap = QtGui.QPixmap()
                 if query.value(4) is not None and not isinstance(query.value(4), str):
@@ -455,6 +445,16 @@ class Main(QMainWindow):
                 self.insertar_marcador(query.value(2), query.value(1), pixmap, query.value(0))
         except Exception as error:
             print("Error al mostrar favoritos: %s" % str(error))
+
+    def limpiar_marcadores(self):
+        try:
+            for i in range(0, var.ui.layoutMarcadores.count(), 1):
+                item = var.ui.layoutMarcadores.itemAt(i)
+
+                if item is not None and isinstance(item, QWidgetItem):
+                    item.widget().deleteLater()
+        except Exception as error:
+            print("Error al limpiar marcadores: %s" % str(error))
 
     def insertar_marcador(self, titulo, url, icono, idEntrada):
         # Funcion encargada de crear un boton con los parametros indicados e insertarlo en la barra de marcadores
@@ -492,12 +492,13 @@ class Main(QMainWindow):
             boton.setText(text)
 
             var.ui.layoutMarcadores.insertWidget(var.ui.layoutMarcadores.count() - 1, boton)
+            var.ui.layoutMarcadores.layout()
 
             boton.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
 
             menu = QMenu(self)
             menu.addAction("Abrir en nueva pestaña", lambda url=url: self.nueva_pestana(url))
-            menu.addAction("Borrar marcador", lambda idx=idEntrada, btn=boton: self.borrar_favorito(idx, btn))
+            menu.addAction("Borrar marcador", lambda idx=idEntrada: self.borrar_favorito(idx))
             menu.addAction("Editar")
 
             boton.customContextMenuRequested.connect(lambda point, cmenu=menu, btn=boton:
@@ -506,6 +507,7 @@ class Main(QMainWindow):
             boton.clicked.connect(lambda _, url=url: self.navegar_a_url(url))
         except Exception as error:
             print("Error al insertar marcador: %s" % str(error))
+
 
     def comprobar_fav(self, url):
         try:
