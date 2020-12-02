@@ -182,6 +182,8 @@ class Main(QMainWindow):
         # evento iconChanged de un QWebEngine view, y le asignamos el icono de la página a la pestaña
         try:
             if icono:
+                self.hilo_trab.anadir_tarea(lambda nav=navegador, icon=icono:
+                                            conexion.actualizar_icono_fav(nav.page().url().toString(), icon))
                 var.ui.tabWidget.setTabIcon(var.ui.tabWidget.indexOf(navegador), icono)
             else:
                 # si han pasado un icono nulo, pasa un icono en blanco
@@ -331,6 +333,7 @@ class Main(QMainWindow):
                     var.ui.btnAdelante.setEnabled(False)
                     self.setWindowTitle("PyQtBrowser - Historial")
                     self.actualizar_url("pyqtbrowser:historial")
+                    self.actualizar_icono_fav(False)
         except Exception as error:
             print("Error: %s" % str(error))
 
@@ -407,20 +410,37 @@ class Main(QMainWindow):
 
     def anadir_favorito(self):
         try:
-            # Obtiene el objeto QWebEnginePage del widget actual
-            curpage = var.ui.tabWidget.currentWidget().page()
+            if isinstance(var.ui.tabWidget.currentWidget(), QWebEngineView):
+                # Obtiene el objeto QWebEnginePage del widget actual
+                curpage = var.ui.tabWidget.currentWidget().page()
 
-            # Pasa la tarea de añadir la pagina actual a favoritos a la base de datos al hilo trabajador
-            self.hilo_trab.anadir_tarea(lambda pag=curpage: conexion.anadir_favorito(pag))
+                # Pasa la tarea de añadir la pagina actual a favoritos a la base de datos al hilo trabajador
+                self.hilo_trab.anadir_tarea(lambda pag=curpage: self.hilo_trab.anadir_favorito(pag))
 
-            # Inserta un marcador en la barra de marcadores
-            self.insertar_marcador(curpage.title(), curpage.url().toString(), curpage.icon().pixmap(
-                curpage.icon().actualSize(QtCore.QSize(16, 16))))
+                if self.hilo_trab.receivers(self.hilo_trab.favoritoAnadido) > 0:
+                    self.hilo_trab.favoritoAnadido.disconnect()
 
-            # Actualiza el icono del boton de favoritos del navegador
-            self.actualizar_icono_fav(True)
+                # Inserta un marcador en la barra de marcadores
+                self.hilo_trab.favoritoAnadido.connect(lambda idEntrada, curpage=curpage:
+                                                       self.insertar_marcador(curpage.title(), curpage.url().toString(),
+                                                                              curpage.icon().pixmap(
+                                                                                  curpage.icon().actualSize(
+                                                                                      QtCore.QSize(16, 16))), idEntrada
+                                                                              ))
+
+                # Actualiza el icono del boton de favoritos del navegador
+                self.actualizar_icono_fav(True)
         except Exception as error:
             print("Error al anadir favorito: %s " % str(error))
+
+    def borrar_favorito(self, idEntrada, btn=None):
+        try:
+            self.hilo_trab.anadir_tarea(lambda idx=idEntrada: conexion.borrar_favorito(idx))
+            print(btn)
+            if btn is not None:
+                var.ui.layoutMarcadores.removeWidget(btn)
+        except Exception as error:
+            print("Error al borrar favorito: %s " % str(error))
 
     def mostrar_favoritos(self, query):
         # Esta funcion recibe un objeto de QSqlQuery del evento favoritosRecibidos emitido por el hilo trabajador
@@ -432,11 +452,11 @@ class Main(QMainWindow):
                     ba = QtCore.QByteArray(query.value(4))
                     pixmap.loadFromData(ba, "PNG")
 
-                self.insertar_marcador(query.value(2), query.value(1), pixmap)
+                self.insertar_marcador(query.value(2), query.value(1), pixmap, query.value(0))
         except Exception as error:
             print("Error al mostrar favoritos: %s" % str(error))
 
-    def insertar_marcador(self, titulo, url, icono):
+    def insertar_marcador(self, titulo, url, icono, idEntrada):
         # Funcion encargada de crear un boton con los parametros indicados e insertarlo en la barra de marcadores
         try:
             boton = QtWidgets.QPushButton(var.ui.widgetMarcadores)
@@ -477,7 +497,7 @@ class Main(QMainWindow):
 
             menu = QMenu(self)
             menu.addAction("Abrir en nueva pestaña", lambda url=url: self.nueva_pestana(url))
-            menu.addAction("Borrar marcador")
+            menu.addAction("Borrar marcador", lambda idx=idEntrada, btn=boton: self.borrar_favorito(idx, btn))
             menu.addAction("Editar")
 
             boton.customContextMenuRequested.connect(lambda point, cmenu=menu, btn=boton:

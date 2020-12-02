@@ -9,6 +9,7 @@ import var
 # Este se ejecutará en un hilo separado del hilo principal para optimizar el rendimiento
 class HiloTrabajador(QThread):
     historialRecibido = QtCore.pyqtSignal(object)
+    favoritoAnadido = QtCore.pyqtSignal(int)
     favoritosRecibidos = QtCore.pyqtSignal(object)
     paginaFavorita = QtCore.pyqtSignal(bool)
 
@@ -51,6 +52,9 @@ class HiloTrabajador(QThread):
             self.historialRecibido.emit(query)
         except Exception as error:
             print("Error: %s" % str(error))
+
+    def anadir_favorito(self, pag):
+        idEntrada = conexion.anadir_favorito(pag)
 
     def cargar_favoritos(self):
         query = conexion.cargar_favoritos()

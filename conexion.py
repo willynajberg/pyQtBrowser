@@ -137,10 +137,26 @@ def anadir_favorito(pag):
 
         query.bindValue(":icono", ba)
 
+        if query.exec_():
+            query.prepare("SELECT last_insert_rowid() FROM favoritos")
+
+            if query.exec_():
+                if query.next():
+                    return query.value(0)
+    except Exception as error:
+        print("Error al insertar favorito: %s" % str(error))
+
+
+def borrar_favorito(idx):
+    try:
+        query = QtSql.QSqlQuery()
+        query.prepare("DELETE FROM favoritos WHERE idEntrada=:id")
+        query.bindValue(":id", idx)
+
         if not query.exec_():
             print(query.lastError().text())
     except Exception as error:
-        print("Error al insertar favorito: %s" % str(error))
+        print("Error al borrar favorito: %s" % str(error))
 
 
 def cargar_favoritos():
@@ -170,3 +186,24 @@ def comprobar_favorito(url):
             return False
     except Exception as error:
         print("Error al comprobar favorito: %s" % str(error))
+
+
+def actualizar_icono_fav(url, icono):
+    try:
+        query = QtSql.QSqlQuery()
+        query.prepare("UPDATE favoritos SET icono=:icono WHERE url=:url")
+
+        pixmap = icono.pixmap(icono.actualSize(QtCore.QSize(16, 16)))
+
+        ba = QtCore.QByteArray()
+        buff = QtCore.QBuffer(ba)
+        buff.open(QtCore.QIODevice.WriteOnly)
+        pixmap.save(buff, "PNG")
+
+        query.bindValue(":icono", ba)
+        query.bindValue(":url", url)
+
+        if not query.exec_():
+            print(query.lastError().text())
+    except Exception as error:
+        print("Error al actualizar icono favorito: %s" % str(error))
