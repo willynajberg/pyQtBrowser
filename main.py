@@ -8,7 +8,7 @@ from PyQt5.QtGui import *
 from PyQt5.QtWebEngineWidgets import *
 from PyQt5.QtWidgets import *
 
-from WidgetHistorial import WidgetHistorial
+from widgethistorial import WidgetHistorial
 from hilo_trabajador import HiloTrabajador
 from ventana import *
 

@@ -1,0 +1,1 @@
+pyinstaller main.py --noconfirm --add-data=img;img --noconsole

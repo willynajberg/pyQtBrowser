@@ -5,4 +5,4 @@ URL_HOME = "https://www.google.es/"
 URL_BUSQUEDA = "http://www.google.es/search?query=%s"
 NOMBRE_BD = "user.db"
 LAST_INSERT_HISTORIAL = 0
-VERSION = "0.2.0"
+VERSION = "0.2.2"
