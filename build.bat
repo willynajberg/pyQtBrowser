@@ -1,1 +1,6 @@
-pyinstaller main.py --noconfirm --add-data=img;img --noconsole
+pyinstaller -i=pyqtbrowser.ico --noconfirm ^
+	--add-data=img;img ^
+	--noconsole ^
+	--windowed ^
+	--name="pyQtBrowser" ^
+	main.py 

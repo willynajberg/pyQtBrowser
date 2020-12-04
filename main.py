@@ -534,5 +534,8 @@ if __name__ == '__main__':
     app = QApplication([])
     var.nav = Main()
     var.nav.showMaximized()
+    icon = QtGui.QIcon()
+    icon.addPixmap(QtGui.QPixmap("img/pyqtbrowser.png"), QtGui.QIcon.Active, QtGui.QIcon.On)
+    var.nav.setWindowIcon(icon)
 
     sys.exit(app.exec())
