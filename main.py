@@ -26,6 +26,10 @@ class Main(QMainWindow):
         var.menu.addSeparator()
         var.menu.addAction(var.ui.actionHistorial)
         var.menu.addAction(var.ui.actionMostrar_marcadores)
+        var.menu.addAction(var.ui.actionAdministrar_marcadores)
+        var.menu.addSeparator()
+        var.menu.addAction(var.ui.actionAyuda)
+        var.menu.addAction(var.ui.actionAcerca_de)
         var.menu.addSeparator()
         var.menu.addAction(var.ui.actionSalir)
         var.ui.btnMenu.setMenu(var.menu)
@@ -48,6 +52,12 @@ class Main(QMainWindow):
             var.ui.tabWidget.currentWidget())))
         var.ui.actionHistorial.triggered.connect(self.abrir_historial)
         var.ui.actionSalir.triggered.connect(self.close)
+        var.ui.actionMostrar_marcadores.triggered.connect(self.toggle_barra_marcadores)
+
+        if var.ui.widgetMarcadores.isHidden():
+            var.ui.actionMostrar_marcadores.setText("Mostrar barra de marcadores")
+        else:
+            var.ui.actionMostrar_marcadores.setText("Ocultar barra de marcadores")
 
         # al principio deshabilita los botones de atras y de delante
         var.ui.btnAtras.setDisabled(True)
@@ -526,8 +536,10 @@ class Main(QMainWindow):
 
     def toggle_barra_marcadores(self):
         if var.ui.widgetMarcadores.isHidden():
+            var.ui.actionMostrar_marcadores.setText("Ocultar barra de marcadores")
             var.ui.widgetMarcadores.show()
         else:
+            var.ui.actionMostrar_marcadores.setText("Mostrar barra de marcadores")
             var.ui.widgetMarcadores.hide()
 
 if __name__ == '__main__':
