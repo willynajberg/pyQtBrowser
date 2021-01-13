@@ -19,6 +19,8 @@ class Main(QMainWindow):
         var.ui = Ui_MainWindow()
         var.ui.setupUi(self)
 
+        settings = QSettings("pyQtBrowser", "pyQtBrowser")
+
         # Menu de la esquina de la derecha:
         var.menu = QMenu(var.ui.btnMenu)
         var.menu.addAction(var.ui.actionNewTab)
@@ -52,7 +54,14 @@ class Main(QMainWindow):
             var.ui.tabWidget.currentWidget())))
         var.ui.actionHistorial.triggered.connect(self.abrir_historial)
         var.ui.actionSalir.triggered.connect(self.close)
-        var.ui.actionMostrar_marcadores.triggered.connect(self.toggle_barra_marcadores)
+        var.ui.actionMostrar_marcadores.triggered.connect(lambda _, sett=settings: self.toggle_barra_marcadores(sett))
+
+        print(settings.value("mostrarMarcadores"))
+
+        if settings.value("mostrarMarcadores", False, bool):
+            var.ui.widgetMarcadores.show()
+        else:
+            var.ui.widgetMarcadores.hide()
 
         if var.ui.widgetMarcadores.isHidden():
             var.ui.actionMostrar_marcadores.setText("Mostrar barra de marcadores")
@@ -534,16 +543,23 @@ class Main(QMainWindow):
         except Exception as error:
             print("Error: %s" % str(error))
 
-    def toggle_barra_marcadores(self):
-        if var.ui.widgetMarcadores.isHidden():
-            var.ui.actionMostrar_marcadores.setText("Ocultar barra de marcadores")
-            var.ui.widgetMarcadores.show()
-        else:
-            var.ui.actionMostrar_marcadores.setText("Mostrar barra de marcadores")
-            var.ui.widgetMarcadores.hide()
+    def toggle_barra_marcadores(self, settings):
+        try:
+            if var.ui.widgetMarcadores.isHidden():
+                var.ui.actionMostrar_marcadores.setText("Ocultar barra de marcadores")
+                var.ui.widgetMarcadores.show()
+                settings.setValue("mostrarMarcadores", True)
+            else:
+                var.ui.actionMostrar_marcadores.setText("Mostrar barra de marcadores")
+                var.ui.widgetMarcadores.hide()
+                settings.setValue("mostrarMarcadores", False)
+
+        except Exception as error:
+            print("Error: %s" % str(error))
 
 if __name__ == '__main__':
     app = QApplication([])
+
     var.nav = Main()
     var.nav.showMaximized()
     icon = QtGui.QIcon()
