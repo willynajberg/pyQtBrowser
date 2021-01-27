@@ -8,9 +8,35 @@ from PyQt5.QtGui import *
 from PyQt5.QtWebEngineWidgets import *
 from PyQt5.QtWidgets import *
 
+from administrador_marcadores import Ui_dlgAdmMarcadores
+from editar_marcador import Ui_dlgEditMarcador
 from widgethistorial import WidgetHistorial
 from hilo_trabajador import HiloTrabajador
 from ventana import *
+
+
+class DialogEditMarcador(QtWidgets.QDialog):
+    def __init__(self, idx, titulo, url):
+        super(DialogEditMarcador, self).__init__()
+        self.ui = Ui_dlgEditMarcador()
+        self.ui.setupUi(self)
+
+        self.ui.txtTitulo.setText(titulo)
+        self.ui.txtURL.setText(url)
+
+        self.ui.buttonBox.button(QtWidgets.QDialogButtonBox.Ok).clicked.connect(lambda _, idx=idx: self.ejecutar(idx))
+        self.ui.buttonBox.button(QtWidgets.QDialogButtonBox.Cancel).clicked.connect(lambda: self.close())
+
+    def ejecutar(self, idx):
+        var.nav.hilo_trab.anadir_tarea(lambda idx=idx, titulo=self.ui.txtTitulo.text(), url=self.ui.txtURL.text():
+                                       var.nav.hilo_trab.editar_favorito(idx, titulo, url))
+
+
+class DialogAdminMarcadores(QtWidgets.QDialog):
+    def __init__(self):
+        super(DialogAdminMarcadores, self).__init__()
+        self.ui = Ui_dlgAdmMarcadores()
+        self.ui.setupUi(self)
 
 
 class Main(QMainWindow):
@@ -29,6 +55,11 @@ class Main(QMainWindow):
         var.menu.addAction(var.ui.actionHistorial)
         var.menu.addAction(var.ui.actionMostrar_marcadores)
         var.menu.addAction(var.ui.actionAdministrar_marcadores)
+        var.menu.addSeparator()
+        var.menu.addAction(var.ui.actionAbrir)
+        var.menu.addAction(var.ui.actionGuardar)
+        var.menu.addAction(var.ui.actionImprimir)
+        var.menu.addAction(var.ui.actionBuscar)
         var.menu.addSeparator()
         var.menu.addAction(var.ui.actionAyuda)
         var.menu.addAction(var.ui.actionAcerca_de)
@@ -55,8 +86,7 @@ class Main(QMainWindow):
         var.ui.actionHistorial.triggered.connect(self.abrir_historial)
         var.ui.actionSalir.triggered.connect(self.close)
         var.ui.actionMostrar_marcadores.triggered.connect(lambda _, sett=settings: self.toggle_barra_marcadores(sett))
-
-        print(settings.value("mostrarMarcadores"))
+        var.ui.actionAdministrar_marcadores.triggered.connect(lambda _: self.mostrar_admin_marcadores())
 
         if settings.value("mostrarMarcadores", False, bool):
             var.ui.widgetMarcadores.show()
@@ -112,9 +142,9 @@ class Main(QMainWindow):
     def conectar_nav(self, navegador):
         try:
             navegador.urlChanged.connect(lambda qurl, nav=navegador:
-                                                self.cambiar_url(qurl, nav))
+                                         self.cambiar_url(qurl, nav))
             navegador.iconChanged.connect(lambda icon, nav=navegador:
-                                                 self.actualizar_icono(icon, nav))
+                                          self.actualizar_icono(icon, nav))
 
             navegador.loadStarted.connect(lambda nav=navegador: self.carga_iniciada(nav))
             navegador.loadProgress.connect(lambda progreso, nav=navegador: self.progreso_carga(progreso, nav))
@@ -200,7 +230,7 @@ class Main(QMainWindow):
         # Esta función funciona igual que la funcion de actualizar_titulo, solo que en este caso es llamada por el
         # evento iconChanged de un QWebEngine view, y le asignamos el icono de la página a la pestaña
         try:
-            if icono:
+            if icono and not icono.isNull():
                 self.hilo_trab.anadir_tarea(lambda nav=navegador, icon=icono:
                                             conexion.actualizar_icono_fav(nav.page().url().toString(), icon))
                 var.ui.tabWidget.setTabIcon(var.ui.tabWidget.indexOf(navegador), icono)
@@ -518,7 +548,7 @@ class Main(QMainWindow):
             menu = QMenu(self)
             menu.addAction("Abrir en nueva pestaña", lambda url=url: self.nueva_pestana(url))
             menu.addAction("Borrar marcador", lambda idx=idEntrada: self.borrar_favorito(idx))
-            menu.addAction("Editar")
+            menu.addAction("Editar", lambda idx=idEntrada, titulo=titulo, url=url: self.abrir_editar_marcador(idx, titulo, url))
 
             boton.customContextMenuRequested.connect(lambda point, cmenu=menu, btn=boton:
                                                      cmenu.exec_(btn.mapToGlobal(point)))
@@ -527,6 +557,12 @@ class Main(QMainWindow):
         except Exception as error:
             print("Error al insertar marcador: %s" % str(error))
 
+    def abrir_editar_marcador(self, idx, titulo, url):
+        try:
+            dlg = DialogEditMarcador(idx, titulo, url)
+            dlg.exec_()
+        except Exception as error:
+            print("Error editar marcador: %s" % str(error))
 
     def comprobar_fav(self, url):
         try:
@@ -556,6 +592,14 @@ class Main(QMainWindow):
 
         except Exception as error:
             print("Error: %s" % str(error))
+
+    def mostrar_admin_marcadores(self):
+        try:
+            dlg = DialogAdminMarcadores()
+            dlg.exec_()
+        except Exception as error:
+            print("Error: %s" % str(error))
+
 
 if __name__ == '__main__':
     app = QApplication([])

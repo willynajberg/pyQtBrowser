@@ -56,6 +56,10 @@ class HiloTrabajador(QThread):
     def anadir_favorito(self, pag):
         idEntrada = conexion.anadir_favorito(pag)
 
+    def editar_favorito(self, idx, titulo, url):
+        conexion.editar_favorito(idx, titulo, url)
+        self.cargar_favoritos()
+
     def cargar_favoritos(self):
         query = conexion.cargar_favoritos()
 

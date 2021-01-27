@@ -147,6 +147,20 @@ def anadir_favorito(pag):
         print("Error al insertar favorito: %s" % str(error))
 
 
+def editar_favorito(idx, titulo, url):
+    try:
+        query = QtSql.QSqlQuery()
+        query.prepare("UPDATE favoritos SET titulo=:titulo, url=:url WHERE idEntrada=:idx")
+        query.bindValue(":idx", idx)
+        query.bindValue(":titulo", titulo)
+        query.bindValue(":url", url)
+
+        if not query.exec_():
+            print(query.lastError().text())
+    except Exception as error:
+        print("Error editar favorito: %s" % str(error))
+
+
 def borrar_favorito(idx):
     try:
         query = QtSql.QSqlQuery()

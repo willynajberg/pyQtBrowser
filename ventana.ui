@@ -524,18 +524,78 @@ QTabBar::close-button:hover {
    </property>
   </action>
   <action name="actionAdministrar_marcadores">
+   <property name="icon">
+    <iconset>
+     <normaloff>img/star.png</normaloff>img/star.png</iconset>
+   </property>
    <property name="text">
     <string>Administrar marcadores</string>
    </property>
   </action>
   <action name="actionAcerca_de">
+   <property name="icon">
+    <iconset>
+     <normaloff>img/information.png</normaloff>img/information.png</iconset>
+   </property>
    <property name="text">
     <string>Acerca de</string>
    </property>
   </action>
   <action name="actionAyuda">
+   <property name="icon">
+    <iconset>
+     <normaloff>img/help.png</normaloff>img/help.png</iconset>
+   </property>
    <property name="text">
     <string>Ayuda</string>
+   </property>
+  </action>
+  <action name="actionImprimir">
+   <property name="icon">
+    <iconset>
+     <normaloff>img/printer.png</normaloff>img/printer.png</iconset>
+   </property>
+   <property name="text">
+    <string>Imprimir</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+P</string>
+   </property>
+  </action>
+  <action name="actionGuardar">
+   <property name="icon">
+    <iconset>
+     <normaloff>img/floppy-disk.png</normaloff>img/floppy-disk.png</iconset>
+   </property>
+   <property name="text">
+    <string>Guardar</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+S</string>
+   </property>
+  </action>
+  <action name="actionAbrir">
+   <property name="icon">
+    <iconset>
+     <normaloff>img/folder.png</normaloff>img/folder.png</iconset>
+   </property>
+   <property name="text">
+    <string>Abrir</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+O</string>
+   </property>
+  </action>
+  <action name="actionBuscar">
+   <property name="icon">
+    <iconset>
+     <normaloff>img/loupe.png</normaloff>img/loupe.png</iconset>
+   </property>
+   <property name="text">
+    <string>Buscar en la pagina</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+F</string>
    </property>
   </action>
  </widget>
