@@ -88,6 +88,8 @@ class Main(QMainWindow):
         var.ui.actionSalir.triggered.connect(self.close)
         var.ui.actionMostrar_marcadores.triggered.connect(lambda _, sett=settings: self.toggle_barra_marcadores(sett))
         var.ui.actionAdministrar_marcadores.triggered.connect(lambda _: self.mostrar_admin_marcadores())
+        var.ui.actionAbrir.triggered.connect(self.abrir_pagina)
+        var.ui.actionGuardar.triggered.connect(self.guardar_pagina)
 
         if settings.value("mostrarMarcadores", False, bool):
             var.ui.widgetMarcadores.show()
@@ -248,10 +250,11 @@ class Main(QMainWindow):
         # habilitará los botones de atras y adelante si es posible
         try:
             if navegador == var.ui.tabWidget.currentWidget():
-                self.actualizar_icono(None, navegador)
-                self.actualizar_url(url.toString())
+                if url.scheme() == "http" or url.scheme() == "https":
+                    self.actualizar_icono(None, navegador)
+                    self.actualizar_url(url.toString())
 
-                self.comprobar_fav(url.toString())
+                    self.comprobar_fav(url.toString())
 
                 var.ui.btnAtras.setEnabled(navegador.history().canGoBack())
                 var.ui.btnAdelante.setEnabled(navegador.history().canGoForward())
@@ -413,6 +416,37 @@ class Main(QMainWindow):
                 var.ui.tabWidget.removeTab(i)
         except Exception as error:
             print("Error: %s" % str(error))
+
+    def abrir_pagina(self):
+        filename, _ = QFileDialog.getOpenFileName(self, "Abrir archivo", "",
+                                                  "Hypertext Markup Language (*.htm *.html)")
+
+        if filename:
+            with open(filename, 'r') as f:
+                html = f.read()
+
+            self.nueva_pestana('')
+            var.ui.editUrl.setText(filename)
+            var.ui.tabWidget.currentWidget().setHtml(html)
+
+    def guardar_pagina(self):
+        try:
+            filename, _ = QFileDialog.getSaveFileName(self, "Guardar Pagina Como", "",
+                                                      "Hypertext Markup Language (*.htm *html);;"
+                                                      "Todos los archivos (*.*)")
+
+            if filename:
+                var.ui.tabWidget.currentWidget().page().toHtml(lambda html, f=filename:
+                                                               self.guardar_html(html, f))
+        except Exception as error:
+            print("Error en guardar pagina: %s" % str(error))
+
+    def guardar_html(self, html, filename):
+        try:
+            with open(filename, 'w') as f:
+                f.write(html.encode('ascii', 'xmlcharrefreplace').__str__().removeprefix("b'"))
+        except Exception as error:
+            print("Error en guardar pagina: %s" % str(error))
 
     def abrir_historial(self):
         # Funcion encargada de abrir una pestaña nueva que contiene el historial de búsqueda
@@ -614,6 +648,7 @@ class Main(QMainWindow):
 
 if __name__ == '__main__':
     app = QApplication([])
+    QWebEngineSettings.PluginsEnabled = True
 
     var.nav = Main()
     var.nav.showMaximized()
