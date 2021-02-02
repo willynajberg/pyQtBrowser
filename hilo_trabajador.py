@@ -39,7 +39,10 @@ class HiloTrabajador(QThread):
     @staticmethod
     def anadir_historial(navegador):
         no_insertar = (conexion.seleccionar_ultima_url() and str(conexion.seleccionar_ultima_url()) == str(
-            navegador.url().toString())) or navegador.url().toString() == "about:blank"
+            navegador.url().toString())) or navegador.url().toString() == "about:blank" or (navegador.url().scheme() !=
+                                                                                            "http" and
+                                                                                            navegador.url().scheme() !=
+                                                                                            "https")
 
         if not no_insertar:
             conexion.insertar_historial(navegador.url().toString(), navegador.page().title())
