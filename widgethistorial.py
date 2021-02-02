@@ -10,6 +10,7 @@ class WidgetHistorial(QWidget):
     def __init__(self, nav):
         super(WidgetHistorial, self).__init__()
 
+        self.menu = QMenu(self)
         self.nav = nav
         self.verticalLayout = QtWidgets.QVBoxLayout(self)
 
@@ -86,7 +87,7 @@ class WidgetHistorial(QWidget):
 
         self.tableWidget.viewport().installEventFilter(self)
         self.tableWidget.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
-        self.tableWidget.customContextMenuRequested.connect(self.generateMenu)
+        self.tableWidget.customContextMenuRequested.connect(self.generar_menu)
         self.btnBorrarSel.clicked.connect(self.borrar_seleccion)
 
     def eventFilter(self, source, event):
@@ -97,7 +98,7 @@ class WidgetHistorial(QWidget):
                 item = self.tableWidget.itemAt(event.pos())
 
                 if item is not None:
-                    self.menu = QMenu(self)
+                    self.menu = QMenu()
                     self.tableWidget.selectRow(item.row())
                     if self.nav:
                         self.menu.addAction("Ir a sitio", lambda i=item: self.nav.nueva_pestana(
@@ -111,7 +112,7 @@ class WidgetHistorial(QWidget):
     def reload(self):
         self.nav.cargar_historial(self)
 
-    def generateMenu(self, pos):
+    def generar_menu(self, pos):
         self.menu.exec_(self.tableWidget.mapToGlobal(pos))
 
     def cargar_historial(self, query):

@@ -15,31 +15,18 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="QListWidget" name="listWidget">
-     <property name="editTriggers">
-      <set>QAbstractItemView::NoEditTriggers</set>
-     </property>
-     <property name="dragEnabled">
-      <bool>false</bool>
-     </property>
-     <property name="dragDropOverwriteMode">
-      <bool>true</bool>
-     </property>
-     <property name="dragDropMode">
-      <enum>QAbstractItemView::DragDrop</enum>
-     </property>
-     <property name="defaultDropAction">
-      <enum>Qt::MoveAction</enum>
-     </property>
-     <property name="alternatingRowColors">
-      <bool>true</bool>
-     </property>
+    <widget class="QTreeWidget" name="treeWidget">
+     <column>
+      <property name="text">
+       <string>Marcadores</string>
+      </property>
+     </column>
     </widget>
    </item>
    <item>
     <widget class="QLabel" name="label">
      <property name="text">
-      <string>Arrastre los marcadores para ordenarlos a su gusto, pulse con el botón derecho para eliminar un marcador</string>
+      <string>Arrastre los marcadores para ordenarlos a su gusto, pulse con el botón derecho para eliminar un marcador o crear una carpeta nueva</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignCenter</set>

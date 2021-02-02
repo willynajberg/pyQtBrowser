@@ -88,12 +88,12 @@ def seleccionar_ultima_url():
         print("Error al seleccionar ultima url: %s" % str(error))
 
 
-def cambiar_titulo_historial(id, titulo=""):
+def cambiar_titulo_historial(idx, titulo=""):
     try:
         query = QtSql.QSqlQuery()
         query.prepare("UPDATE historial SET titulo=:titulo WHERE idEntrada=:id")
         query.bindValue(":titulo", titulo)
-        query.bindValue(":id", id)
+        query.bindValue(":id", idx)
         query.exec_()
     except Exception as error:
         print("Error al cambiar titulo historial: %s" % str(error))

@@ -3,4 +3,4 @@ pyinstaller -i=pyqtbrowser.ico --noconfirm ^
 	--noconsole ^
 	--windowed ^
 	--name="pyQtBrowser" ^
-	main.py 
+	main.py

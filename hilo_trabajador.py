@@ -36,7 +36,8 @@ class HiloTrabajador(QThread):
         if not self.running:
             self.start()
 
-    def anadir_historial(self, navegador):
+    @staticmethod
+    def anadir_historial(navegador):
         no_insertar = (conexion.seleccionar_ultima_url() and str(conexion.seleccionar_ultima_url()) == str(
             navegador.url().toString())) or navegador.url().toString() == "about:blank"
 
@@ -53,8 +54,9 @@ class HiloTrabajador(QThread):
         except Exception as error:
             print("Error: %s" % str(error))
 
-    def anadir_favorito(self, pag):
-        idEntrada = conexion.anadir_favorito(pag)
+    @staticmethod
+    def anadir_favorito(pag):
+        conexion.anadir_favorito(pag)
 
     def editar_favorito(self, idx, titulo, url):
         conexion.editar_favorito(idx, titulo, url)
@@ -73,7 +75,8 @@ class HiloTrabajador(QThread):
 
         self.paginaFavorita.emit(es_fav)
 
-    def borrar_entrada(self, idx):
+    @staticmethod
+    def borrar_entrada(idx):
         conexion.borrar_entrada_historial(idx)
 
     def parar(self):
