@@ -74,15 +74,10 @@ class WidgetHistorial(QWidget):
 
         self.horizontalLayout = QtWidgets.QHBoxLayout()
 
-        self.btnBorrarFecha = QtWidgets.QPushButton(self)
-
-        self.horizontalLayout.addWidget(self.btnBorrarFecha)
         self.btnBorrarSel = QtWidgets.QPushButton(self)
-
         self.horizontalLayout.addWidget(self.btnBorrarSel)
         self.verticalLayout.addLayout(self.horizontalLayout)
 
-        self.btnBorrarFecha.setText("Borrar por fecha")
         self.btnBorrarSel.setText("Borrar selección")
 
         self.tableWidget.viewport().installEventFilter(self)

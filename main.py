@@ -9,6 +9,7 @@ from PyQt5.QtWebEngineWidgets import *
 from PyQt5.QtWidgets import *
 
 from administrador_marcadores import Ui_dlgAdmMarcadores
+from dlgabout import Ui_dlgAbout
 from editar_marcador import Ui_dlgEditMarcador
 from widgethistorial import WidgetHistorial
 from hilo_trabajador import HiloTrabajador
@@ -33,6 +34,16 @@ class DialogEditMarcador(QtWidgets.QDialog):
                                        var.nav.hilo_trab.editar_favorito(indice, titulo, url))
 
 
+class DialogAbout(QtWidgets.QDialog):
+    def __init__(self):
+        super(DialogAbout, self).__init__()
+        self.ui = Ui_dlgAbout()
+        self.ui.setupUi(self)
+
+        self.ui.lblVersion.setText(var.VERSION)
+        self.ui.buttonBox.button(QtWidgets.QDialogButtonBox.Close).clicked.connect(lambda: self.close())
+
+
 class DialogAdminMarcadores(QtWidgets.QDialog):
     def __init__(self):
         super(DialogAdminMarcadores, self).__init__()
@@ -41,6 +52,8 @@ class DialogAdminMarcadores(QtWidgets.QDialog):
 
 
 class Main(QMainWindow):
+    marcadoresLimpios = pyqtSignal()
+
     def __init__(self):
         super(Main, self).__init__()
         var.ui = Ui_MainWindow()
@@ -90,16 +103,18 @@ class Main(QMainWindow):
         var.ui.actionAdministrar_marcadores.triggered.connect(lambda _: self.mostrar_admin_marcadores())
         var.ui.actionAbrir.triggered.connect(self.abrir_pagina)
         var.ui.actionGuardar.triggered.connect(self.guardar_pagina)
+        var.ui.actionAcerca_de.triggered.connect(self.abrir_about)
+
+        var.ui.widgetMarcadores = QToolBar()
+        var.ui.widgetMarcadores.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
+        var.ui.verticalLayout.insertWidget(1, var.ui.widgetMarcadores)
 
         if settings.value("mostrarMarcadores", False, bool):
             var.ui.widgetMarcadores.show()
+            var.ui.actionMostrar_marcadores.setText("Ocultar barra de marcadores")
         else:
             var.ui.widgetMarcadores.hide()
-
-        if var.ui.widgetMarcadores.isHidden():
             var.ui.actionMostrar_marcadores.setText("Mostrar barra de marcadores")
-        else:
-            var.ui.actionMostrar_marcadores.setText("Ocultar barra de marcadores")
 
         # al principio deshabilita los botones de atras y de delante
         var.ui.btnAtras.setDisabled(True)
@@ -109,7 +124,7 @@ class Main(QMainWindow):
         self.hilo_trab = HiloTrabajador()
 
         # Conecta la señal emitida por el hilo al recibir las paginas favoritas de la BD con la funcion del navegador
-        self.hilo_trab.favoritosRecibidos.connect(self.mostrar_favoritos)
+        self.hilo_trab.favoritosRecibidos.connect(self.cargar_favoritos)
         self.hilo_trab.anadir_tarea(self.hilo_trab.cargar_favoritos)
 
         self.nueva_pestana(var.URL_HOME)
@@ -448,6 +463,13 @@ class Main(QMainWindow):
         except Exception as error:
             print("Error en guardar pagina: %s" % str(error))
 
+    def abrir_about(self):
+        try:
+            dlg = DialogAbout()
+            dlg.exec_()
+        except Exception as error:
+            print("Error en abrir about: %s" % str(error))
+
     def abrir_historial(self):
         # Funcion encargada de abrir una pestaña nueva que contiene el historial de búsqueda
         try:
@@ -503,12 +525,13 @@ class Main(QMainWindow):
                 # Obtiene el objeto QWebEnginePage del widget actual
                 curpage = var.ui.tabWidget.currentWidget().page()
 
-                # Pasa la tarea de añadir la pagina actual a favoritos a la base de datos al hilo trabajador
-                self.hilo_trab.anadir_tarea(lambda pag=curpage: self.hilo_trab.anadir_favorito(pag))
-                self.hilo_trab.anadir_tarea(self.hilo_trab.cargar_favoritos)
+                if curpage.url().scheme() == "http" or curpage.url().scheme() == "https":
+                    # Pasa la tarea de añadir la pagina actual a favoritos a la base de datos al hilo trabajador
+                    self.hilo_trab.anadir_tarea(lambda pag=curpage: self.hilo_trab.anadir_favorito(pag))
+                    self.hilo_trab.anadir_tarea(self.hilo_trab.cargar_favoritos)
 
-                # Actualiza el icono del boton de favoritos del navegador
-                self.actualizar_icono_fav(True)
+                    # Actualiza el icono del boton de favoritos del navegador
+                    self.actualizar_icono_fav(True)
         except Exception as error:
             print("Error al anadir favorito: %s " % str(error))
 
@@ -519,12 +542,21 @@ class Main(QMainWindow):
         except Exception as error:
             print("Error al borrar favorito: %s " % str(error))
 
-    def mostrar_favoritos(self, query):
+    def cargar_favoritos(self, query):
         # Esta funcion recibe un objeto de QSqlQuery del evento favoritosRecibidos emitido por el hilo trabajador
         # E itera el objeto QSqlQuery para insertar los marcadores en la barra
         try:
             self.limpiar_marcadores()
 
+            if self.receivers(self.marcadoresLimpios) > 0:
+                self.marcadoresLimpios.disconnect()
+
+            self.marcadoresLimpios.connect(lambda q=query: self.mostrar_favoritos(q))
+        except Exception as error:
+            print("Error al mostrar favoritos: %s" % str(error))
+
+    def mostrar_favoritos(self, query):
+        try:
             while query.next():
                 pixmap = QtGui.QPixmap()
                 if query.value(4) is not None and not isinstance(query.value(4), str):
@@ -534,67 +566,60 @@ class Main(QMainWindow):
                 if query.value(3) == "marcadores":
                     self.insertar_marcador(query.value(2), query.value(1), pixmap, query.value(0))
         except Exception as error:
-            print("Error al mostrar favoritos: %s" % str(error))
+            print("Error: %s" % str(error))
 
     def limpiar_marcadores(self):
         try:
+            var.ui.widgetMarcadores.clear()
+            self.marcadoresLimpios.emit()
+        except Exception as error:
+            print("Error al limpiar marcadores: %s" % str(error))
+
+    def ancho_marcadores(self):
+        try:
+            ancho = 0
+
             for i in range(0, var.ui.layoutMarcadores.count(), 1):
                 item = var.ui.layoutMarcadores.itemAt(i)
 
                 if item is not None and isinstance(item, QWidgetItem):
-                    item.widget().deleteLater()
+                    if isinstance(item.widget(), QPushButton):
+                        ancho += item.widget().size().width()
+
+            return ancho
         except Exception as error:
-            print("Error al limpiar marcadores: %s" % str(error))
+            print("Error al obtener ancho de marcadores: %s" % str(error))
 
     def insertar_marcador(self, titulo, url, icono, id_entrada):
         # Funcion encargada de crear un boton con los parametros indicados e insertarlo en la barra de marcadores
         try:
-            boton = QtWidgets.QPushButton(var.ui.widgetMarcadores)
-            tam = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed)
-            tam.setHorizontalStretch(0)
-            tam.setVerticalStretch(0)
-            tam.setHeightForWidth(boton.sizePolicy().hasHeightForWidth())
-            boton.setSizePolicy(tam)
-            boton.setMinimumSize(QtCore.QSize(50, 24))
-            boton.setMaximumSize(QtCore.QSize(170, 24))
-
-            boton.setStyleSheet(":hover {\n"
-                                "    background:rgba(80, 170, 255, 50);\n"
-                                "}\n"
-                                "\n"
-                                ":pressed {\n"
-                                "    background:rgba(80, 170, 255, 100);\n"
-                                "}\n"
-                                "\n"
-                                "QPushButton {background: white; border:none; padding: 4px}")
             icon = QIcon()
             icon.addPixmap(icono, QtGui.QIcon.Normal, QtGui.QIcon.Off)
-            boton.setIcon(icon)
+            action = QAction(var.ui.widgetMarcadores)
+            action.setIcon(icon)
 
             text = titulo
 
-            fm = boton.fontMetrics()
+            fm = var.ui.widgetMarcadores.fontMetrics()
             i = len(text)
             while fm.width(text) > 145:
                 text = text[:i] + "..."
                 i = i - 1
 
-            boton.setText(text)
-
-            var.ui.layoutMarcadores.insertWidget(var.ui.layoutMarcadores.count() - 1, boton)
-            var.ui.layoutMarcadores.layout()
-
-            boton.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+            action.setText(text)
+            action.triggered.connect(lambda _, url=url: self.navegar_a_url(url))
+            var.ui.widgetMarcadores.addAction(action)
 
             menu = QMenu(self)
             menu.addAction("Abrir en nueva pestaña", lambda url=url: self.nueva_pestana(url))
             menu.addAction("Borrar marcador", lambda idx=id_entrada: self.borrar_favorito(idx))
-            menu.addAction("Editar", lambda idx=id_entrada, titulo=titulo, url=url: self.abrir_editar_marcador(idx, titulo, url))
+            menu.addAction("Editar",
+                           lambda idx=id_entrada, titulo=titulo, url=url: self.abrir_editar_marcador(idx, titulo, url))
 
-            boton.customContextMenuRequested.connect(lambda point, cmenu=menu, btn=boton:
-                                                     cmenu.exec_(btn.mapToGlobal(point)))
-
-            boton.clicked.connect(lambda _, url=url: self.navegar_a_url(url))
+            widget = var.ui.widgetMarcadores.widgetForAction(action)
+            widget.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+            widget.customContextMenuRequested.connect(
+                lambda point, cmenu=menu, wdgt=widget: cmenu.exec_(wdgt.mapToGlobal(point)))
         except Exception as error:
             print("Error al insertar marcador: %s" % str(error))
 
