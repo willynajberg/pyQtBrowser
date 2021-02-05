@@ -1,3 +1,5 @@
+from PyQt5 import QtSql
+
 import conexion
 import re
 import sys
@@ -8,7 +10,6 @@ from PyQt5.QtGui import *
 from PyQt5.QtWebEngineWidgets import *
 from PyQt5.QtWidgets import *
 
-from administrador_marcadores import Ui_dlgAdmMarcadores
 from dlgabout import Ui_dlgAbout
 from editar_marcador import Ui_dlgEditMarcador
 from widgethistorial import WidgetHistorial
@@ -44,13 +45,6 @@ class DialogAbout(QtWidgets.QDialog):
         self.ui.buttonBox.button(QtWidgets.QDialogButtonBox.Close).clicked.connect(lambda: self.close())
 
 
-class DialogAdminMarcadores(QtWidgets.QDialog):
-    def __init__(self):
-        super(DialogAdminMarcadores, self).__init__()
-        self.ui = Ui_dlgAdmMarcadores()
-        self.ui.setupUi(self)
-
-
 class Main(QMainWindow):
     marcadoresLimpios = pyqtSignal()
 
@@ -68,14 +62,12 @@ class Main(QMainWindow):
         var.menu.addSeparator()
         var.menu.addAction(var.ui.actionHistorial)
         var.menu.addAction(var.ui.actionMostrar_marcadores)
-        var.menu.addAction(var.ui.actionAdministrar_marcadores)
         var.menu.addSeparator()
         var.menu.addAction(var.ui.actionAbrir)
         var.menu.addAction(var.ui.actionGuardar)
         var.menu.addAction(var.ui.actionImprimir)
         var.menu.addAction(var.ui.actionBuscar)
         var.menu.addSeparator()
-        var.menu.addAction(var.ui.actionAyuda)
         var.menu.addAction(var.ui.actionAcerca_de)
         var.menu.addSeparator()
         var.menu.addAction(var.ui.actionSalir)
@@ -100,7 +92,6 @@ class Main(QMainWindow):
         var.ui.actionHistorial.triggered.connect(self.abrir_historial)
         var.ui.actionSalir.triggered.connect(self.close)
         var.ui.actionMostrar_marcadores.triggered.connect(lambda _, sett=settings: self.toggle_barra_marcadores(sett))
-        var.ui.actionAdministrar_marcadores.triggered.connect(lambda _: self.mostrar_admin_marcadores())
         var.ui.actionAbrir.triggered.connect(self.abrir_pagina)
         var.ui.actionGuardar.triggered.connect(self.guardar_pagina)
         var.ui.actionAcerca_de.triggered.connect(self.abrir_about)
@@ -284,17 +275,18 @@ class Main(QMainWindow):
         except Exception as error:
             print("Error: %s" % str(error))
 
-    def actualizar_icono_fav(self, es_fav=False):
+    def actualizar_icono_fav(self, id_entrada=0):
         # Esta funcion es la encargada de cambiar la apariencia del botón de favoritos si la página en la que estamos
         # Está marcada como favorita, y desconectará las funciones conectadas a su evento clicked y las reemplazará
         # por las indicadas
         try:
-            if es_fav:
+            if id_entrada != 0:
                 icono = QtGui.QIcon()
                 icono.addPixmap(QtGui.QPixmap("img/star_blue.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
                 var.ui.btnFav.setIcon(icono)
                 if var.ui.btnFav.receivers(var.ui.btnFav.clicked) > 0:
                     var.ui.btnFav.clicked.disconnect()
+                var.ui.btnFav.clicked.connect(lambda _, idx=id_entrada: self.borrar_favorito(idx))
             else:
                 icono = QtGui.QIcon()
                 icono.addPixmap(QtGui.QPixmap("img/star.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
@@ -406,7 +398,7 @@ class Main(QMainWindow):
                     var.ui.btnAdelante.setEnabled(False)
                     self.setWindowTitle("PyQtBrowser - Historial")
                     self.actualizar_url("pyqtbrowser:historial")
-                    self.actualizar_icono_fav(False)
+                    self.actualizar_icono_fav(0)
         except Exception as error:
             print("Error: %s" % str(error))
 
@@ -531,14 +523,16 @@ class Main(QMainWindow):
                     self.hilo_trab.anadir_tarea(self.hilo_trab.cargar_favoritos)
 
                     # Actualiza el icono del boton de favoritos del navegador
-                    self.actualizar_icono_fav(True)
+                    self.comprobar_fav(curpage.url())
         except Exception as error:
             print("Error al anadir favorito: %s " % str(error))
 
-    def borrar_favorito(self, id_entrada):
+    def borrar_favorito(self, id_entrada=0):
         try:
-            self.hilo_trab.anadir_tarea(lambda idx=id_entrada: conexion.borrar_favorito(idx))
-            self.hilo_trab.anadir_tarea(self.hilo_trab.cargar_favoritos)
+            if id_entrada != 0:
+                self.hilo_trab.anadir_tarea(lambda idx=id_entrada: conexion.borrar_favorito(idx))
+                self.comprobar_fav(var.ui.tabWidget.currentWidget().page().url())
+                self.hilo_trab.anadir_tarea(self.hilo_trab.cargar_favoritos)
         except Exception as error:
             print("Error al borrar favorito: %s " % str(error))
 
@@ -559,36 +553,20 @@ class Main(QMainWindow):
         try:
             while query.next():
                 pixmap = QtGui.QPixmap()
-                if query.value(4) is not None and not isinstance(query.value(4), str):
-                    ba = QtCore.QByteArray(query.value(4))
+                if query.value(3) is not None and not isinstance(query.value(3), str):
+                    ba = QtCore.QByteArray(query.value(3))
                     pixmap.loadFromData(ba, "PNG")
 
-                if query.value(3) == "marcadores":
-                    self.insertar_marcador(query.value(2), query.value(1), pixmap, query.value(0))
+                self.insertar_marcador(query.value(2), query.value(1), pixmap, query.value(0))
         except Exception as error:
             print("Error: %s" % str(error))
 
     def limpiar_marcadores(self):
         try:
             var.ui.widgetMarcadores.clear()
-            self.marcadoresLimpios.emit()
+            QTimer.singleShot(100, self.marcadoresLimpios.emit)
         except Exception as error:
             print("Error al limpiar marcadores: %s" % str(error))
-
-    def ancho_marcadores(self):
-        try:
-            ancho = 0
-
-            for i in range(0, var.ui.layoutMarcadores.count(), 1):
-                item = var.ui.layoutMarcadores.itemAt(i)
-
-                if item is not None and isinstance(item, QWidgetItem):
-                    if isinstance(item.widget(), QPushButton):
-                        ancho += item.widget().size().width()
-
-            return ancho
-        except Exception as error:
-            print("Error al obtener ancho de marcadores: %s" % str(error))
 
     def insertar_marcador(self, titulo, url, icono, id_entrada):
         # Funcion encargada de crear un boton con los parametros indicados e insertarlo en la barra de marcadores
@@ -608,18 +586,16 @@ class Main(QMainWindow):
 
             action.setText(text)
             action.triggered.connect(lambda _, url=url: self.navegar_a_url(url))
-            var.ui.widgetMarcadores.addAction(action)
 
             menu = QMenu(self)
+            menu.addAction("Abrir", lambda url=url: self.navegar_a_url(url))
             menu.addAction("Abrir en nueva pestaña", lambda url=url: self.nueva_pestana(url))
             menu.addAction("Borrar marcador", lambda idx=id_entrada: self.borrar_favorito(idx))
             menu.addAction("Editar",
                            lambda idx=id_entrada, titulo=titulo, url=url: self.abrir_editar_marcador(idx, titulo, url))
 
-            widget = var.ui.widgetMarcadores.widgetForAction(action)
-            widget.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
-            widget.customContextMenuRequested.connect(
-                lambda point, cmenu=menu, wdgt=widget: cmenu.exec_(wdgt.mapToGlobal(point)))
+            action.setMenu(menu)
+            var.ui.widgetMarcadores.addAction(action)
         except Exception as error:
             print("Error al insertar marcador: %s" % str(error))
 
@@ -656,13 +632,6 @@ class Main(QMainWindow):
                 var.ui.widgetMarcadores.hide()
                 settings.setValue("mostrarMarcadores", False)
 
-        except Exception as error:
-            print("Error: %s" % str(error))
-
-    def mostrar_admin_marcadores(self):
-        try:
-            dlg = DialogAdminMarcadores()
-            dlg.exec_()
         except Exception as error:
             print("Error: %s" % str(error))
 

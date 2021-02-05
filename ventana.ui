@@ -465,15 +465,6 @@ QTabBar::close-button:hover {
     <string>Mostrar o ocultar barra de marcadores</string>
    </property>
   </action>
-  <action name="actionAdministrar_marcadores">
-   <property name="icon">
-    <iconset>
-     <normaloff>img/star.png</normaloff>img/star.png</iconset>
-   </property>
-   <property name="text">
-    <string>Administrar marcadores</string>
-   </property>
-  </action>
   <action name="actionAcerca_de">
    <property name="icon">
     <iconset>
@@ -481,15 +472,6 @@ QTabBar::close-button:hover {
    </property>
    <property name="text">
     <string>Acerca de</string>
-   </property>
-  </action>
-  <action name="actionAyuda">
-   <property name="icon">
-    <iconset>
-     <normaloff>img/help.png</normaloff>img/help.png</iconset>
-   </property>
-   <property name="text">
-    <string>Ayuda</string>
    </property>
   </action>
   <action name="actionImprimir">

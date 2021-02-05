@@ -20,7 +20,7 @@ def crear_tablas():
         query = QtSql.QSqlQuery()
         if not query.exec_(
                 'CREATE TABLE IF NOT EXISTS favoritos (idEntrada INTEGER NOT NULL, url TEXT NOT NULL, titulo '
-                'TEXT, carpeta TEXT NOT NULL, icono BLOB, PRIMARY KEY(idEntrada AUTOINCREMENT));'):
+                'TEXT, icono BLOB, PRIMARY KEY(idEntrada AUTOINCREMENT));'):
             print(query.lastError().text())
 
         if not query.exec_('CREATE TABLE IF NOT EXISTS historial (idEntrada INTEGER, url TEXT NOT NULL, titulo TEXT, '
@@ -124,10 +124,9 @@ def borrar_entrada_historial(idx):
 def anadir_favorito(pag):
     try:
         query = QtSql.QSqlQuery()
-        query.prepare("INSERT INTO favoritos (url, titulo, carpeta, icono) VALUES (:url, :titulo, :carpeta, :icono)")
+        query.prepare("INSERT INTO favoritos (url, titulo, icono) VALUES (:url, :titulo, :icono)")
         query.bindValue(":url", pag.url().toString())
         query.bindValue(":titulo", pag.title())
-        query.bindValue(":carpeta", "marcadores")
         pixmap = pag.icon().pixmap(pag.icon().actualSize(QtCore.QSize(16, 16)))
 
         ba = QtCore.QByteArray()
@@ -192,12 +191,12 @@ def comprobar_favorito(url):
 
         if query.exec_():
             if query.next():
-                return True
+                return query.value(0)
             else:
-                return False
+                return 0
         else:
             query.lastError().text()
-            return False
+            return 0
     except Exception as error:
         print("Error al comprobar favorito: %s" % str(error))
 

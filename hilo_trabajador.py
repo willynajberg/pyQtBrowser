@@ -11,7 +11,7 @@ class HiloTrabajador(QThread):
     historialRecibido = QtCore.pyqtSignal(object)
     favoritoAnadido = QtCore.pyqtSignal(int)
     favoritosRecibidos = QtCore.pyqtSignal(object)
-    paginaFavorita = QtCore.pyqtSignal(bool)
+    paginaFavorita = QtCore.pyqtSignal(int)
 
     def __init__(self):
         super(HiloTrabajador, self).__init__()
@@ -75,7 +75,6 @@ class HiloTrabajador(QThread):
 
     def comprobar_favorito(self, url):
         es_fav = conexion.comprobar_favorito(url)
-
         self.paginaFavorita.emit(es_fav)
 
     @staticmethod
