@@ -1,5 +1,3 @@
-from PyQt5 import QtSql
-
 import conexion
 import re
 import sys
@@ -121,15 +119,24 @@ class Main(QMainWindow):
         self.nueva_pestana(var.URL_HOME)
 
     def nueva_pestana(self, url):
+        """
+
+        Crea una pestaña nueva en el TabWidget del navegador y le asigna un widget QWebEngineView.
+
+        :param url: URL de la pagina a cargar en la nueva pestaña
+        :type url: str
+        :return: Objeto de la nueva pestaña
+        :rtype: QtWebEngineWidgets.QWebEngineView
+        """
         try:
-            # crea un objeto QWebEngineView nuevo y lo asignamos a una pestaña nueva del TableWidget
+            # crea un objeto QWebEngineView nuevo y lo asigna a una pestaña nueva del TabWidget
             navegador = QWebEngineView()
 
             self.setWindowTitle("PyQtBrowser - Pestaña nueva")
             i = var.ui.tabWidget.addTab(navegador, "Pestaña nueva")
             var.ui.tabWidget.setCurrentIndex(i)
 
-            # cargamos la url nueva en el nuevo objeto y en la barra de urls
+            # carga la url nueva en el nuevo objeto y en la barra de urls
             navegador.page().setUrl(QUrl(url))
             var.ui.editUrl.setText(url)
 
@@ -149,6 +156,13 @@ class Main(QMainWindow):
             return None
 
     def conectar_nav(self, navegador):
+        """
+
+        Conecta los eventos emitidos por un objeto de tipo QWebEngineView con funciones de la aplicacion.
+
+        :param navegador: Objeto de navegador
+        :type navegador: QtWebEngineWidgets.QWebEngineView
+        """
         try:
             navegador.urlChanged.connect(lambda qurl, nav=navegador:
                                          self.cambiar_url(qurl, nav))
@@ -166,8 +180,18 @@ class Main(QMainWindow):
             print("Error: %s" % str(error))
 
     def crear_window(self, t):
-        # Al intentar crear una pestaña nueva con javascript, este espera que el navegador en el que se ejecuta le
-        # retorne un puntero a un objeto de tipo QWebEnginePage en el que pueda escribir una url nueva
+        """
+
+        Funcion que sobreescribe el metodo nativo de createWindow de un objeto QWebEngineView
+
+        :param t:
+        :type t:
+        :return: Objeto de la pestaña nueva
+        :rtype: QtWebEngineWidgets.QWebEnginePage
+
+        Al intentar crear una pestaña nueva con javascript, este espera que el navegador en el que se ejecuta le
+        retorne un puntero a un objeto de tipo QWebEnginePage en el que pueda escribir una url nueva
+        """
         try:
             nueva = self.nueva_pestana("")
             nuevapag = QWebEnginePage()
@@ -180,8 +204,16 @@ class Main(QMainWindow):
             print("Error: %s" % str(error))
 
     def carga_iniciada(self, navegador):
-        # Al empezar a cargar una página, comprobará si esta página está en los favoritos, y cambiará el boton de
-        # refrescar por el de cancelar carga.
+        """
+
+        Funcion conectada al evento loadStarted de un objeto QWebEngineView.
+
+        :param navegador: Objeto de navegador
+        :type navegador: QtWebEngineWidgets.QWebEngineView
+
+        Al empezar a cargar una página, comprobará si esta página está en los favoritos, y cambiará el boton de
+        refrescar por el de cancelar carga.
+        """
         try:
             self.comprobar_fav(navegador.page().url().toString())
 
@@ -190,6 +222,16 @@ class Main(QMainWindow):
             print("Error: %s" % str(error))
 
     def progreso_carga(self, progreso, navegador):
+        """
+
+        Funcion conectada al evento loadProgress emitido por un objeto QWebEngineView. Emite un valor de progreso de
+        carga de la página que es un entero entre 0-100.
+
+        :param progreso: Progreso de carga
+        :type progreso: int
+        :param navegador: Objeto del navegador
+        :type navegador: QtWebEngineWidgets.QWebEngineView
+        """
         try:
             if progreso == 100:
                 # En algunas paginas como YouTube el evento loadFinished no es emitido, la unica forma que he encontrado
@@ -199,9 +241,15 @@ class Main(QMainWindow):
             print("Error: %s" % str(error))
 
     def carga_completada(self, navegador):
-        # Función conectada al evento loadFinished del navegador. Se encargará de cambiar el boton de cancelar carga
-        # al de refrescar, de actualizar el título y de insertar una nueva entrada en el historial, o en caso de que
-        # la última entrada del historial sea la misma url, actualizar su título
+        """
+
+        Función conectada al evento loadFinished del navegador. Se encargará de cambiar el boton de cancelar carga
+        al de refrescar, de actualizar el título y de insertar una nueva entrada en el historial, o en caso de que
+        la última entrada del historial sea la misma url, actualizar su título.
+
+        :param navegador: Objeto de navegador
+        :type navegador: QtWebEngineWidgets.QWebEngineView
+        """
         try:
             if navegador is not None and isinstance(navegador, QWebEngineView):
                 self.hilo_trab.anadir_tarea(lambda nav=navegador: self.hilo_trab.anadir_historial(nav))
@@ -212,8 +260,14 @@ class Main(QMainWindow):
             print("Error en la funcion carga completada: %s" % str(error))
 
     def actualizar_titulo(self, navegador):
-        # Funcion conectada al evento loadFinished de un objeto QWebEngineView. Cuando una página acabe de cargar,
-        # cambiará el título de la pestaña asignada a ese QWebEngineView al título de la página web
+        """
+
+        Funcion conectada al evento loadFinished de un objeto QWebEngineView. Cuando una página acabe de cargar,
+        cambiará el título de la pestaña asignada a ese QWebEngineView al título de la página web.
+
+        :param navegador: Objeto de navegador
+        :type navegador: QtWebEngineWidgets.QWebEngineView
+        """
         try:
             titulo = navegador.page().title()
 
@@ -237,23 +291,39 @@ class Main(QMainWindow):
             print("Error: %s" % str(error))
 
     def actualizar_icono(self, icono, navegador):
-        # Esta función funciona igual que la funcion de actualizar_titulo, solo que en este caso es llamada por el
-        # evento iconChanged de un QWebEngine view, y le asignamos el icono de la página a la pestaña
+        """
+
+        Esta función funciona igual que la funcion de actualizar_titulo, solo que en este caso es llamada por el
+        evento iconChanged de un QWebEngine view, y le asigna el icono de la página a la pestaña del objeto navegador.
+
+        :param icono: Icono de la pagina web
+        :type icono: QIcon, None
+        :param navegador: Objeto de navegador
+        :type navegador: QtWebEngineWidgets.QWebEngineView
+        """
         try:
             if icono and icono is not None:
                 self.hilo_trab.anadir_tarea(lambda nav=navegador, i=icono:
                                             conexion.actualizar_icono_fav(nav.page().url().toString(), i))
                 var.ui.tabWidget.setTabIcon(var.ui.tabWidget.indexOf(navegador), icono)
             else:
-                # si han pasado un icono nulo, pasa un icono en blanco
+                # Si la pagina ha pasado un icono nulo, pasa un objeto QIcon nuevo en blanco
                 var.ui.tabWidget.setTabIcon(var.ui.tabWidget.indexOf(navegador), QIcon())
         except Exception as error:
             print("Error: %s" % str(error))
 
     def cambiar_url(self, url, navegador):
-        # Esta funcion es llamada por el evento urlChanged de un QWebEngineView. Cuando este evento se ejecute
-        # cambiara la barra de url del navegador, el icono de la pestana, cambiara el icono de favorito
-        # habilitará los botones de atras y adelante si es posible
+        """
+
+        Esta funcion es llamada por el evento urlChanged de un QWebEngineView. Cuando este evento se ejecute
+        cambiara la barra de url del navegador, el icono de la pestana, cambiara el icono de favorito habilitará los
+        botones de atras y adelante si es posible.
+
+        :param url: Objeto QUrl del enlace
+        :type url: QUrl
+        :param navegador: Objeto de navegador
+        :type navegador: QtWebEngineWidgets.QWebEngineView
+        """
         try:
             if navegador == var.ui.tabWidget.currentWidget():
                 if url.scheme() == "http" or url.scheme() == "https":
@@ -267,7 +337,15 @@ class Main(QMainWindow):
         except Exception as error:
             print("Error: %s" % str(error))
 
-    def actualizar_url(self, url):
+    @staticmethod
+    def actualizar_url(url):
+        """
+
+        Esta funcion simplemente se encarga de actualizar el LineEdit de la URL del navegador.
+
+        :param url: URL de la pagina
+        :type url: str
+        """
         try:
             var.ui.editUrl.setText(url)
             # Asegura que veremos el principio de la url en el LineEdit
@@ -276,9 +354,15 @@ class Main(QMainWindow):
             print("Error: %s" % str(error))
 
     def actualizar_icono_fav(self, id_entrada=0):
-        # Esta funcion es la encargada de cambiar la apariencia del botón de favoritos si la página en la que estamos
-        # Está marcada como favorita, y desconectará las funciones conectadas a su evento clicked y las reemplazará
-        # por las indicadas
+        """
+
+        Esta funcion es la encargada de cambiar la apariencia del botón de favoritos si la página en la que estamos
+        Está marcada como favorita, y desconectará las funciones conectadas a su evento clicked y las reemplazará
+        por las indicadas.
+
+        :param id_entrada: Identificador del favorito en la base de datos, 0 si no está en los favoritos.
+        :type id_entrada: int
+        """
         try:
             if id_entrada != 0:
                 icono = QtGui.QIcon()
@@ -298,8 +382,14 @@ class Main(QMainWindow):
             print("Error: %s" % str(error))
 
     def cambiar_btnrefrescar(self, cargando):
-        # Esta funcion es la encargada de cambiar el botón de refrescar por el de cancelar carga, segun el booleano
-        # que se le pase en los parametros
+        """
+
+        Esta funcion es la encargada de cambiar el botón de refrescar por el de cancelar carga, segun el booleano
+        que se le pase en los parametros.
+
+        :param cargando: Estado de carga de la pagina
+        :type cargando: bool
+        """
         try:
             if cargando:
                 icono = QtGui.QIcon()
@@ -315,25 +405,31 @@ class Main(QMainWindow):
         except Exception as error:
             print("Error : %s" % str(error))
 
-    def refrescar(self):
-        # Funcion conectada al evento clicked del boton de refrescar. Refresca la página actual y cambia el boton de
-        # refrescar por el de cancelar carga
+    @staticmethod
+    def refrescar():
+        """
+        Funcion conectada al evento clicked del boton de refrescar. Refresca la página actual.
+        """
         try:
             var.ui.tabWidget.currentWidget().reload()
         except Exception as error:
             print("Error: %s" % str(error))
 
     def actualizacion_completada(self):
-        # Funcion conectada al evento loadFinished de un QWebEngineView que simplemente cambiará el boton de cancelar
-        # carga por el de refrescar de nuevo
+        """
+        Funcion conectada al evento loadFinished de un QWebEngineView que simplemente cambiará el boton de cancelar
+        carga por el de refrescar de nuevo.
+        """
         try:
             self.cambiar_btnrefrescar(False)
         except Exception as error:
             print("Error: %s" % str(error))
 
     def cancelar_actualizacion(self):
-        # Funcion conectada al evento clicked del boton de cancelar carga que parará la carga de la pestaña actual
-        # y cambiara el boton de cancelar carga por el de refrescar nuevamente
+        """
+        Funcion conectada al evento clicked del boton de cancelar carga que parará la carga de la pestaña actual
+        y cambiara el boton de cancelar carga por el de refrescar nuevamente.
+        """
         try:
             var.ui.tabWidget.currentWidget().stop()
             self.actualizacion_completada()
@@ -341,8 +437,14 @@ class Main(QMainWindow):
             print("Error: %s" % str(error))
 
     def navegar_a_url(self, url):
-        # Esta funcion esta conectada al evento returnPressed del lineEdit de la barra de URL. Es decir, se activara
-        # cuando el usuario pulse Enter en la barra de url.
+        """
+
+        Esta funcion esta conectada al evento returnPressed del lineEdit de la barra de URL. Es decir, se activará
+        cuando el usuario pulse Enter en la barra de url.
+
+        :param url: URL de la página a cargar
+        :type url: str
+        """
         try:
             # Usa un patron de RegEx para comprobar si lo que el usuario ha introducido es un enlace o una IP
             es_enlace = re.search("(([a-zA-Z]|[0-9])[.]([a-zA-Z]|[0-9]))|[a-z][/]$", url)
@@ -367,16 +469,25 @@ class Main(QMainWindow):
         except Exception as error:
             print("Error: %s" % str(error))
 
-    def navegar_a_home(self):
-        # Funcion conectada al boton home del navegador que simplemente navegara al enlace establecido como enlace home
+    @staticmethod
+    def navegar_a_home():
+        """
+        Funcion conectada al boton home del navegador que simplemente navegara al enlace establecido como enlace home
+        """
         try:
             var.ui.tabWidget.currentWidget().setUrl(QUrl(var.URL_HOME))
         except Exception as error:
             print("Error: %s" % str(error))
 
     def pestana_cambiada(self, i):
-        # Funcion conectada al evento tabChanged del TabWidget del navegador que se encarga de cambiar el titulo de la
-        # ventana principal, la url del line edit, el boton de refrescar y los botones de atras y adelante.
+        """
+
+        Funcion conectada al evento tabChanged del TabWidget del navegador que se encarga de cambiar el titulo de la
+        ventana principal, la url del line edit, el boton de refrescar y los botones de atras y adelante.
+
+        :param i: Indice de la pestaña a la que se ha cambiado
+        :type i: int
+        """
         try:
             # Si la pestaña a la que el usuario se quiere desplazar es la pestaña de añadir, añade una nueva
             if i == var.ui.tabWidget.indexOf(var.ui.tabAnadir):
@@ -402,9 +513,18 @@ class Main(QMainWindow):
         except Exception as error:
             print("Error: %s" % str(error))
 
-    def cerrar_pestana(self, i):
-        # Funcion conectada al evento tabCloseRequested del TabWidget del navegador que se activará cuando el usuario
-        # cierre una de las pestañas
+    @staticmethod
+    def cerrar_pestana(i):
+        """
+
+        Funcion conectada al evento tabCloseRequested del TabWidget del navegador que se activará cuando el usuario
+        cierre una de las pestañas.
+
+        :param i: Indice de la pestaña cerrada
+        :type i: int
+        :return: None
+        :rtype: None
+        """
         try:
             # Si la pestaña a cerrar es la de añadir pestañas no hace nada
             if i == var.ui.tabWidget.indexOf(var.ui.tabAnadir):
@@ -425,6 +545,9 @@ class Main(QMainWindow):
             print("Error: %s" % str(error))
 
     def abrir_pagina(self):
+        """
+        Funcion que cargará en el navegador un archivo de tipo HTML, que se escoja en un dialogo de tipo QFileDialog.
+        """
         filename, _ = QFileDialog.getOpenFileName(self, "Abrir archivo", "",
                                                   "Hypertext Markup Language (*.htm *.html)")
 
@@ -437,6 +560,10 @@ class Main(QMainWindow):
             var.ui.tabWidget.currentWidget().setHtml(html)
 
     def guardar_pagina(self):
+        """
+        Funcion que guardará la página actual en un archivo HTML con el nombre y directiorio que se escoja en un dialogo
+        de tipo QFileDialog.
+        """
         try:
             filename, _ = QFileDialog.getSaveFileName(self, "Guardar Pagina Como", "",
                                                       "Hypertext Markup Language (*.htm *html);;"
@@ -448,14 +575,29 @@ class Main(QMainWindow):
         except Exception as error:
             print("Error en guardar pagina: %s" % str(error))
 
-    def guardar_html(self, html, filename):
+    @staticmethod
+    def guardar_html(html, filename):
+        """
+
+        Funcion auxiliar encargada de escribir el código recibido por la funcion toHtml del elemento QWebEnginePage en
+        el archivo que se le pasa en los parametros.
+
+        :param html: Codigo HTML de la página
+        :type html: str
+        :param filename: Nombre y directorio del archivo a guardar
+        :type filename: str
+        """
         try:
             with open(filename, 'w') as f:
                 f.write(html.encode('ascii', 'xmlcharrefreplace').__str__().removeprefix("b'"))
         except Exception as error:
             print("Error en guardar pagina: %s" % str(error))
 
-    def abrir_about(self):
+    @staticmethod
+    def abrir_about():
+        """
+        Funcion encargada de crear un nuevo dialogo About y mostrarlo.
+        """
         try:
             dlg = DialogAbout()
             dlg.exec_()
@@ -463,7 +605,9 @@ class Main(QMainWindow):
             print("Error en abrir about: %s" % str(error))
 
     def abrir_historial(self):
-        # Funcion encargada de abrir una pestaña nueva que contiene el historial de búsqueda
+        """
+        Funcion encargada de abrir una pestaña nueva que contiene el historial de búsqueda
+        """
         try:
             # Crea el objeto del Widget del historial pasándole la ventana del navegador como argumento
             historial = WidgetHistorial(self)
@@ -488,8 +632,14 @@ class Main(QMainWindow):
             print("Error al abrir historial: %s" % str(error))
 
     def cargar_historial(self, historial):
-        # Funcion encargada de pasarle una tarea nueva al hilo trabajador del navegador de cargar el historial
-        # de la base de datos
+        """
+
+        Funcion encargada de pasarle una tarea nueva al hilo trabajador del navegador de cargar el historial
+        de la base de datos.
+
+        :param historial: Objeto de tipo WidgetHistorial
+        :type historial: WidgetHistorial
+        """
         try:
             # Si ya hay una funcion escuchando el evento de historialRecibido, la desconecta
             if self.hilo_trab.receivers(self.hilo_trab.historialRecibido) > 0:
@@ -505,13 +655,24 @@ class Main(QMainWindow):
             print("Error al cargar historial: %s" % str(error))
 
     def borrar_entrada_historial(self, idx, historial):
-        # Esta funcion simplemente le pasa 2 tareas al hilo trabajador: borrar una entrada de historial con indice idx
-        # Y volver a cargar el historial en el widget de historial pasado en argumentos
+        """
+
+        Esta funcion simplemente le pasa 2 tareas al hilo trabajador: borrar una entrada de historial con indice idx
+        y volver a cargar el historial en el widget de historial pasado en argumentos.
+
+        :param idx: Indice de entrada en la base de datos del historial a borrar
+        :type idx: int
+        :param historial: Objeto de tipo WidgetHistorial
+        :type historial: WidgetHistorial
+        """
 
         self.hilo_trab.anadir_tarea(lambda indice=idx: self.hilo_trab.borrar_entrada(indice))
         self.hilo_trab.anadir_tarea(lambda his=historial: self.cargar_historial(his))
 
     def anadir_favorito(self):
+        """
+        Funcion encargada de añadir la página actual a favoritos en la base de datos, y de refrescarlos.
+        """
         try:
             if isinstance(var.ui.tabWidget.currentWidget(), QWebEngineView):
                 # Obtiene el objeto QWebEnginePage del widget actual
@@ -527,7 +688,15 @@ class Main(QMainWindow):
         except Exception as error:
             print("Error al anadir favorito: %s " % str(error))
 
-    def borrar_favorito(self, id_entrada=0):
+    def borrar_favorito(self, id_entrada):
+        """
+
+        Funcion encargada de pasar la tarea de borrar de favoritos la pagina con el indice indicado en parametros, y de
+        refrescar los favoritos en la aplicacion.
+
+        :param id_entrada: Indice de marcador en la base de datos.
+        :type id_entrada: int
+        """
         try:
             if id_entrada != 0:
                 self.hilo_trab.anadir_tarea(lambda idx=id_entrada: conexion.borrar_favorito(idx))
@@ -537,8 +706,15 @@ class Main(QMainWindow):
             print("Error al borrar favorito: %s " % str(error))
 
     def cargar_favoritos(self, query):
-        # Esta funcion recibe un objeto de QSqlQuery del evento favoritosRecibidos emitido por el hilo trabajador
-        # E itera el objeto QSqlQuery para insertar los marcadores en la barra
+        """
+
+        Esta funcion recibe un objeto de QSqlQuery del evento favoritosRecibidos emitido por el hilo trabajador. Limpia
+        los marcadores y conecta el evento marcadoresLimpios emitido por la funcion de limpiar_marcadores con la funcion
+        de mostrar_favoritos, pasandole el objeto query.
+
+        :param query: Objeto de tipo QSqlQuery
+        :type query: QtSql.QSqlQuery
+        """
         try:
             self.limpiar_marcadores()
 
@@ -550,6 +726,13 @@ class Main(QMainWindow):
             print("Error al mostrar favoritos: %s" % str(error))
 
     def mostrar_favoritos(self, query):
+        """
+
+        Funcion que itera el objeto QSqlQuery pasado en argumentos para insertar los marcadores en la barra.
+
+        :param query: Objeto de QSqlQuery
+        :type query: QtSql.QSqlQuery
+        """
         try:
             while query.next():
                 pixmap = QtGui.QPixmap()
@@ -562,6 +745,10 @@ class Main(QMainWindow):
             print("Error: %s" % str(error))
 
     def limpiar_marcadores(self):
+        """
+        Esta función borra todos los elementos del widgetMarcadores y emite una señal de tipo marcadoresLimpios despues
+        de 100ms.
+        """
         try:
             var.ui.widgetMarcadores.clear()
             QTimer.singleShot(100, self.marcadoresLimpios.emit)
@@ -569,7 +756,19 @@ class Main(QMainWindow):
             print("Error al limpiar marcadores: %s" % str(error))
 
     def insertar_marcador(self, titulo, url, icono, id_entrada):
-        # Funcion encargada de crear un boton con los parametros indicados e insertarlo en la barra de marcadores
+        """
+
+        Funcion encargada de crear un boton con los parametros indicados e insertarlo en la barra de marcadores
+
+        :param titulo: Titulo de la pagina
+        :type titulo: str
+        :param url: URL de la pagina
+        :type url: str
+        :param icono: Imagen de icono de la pagina
+        :type icono: QtGui.QPixmap
+        :param id_entrada: Indice del marcador en la base de datos
+        :type id_entrada: int
+        """
         try:
             icon = QIcon()
             icon.addPixmap(icono, QtGui.QIcon.Normal, QtGui.QIcon.Off)
@@ -599,7 +798,20 @@ class Main(QMainWindow):
         except Exception as error:
             print("Error al insertar marcador: %s" % str(error))
 
-    def abrir_editar_marcador(self, idx, titulo, url):
+    @staticmethod
+    def abrir_editar_marcador(idx, titulo, url):
+        """
+
+        Funcion conectada a la opcion de editar del menu contextual de un marcador. Carga un dialogo del tipo
+        DialogEditMarcador con los datos que se le pasa en los argumentos.
+
+        :param idx: Indice del marcador en la base de datos
+        :type idx: int
+        :param titulo: Titulo del marcador
+        :type titulo: str
+        :param url: Url del marcador
+        :type url: str
+        """
         try:
             dlg = DialogEditMarcador(idx, titulo, url)
             dlg.exec_()
@@ -607,6 +819,14 @@ class Main(QMainWindow):
             print("Error editar marcador: %s" % str(error))
 
     def comprobar_fav(self, url):
+        """
+
+        Funcion que añade al hilo trabajador la tarea de comprobar si la pagina pasada en los parametros está en los
+        favoritos en la base de datos.
+
+        :param url: URL de la pagina a comprobar
+        :type url: str
+        """
         try:
             if self.hilo_trab.receivers(self.hilo_trab.paginaFavorita) > 0:
                 self.hilo_trab.paginaFavorita.disconnect()
@@ -615,13 +835,25 @@ class Main(QMainWindow):
         except Exception as error:
             print("Error al comprobar favorito : %s" % str(error))
 
-    def mostrar_menu(self):
+    @staticmethod
+    def mostrar_menu():
+        """
+        Funcion que abre el menu contextual de la aplicación.
+        """
         try:
             var.ui.btnMenu.showMenu()
         except Exception as error:
             print("Error: %s" % str(error))
 
-    def toggle_barra_marcadores(self, settings):
+    @staticmethod
+    def toggle_barra_marcadores(settings):
+        """
+
+        Función que muestra o oculta la barra de marcadores y actualiza la configuración de la aplicación.
+
+        :param settings: Objeto de onfiguración de la aplicación
+        :type settings: QSettings
+        """
         try:
             if var.ui.widgetMarcadores.isHidden():
                 var.ui.actionMostrar_marcadores.setText("Ocultar barra de marcadores")
@@ -636,6 +868,10 @@ class Main(QMainWindow):
             print("Error: %s" % str(error))
 
     def resizeEvent(self, *args, **kwargs):
+        """
+        Sobreescribe el método por defecto de resizeEvent de la aplicación.
+        """
+
         # probablemente no sea lo mas eficiente del mundo pero si la opcion mas comoda
         self.hilo_trab.anadir_tarea(self.hilo_trab.cargar_favoritos)
 
