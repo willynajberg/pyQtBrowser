@@ -1,3 +1,5 @@
+from PyQt5.QtPrintSupport import QPrintPreviewDialog
+
 import conexion
 import re
 import sys
@@ -63,7 +65,6 @@ class Main(QMainWindow):
         var.menu.addSeparator()
         var.menu.addAction(var.ui.actionAbrir)
         var.menu.addAction(var.ui.actionGuardar)
-        var.menu.addAction(var.ui.actionImprimir)
         var.menu.addAction(var.ui.actionBuscar)
         var.menu.addSeparator()
         var.menu.addAction(var.ui.actionAcerca_de)
@@ -92,6 +93,7 @@ class Main(QMainWindow):
         var.ui.actionMostrar_marcadores.triggered.connect(lambda _, sett=settings: self.toggle_barra_marcadores(sett))
         var.ui.actionAbrir.triggered.connect(self.abrir_pagina)
         var.ui.actionGuardar.triggered.connect(self.guardar_pagina)
+        var.ui.actionBuscar.triggered.connect(self.abrir_buscar)
         var.ui.actionAcerca_de.triggered.connect(self.abrir_about)
 
         var.ui.widgetMarcadores = QToolBar()
@@ -108,6 +110,14 @@ class Main(QMainWindow):
         # al principio deshabilita los botones de atras y de delante
         var.ui.btnAtras.setDisabled(True)
         var.ui.btnAdelante.setDisabled(True)
+
+        # eventos relacionados con la barra de buscar en la pagina:
+        # al principio se oculta
+        var.ui.widgetBusqueda.hide()
+
+        # conexion de eventos
+        var.ui.btnCerrar.clicked.connect(self.cerrar_buscar)
+        var.ui.editBusqueda.textChanged.connect(self.buscar_en_pagina)
 
         # Crea una nueva instancia del hilo trabajador
         self.hilo_trab = HiloTrabajador()
@@ -172,6 +182,8 @@ class Main(QMainWindow):
             navegador.loadStarted.connect(lambda nav=navegador: self.carga_iniciada(nav))
             navegador.loadProgress.connect(lambda progreso, nav=navegador: self.progreso_carga(progreso, nav))
             navegador.loadFinished.connect(lambda _, nav=navegador: self.carga_completada(nav))
+
+            navegador.page().findTextFinished.connect(self.busqueda_cambiada)
 
             # Sobreescribe la funcion de createWindow del QWebEngineView con la definida abajo
             # Esta funcion es llamada por elementos javascript de las paginas que abren ventanas nuevas
@@ -592,6 +604,35 @@ class Main(QMainWindow):
                 f.write(html.encode('ascii', 'xmlcharrefreplace').__str__().removeprefix("b'"))
         except Exception as error:
             print("Error en guardar pagina: %s" % str(error))
+
+    def abrir_buscar(self):
+        try:
+            var.ui.widgetBusqueda.show()
+        except Exception as error:
+            print("Error: %s" % str(error))
+
+    def cerrar_buscar(self):
+        try:
+            var.ui.widgetBusqueda.hide()
+
+            if var.ui.tabWidget.currentWidget().page():
+                var.ui.tabWidget.currentWidget().page().findText('', QWebEnginePage.FindFlags(0), lambda result: result)
+        except Exception as error:
+            print("Error: %s" % str(error))
+
+    def buscar_en_pagina(self, text):
+        try:
+            if var.ui.tabWidget.currentWidget().page():
+                if text is not None and text != '':
+                    var.ui.tabWidget.currentWidget().page().findText(text, QWebEnginePage.FindFlags(0), lambda result: result)
+        except Exception as error:
+            print("Error: %s" % str(error))
+
+    def busqueda_cambiada(self, result):
+        try:
+            var.ui.lblResult.setText(str(result.activeMatch()) + " / " + str(result.numberOfMatches()))
+        except Exception as error:
+            print("Error: %s" % str(error))
 
     @staticmethod
     def abrir_about():

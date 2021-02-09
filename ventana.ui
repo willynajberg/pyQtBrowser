@@ -291,6 +291,140 @@ QPushButton {background: white; border:none}
      </layout>
     </item>
     <item>
+     <widget class="QWidget" name="widgetBusqueda" native="true">
+      <layout class="QHBoxLayout" name="horizontalLayout_2">
+       <property name="spacing">
+        <number>5</number>
+       </property>
+       <property name="leftMargin">
+        <number>6</number>
+       </property>
+       <property name="topMargin">
+        <number>4</number>
+       </property>
+       <property name="rightMargin">
+        <number>6</number>
+       </property>
+       <property name="bottomMargin">
+        <number>4</number>
+       </property>
+       <item>
+        <widget class="QLineEdit" name="editBusqueda">
+         <property name="placeholderText">
+          <string>Búsqueda</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="lblResult">
+         <property name="font">
+          <font>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>0 / 0</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="btnAnt">
+         <property name="minimumSize">
+          <size>
+           <width>20</width>
+           <height>20</height>
+          </size>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">:hover {
+	background:rgba(80, 170, 255, 50);
+}
+
+:pressed {
+	background:rgba(80, 170, 255, 100);
+}
+
+QPushButton {background: white; border:none}</string>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="icon">
+          <iconset>
+           <normaloff>img/up.png</normaloff>img/up.png</iconset>
+         </property>
+         <property name="flat">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="btnSig">
+         <property name="minimumSize">
+          <size>
+           <width>20</width>
+           <height>20</height>
+          </size>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">:hover {
+	background:rgba(80, 170, 255, 50);
+}
+
+:pressed {
+	background:rgba(80, 170, 255, 100);
+}
+
+QPushButton {background: white; border:none}</string>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="icon">
+          <iconset>
+           <normaloff>img/down.png</normaloff>img/down.png</iconset>
+         </property>
+         <property name="flat">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="btnCerrar">
+         <property name="minimumSize">
+          <size>
+           <width>20</width>
+           <height>20</height>
+          </size>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">:hover {
+	background:rgba(80, 170, 255, 50);
+}
+
+:pressed {
+	background:rgba(80, 170, 255, 100);
+}
+
+QPushButton {background: white; border:none}</string>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="icon">
+          <iconset>
+           <normaloff>img/close2.png</normaloff>img/close2.png</iconset>
+         </property>
+         <property name="flat">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item>
      <widget class="QTabWidget" name="tabWidget">
       <property name="styleSheet">
        <string notr="true">QTabBar {

@@ -1,4 +1,4 @@
-from PyQt5 import QtSql, Qt
+from PyQt5 import QtSql
 from datetime import datetime
 import var
 from ventana import *
