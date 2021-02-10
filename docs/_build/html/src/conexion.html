@@ -1,0 +1,279 @@
+
+<!DOCTYPE html>
+
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>conexion module &#8212; documentación de PYQTBROWSER - 0.5.1</title>
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/translations.js"></script>
+    <link rel="index" title="Índice" href="../genindex.html" />
+    <link rel="search" title="Búsqueda" href="../search.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="module-conexion">
+<span id="conexion-module"></span><h1>conexion module<a class="headerlink" href="#module-conexion" title="Enlazar permanentemente con este título">¶</a></h1>
+<dl class="py function">
+<dt id="conexion.actualizar_icono_fav">
+<code class="sig-prename descclassname">conexion.</code><code class="sig-name descname">actualizar_icono_fav</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">url</span></em>, <em class="sig-param"><span class="n">icono</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/conexion.html#actualizar_icono_fav"><span class="viewcode-link">[fuente]</span></a><a class="headerlink" href="#conexion.actualizar_icono_fav" title="Enlazar permanentemente con esta definición">¶</a></dt>
+<dd><p>Actualiza el icono de la página guardada en favoritos.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parámetros</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>url</strong> (<em>str</em>) – URL de la página</p></li>
+<li><p><strong>icono</strong> (<em>QIcon</em>) – Nuevo icono</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="conexion.anadir_favorito">
+<code class="sig-prename descclassname">conexion.</code><code class="sig-name descname">anadir_favorito</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">pag</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/conexion.html#anadir_favorito"><span class="viewcode-link">[fuente]</span></a><a class="headerlink" href="#conexion.anadir_favorito" title="Enlazar permanentemente con esta definición">¶</a></dt>
+<dd><p>Añade la página que se le pasa en parámetros a favoritos en la base de datos. Devuelve el identificador de esta
+nueva entrada en la base de datos para posteriores modificaciones.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parámetros</dt>
+<dd class="field-odd"><p><strong>pag</strong> (<em>QtWebEngineWidgets.QWebEnginePage</em>) – Página a guardar en favoritos</p>
+</dd>
+<dt class="field-even">Devuelve</dt>
+<dd class="field-even"><p>Identificador de la página en la base de datos</p>
+</dd>
+<dt class="field-odd">Tipo del valor devuelto</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="conexion.borrar_entrada_historial">
+<code class="sig-prename descclassname">conexion.</code><code class="sig-name descname">borrar_entrada_historial</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">idx</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/conexion.html#borrar_entrada_historial"><span class="viewcode-link">[fuente]</span></a><a class="headerlink" href="#conexion.borrar_entrada_historial" title="Enlazar permanentemente con esta definición">¶</a></dt>
+<dd><p>Borra una entrada del historial en la base de datos.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parámetros</dt>
+<dd class="field-odd"><p><strong>idx</strong> (<em>int</em>) – Índice de la entrada a borrar</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="conexion.borrar_favorito">
+<code class="sig-prename descclassname">conexion.</code><code class="sig-name descname">borrar_favorito</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">idx</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/conexion.html#borrar_favorito"><span class="viewcode-link">[fuente]</span></a><a class="headerlink" href="#conexion.borrar_favorito" title="Enlazar permanentemente con esta definición">¶</a></dt>
+<dd><p>Borra una entrada de la tabla de favoritos de la base de datos.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parámetros</dt>
+<dd class="field-odd"><p><strong>idx</strong> (<em>int</em>) – Índice de la entrada a borrar</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="conexion.cambiar_titulo_historial">
+<code class="sig-prename descclassname">conexion.</code><code class="sig-name descname">cambiar_titulo_historial</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">idx</span></em>, <em class="sig-param"><span class="n">titulo</span><span class="o">=</span><span class="default_value">''</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/conexion.html#cambiar_titulo_historial"><span class="viewcode-link">[fuente]</span></a><a class="headerlink" href="#conexion.cambiar_titulo_historial" title="Enlazar permanentemente con esta definición">¶</a></dt>
+<dd><p>Cambia el título que se ha puesto en una entrada de historial.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parámetros</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>idx</strong> (<em>int</em>) – Índice de la entrada a cambiar</p></li>
+<li><p><strong>titulo</strong> (<em>str</em>) – Nuevo título a poner a la entrada</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="conexion.cargar_favoritos">
+<code class="sig-prename descclassname">conexion.</code><code class="sig-name descname">cargar_favoritos</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/conexion.html#cargar_favoritos"><span class="viewcode-link">[fuente]</span></a><a class="headerlink" href="#conexion.cargar_favoritos" title="Enlazar permanentemente con esta definición">¶</a></dt>
+<dd><p>Selecciona todas las entradas en la tabla de favoritos de la base de datos en orden ascendiente y devuelve el
+resultado del query.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Devuelve</dt>
+<dd class="field-odd"><p>Resultado del query</p>
+</dd>
+<dt class="field-even">Tipo del valor devuelto</dt>
+<dd class="field-even"><p>QtSql.QSqlQuery</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="conexion.cargar_historial">
+<code class="sig-prename descclassname">conexion.</code><code class="sig-name descname">cargar_historial</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/conexion.html#cargar_historial"><span class="viewcode-link">[fuente]</span></a><a class="headerlink" href="#conexion.cargar_historial" title="Enlazar permanentemente con esta definición">¶</a></dt>
+<dd><p>Selecciona todas las entradas en el historial en la base de datos en orden descendiente y devuelve el resultado del
+query.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Devuelve</dt>
+<dd class="field-odd"><p>Resultado del query</p>
+</dd>
+<dt class="field-even">Tipo del valor devuelto</dt>
+<dd class="field-even"><p>QtSql.QSqlQuery</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="conexion.comprobar_favorito">
+<code class="sig-prename descclassname">conexion.</code><code class="sig-name descname">comprobar_favorito</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">url</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/conexion.html#comprobar_favorito"><span class="viewcode-link">[fuente]</span></a><a class="headerlink" href="#conexion.comprobar_favorito" title="Enlazar permanentemente con esta definición">¶</a></dt>
+<dd><p>Comprueba si la URL pasada en argumentos se encuentra en la tabla de favoritos mediante un query.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parámetros</dt>
+<dd class="field-odd"><p><strong>url</strong> (<em>str</em>) – URL a comprobar.</p>
+</dd>
+<dt class="field-even">Devuelve</dt>
+<dd class="field-even"><p>Índice de entrada, si es que existe, si no 0.</p>
+</dd>
+<dt class="field-odd">Tipo del valor devuelto</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="conexion.conectardb">
+<code class="sig-prename descclassname">conexion.</code><code class="sig-name descname">conectardb</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">dbname</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/conexion.html#conectardb"><span class="viewcode-link">[fuente]</span></a><a class="headerlink" href="#conexion.conectardb" title="Enlazar permanentemente con esta definición">¶</a></dt>
+<dd><p>Establece una conexión con la base de datos de usuario en el hilo actual.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parámetros</dt>
+<dd class="field-odd"><p><strong>dbname</strong> (<em>str</em>) – Nombre del archivo de base de datos</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="conexion.crear_tablas">
+<code class="sig-prename descclassname">conexion.</code><code class="sig-name descname">crear_tablas</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/conexion.html#crear_tablas"><span class="viewcode-link">[fuente]</span></a><a class="headerlink" href="#conexion.crear_tablas" title="Enlazar permanentemente con esta definición">¶</a></dt>
+<dd><p>Ejecuta los queries necesarios para crear las tablas en la base de datos.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="conexion.editar_favorito">
+<code class="sig-prename descclassname">conexion.</code><code class="sig-name descname">editar_favorito</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">idx</span></em>, <em class="sig-param"><span class="n">titulo</span></em>, <em class="sig-param"><span class="n">url</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/conexion.html#editar_favorito"><span class="viewcode-link">[fuente]</span></a><a class="headerlink" href="#conexion.editar_favorito" title="Enlazar permanentemente con esta definición">¶</a></dt>
+<dd><p>Edita una entrada de favoritos en la base de datos con los parametros pasados en argumentos.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parámetros</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>idx</strong> (<em>int</em>) – Índice de la entrada a editar</p></li>
+<li><p><strong>titulo</strong> (<em>str</em>) – Nuevo título de la entrada</p></li>
+<li><p><strong>url</strong> (<em>str</em>) – Nueva URL de la entrada</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="conexion.insertar_historial">
+<code class="sig-prename descclassname">conexion.</code><code class="sig-name descname">insertar_historial</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">url</span></em>, <em class="sig-param"><span class="n">titulo</span><span class="o">=</span><span class="default_value">''</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/conexion.html#insertar_historial"><span class="viewcode-link">[fuente]</span></a><a class="headerlink" href="#conexion.insertar_historial" title="Enlazar permanentemente con esta definición">¶</a></dt>
+<dd><p>Inserta una entrada nueva en el historial a partir de los parámetros pasados en argumentos.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parámetros</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>url</strong> (<em>str</em>) – URL de la entrada</p></li>
+<li><p><strong>titulo</strong> (<em>str</em>) – Título de la entrada</p></li>
+</ul>
+</dd>
+</dl>
+<p>Tras insertar la nueva entrada, selecciona su identificador y establece la variable global LAST_INSERT_HISTORIAL
+a ese identificador, para posteriores operaciones.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="conexion.seleccionar_ultima_url">
+<code class="sig-prename descclassname">conexion.</code><code class="sig-name descname">seleccionar_ultima_url</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/conexion.html#seleccionar_ultima_url"><span class="viewcode-link">[fuente]</span></a><a class="headerlink" href="#conexion.seleccionar_ultima_url" title="Enlazar permanentemente con esta definición">¶</a></dt>
+<dd><p>Recoge la última URL que se insertó en el historial en la base de datos, usando el comando de SQL
+last_insert_rowid()</p>
+<dl class="field-list simple">
+<dt class="field-odd">Devuelve</dt>
+<dd class="field-odd"><p>Última URL insertada en el historial</p>
+</dd>
+<dt class="field-even">Tipo del valor devuelto</dt>
+<dd class="field-even"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">PYQTBROWSER</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navegación</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Búsqueda rápida</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Ir a" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2021, Willy Najberg.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.4.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../_sources/src/conexion.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

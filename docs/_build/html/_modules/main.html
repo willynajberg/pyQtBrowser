@@ -1,0 +1,1151 @@
+
+<!DOCTYPE html>
+
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>main &#8212; documentación de PYQTBROWSER - 0.5.1</title>
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/translations.js"></script>
+    <link rel="index" title="Índice" href="../genindex.html" />
+    <link rel="search" title="Búsqueda" href="../search.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Código fuente para main</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">conexion</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">var</span>
+
+<span class="kn">from</span> <span class="nn">PyQt5.QtCore</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">PyQt5.QtGui</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">PyQt5.QtWebEngineWidgets</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">PyQt5.QtWidgets</span> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="kn">from</span> <span class="nn">dlgabout</span> <span class="kn">import</span> <span class="n">Ui_dlgAbout</span>
+<span class="kn">from</span> <span class="nn">editar_marcador</span> <span class="kn">import</span> <span class="n">Ui_dlgEditMarcador</span>
+<span class="kn">from</span> <span class="nn">widgethistorial</span> <span class="kn">import</span> <span class="n">WidgetHistorial</span>
+<span class="kn">from</span> <span class="nn">hilo_trabajador</span> <span class="kn">import</span> <span class="n">HiloTrabajador</span>
+<span class="kn">from</span> <span class="nn">ventana</span> <span class="kn">import</span> <span class="o">*</span>
+
+
+<div class="viewcode-block" id="DialogEditMarcador"><a class="viewcode-back" href="../src/main.html#main.DialogEditMarcador">[documentos]</a><span class="k">class</span> <span class="nc">DialogEditMarcador</span><span class="p">(</span><span class="n">QtWidgets</span><span class="o">.</span><span class="n">QDialog</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    Clase que instancia el dialogo de edición de un marcador.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">idx</span><span class="p">,</span> <span class="n">titulo</span><span class="p">,</span> <span class="n">url</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">DialogEditMarcador</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ui</span> <span class="o">=</span> <span class="n">Ui_dlgEditMarcador</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">setupUi</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">txtTitulo</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="n">titulo</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">txtURL</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">buttonBox</span><span class="o">.</span><span class="n">button</span><span class="p">(</span><span class="n">QtWidgets</span><span class="o">.</span><span class="n">QDialogButtonBox</span><span class="o">.</span><span class="n">Ok</span><span class="p">)</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="k">lambda</span> <span class="n">_</span><span class="p">,</span> <span class="n">indice</span><span class="o">=</span><span class="n">idx</span><span class="p">:</span>
+                                                                                <span class="bp">self</span><span class="o">.</span><span class="n">ejecutar</span><span class="p">(</span><span class="n">indice</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">buttonBox</span><span class="o">.</span><span class="n">button</span><span class="p">(</span><span class="n">QtWidgets</span><span class="o">.</span><span class="n">QDialogButtonBox</span><span class="o">.</span><span class="n">Cancel</span><span class="p">)</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">close</span><span class="p">())</span>
+
+<div class="viewcode-block" id="DialogEditMarcador.ejecutar"><a class="viewcode-back" href="../src/main.html#main.DialogEditMarcador.ejecutar">[documentos]</a>    <span class="k">def</span> <span class="nf">ejecutar</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">idx</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Funcion llamada por el botón de OK del dialogo que recoge los datos del formulario y edita el marcador en la</span>
+<span class="sd">        base de datos.</span>
+
+<span class="sd">        :param idx: Indice del marcador en la base de datos</span>
+<span class="sd">        :type idx: int</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">var</span><span class="o">.</span><span class="n">nav</span><span class="o">.</span><span class="n">hilo_trab</span><span class="o">.</span><span class="n">anadir_tarea</span><span class="p">(</span><span class="k">lambda</span> <span class="n">indice</span><span class="o">=</span><span class="n">idx</span><span class="p">,</span> <span class="n">titulo</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">txtTitulo</span><span class="o">.</span><span class="n">text</span><span class="p">(),</span> <span class="n">url</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">txtURL</span><span class="o">.</span><span class="n">text</span><span class="p">():</span>
+                                       <span class="n">var</span><span class="o">.</span><span class="n">nav</span><span class="o">.</span><span class="n">hilo_trab</span><span class="o">.</span><span class="n">editar_favorito</span><span class="p">(</span><span class="n">indice</span><span class="p">,</span> <span class="n">titulo</span><span class="p">,</span> <span class="n">url</span><span class="p">))</span></div></div>
+
+
+<div class="viewcode-block" id="DialogAbout"><a class="viewcode-back" href="../src/main.html#main.DialogAbout">[documentos]</a><span class="k">class</span> <span class="nc">DialogAbout</span><span class="p">(</span><span class="n">QtWidgets</span><span class="o">.</span><span class="n">QDialog</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    Clase que instancia el dialogo de about.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">DialogAbout</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ui</span> <span class="o">=</span> <span class="n">Ui_dlgAbout</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">setupUi</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">lblVersion</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="n">var</span><span class="o">.</span><span class="n">VERSION</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">buttonBox</span><span class="o">.</span><span class="n">button</span><span class="p">(</span><span class="n">QtWidgets</span><span class="o">.</span><span class="n">QDialogButtonBox</span><span class="o">.</span><span class="n">Close</span><span class="p">)</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">close</span><span class="p">())</span></div>
+
+
+<div class="viewcode-block" id="Main"><a class="viewcode-back" href="../src/main.html#main.Main">[documentos]</a><span class="k">class</span> <span class="nc">Main</span><span class="p">(</span><span class="n">QMainWindow</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    Clase que instancia la ventana principal de la aplicacion.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Creacion pyqtSignals propios de la ventana principal</span>
+    <span class="n">marcadoresLimpios</span> <span class="o">=</span> <span class="n">pyqtSignal</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">Main</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="n">var</span><span class="o">.</span><span class="n">ui</span> <span class="o">=</span> <span class="n">Ui_MainWindow</span><span class="p">()</span>
+        <span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">setupUi</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+        <span class="n">settings</span> <span class="o">=</span> <span class="n">QSettings</span><span class="p">(</span><span class="s2">&quot;pyQtBrowser&quot;</span><span class="p">,</span> <span class="s2">&quot;pyQtBrowser&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Menu de la esquina de la derecha:</span>
+        <span class="n">var</span><span class="o">.</span><span class="n">menu</span> <span class="o">=</span> <span class="n">QMenu</span><span class="p">(</span><span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">btnMenu</span><span class="p">)</span>
+        <span class="n">var</span><span class="o">.</span><span class="n">menu</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">actionNewTab</span><span class="p">)</span>
+        <span class="n">var</span><span class="o">.</span><span class="n">menu</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">actionCloseTab</span><span class="p">)</span>
+        <span class="n">var</span><span class="o">.</span><span class="n">menu</span><span class="o">.</span><span class="n">addSeparator</span><span class="p">()</span>
+        <span class="n">var</span><span class="o">.</span><span class="n">menu</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">actionHistorial</span><span class="p">)</span>
+        <span class="n">var</span><span class="o">.</span><span class="n">menu</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">actionMostrar_marcadores</span><span class="p">)</span>
+        <span class="n">var</span><span class="o">.</span><span class="n">menu</span><span class="o">.</span><span class="n">addSeparator</span><span class="p">()</span>
+        <span class="n">var</span><span class="o">.</span><span class="n">menu</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">actionAbrir</span><span class="p">)</span>
+        <span class="n">var</span><span class="o">.</span><span class="n">menu</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">actionGuardar</span><span class="p">)</span>
+        <span class="n">var</span><span class="o">.</span><span class="n">menu</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">actionBuscar</span><span class="p">)</span>
+        <span class="n">var</span><span class="o">.</span><span class="n">menu</span><span class="o">.</span><span class="n">addSeparator</span><span class="p">()</span>
+        <span class="n">var</span><span class="o">.</span><span class="n">menu</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">actionAcerca_de</span><span class="p">)</span>
+        <span class="n">var</span><span class="o">.</span><span class="n">menu</span><span class="o">.</span><span class="n">addSeparator</span><span class="p">()</span>
+        <span class="n">var</span><span class="o">.</span><span class="n">menu</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">actionSalir</span><span class="p">)</span>
+        <span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">btnMenu</span><span class="o">.</span><span class="n">setMenu</span><span class="p">(</span><span class="n">var</span><span class="o">.</span><span class="n">menu</span><span class="p">)</span>
+
+        <span class="c1"># conexión de funciones con eventos del navegador:</span>
+        <span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">editUrl</span><span class="o">.</span><span class="n">returnPressed</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">navegar_a_url</span><span class="p">(</span><span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">editUrl</span><span class="o">.</span><span class="n">text</span><span class="p">()))</span>
+        <span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">tabWidget</span><span class="o">.</span><span class="n">currentChanged</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pestana_cambiada</span><span class="p">)</span>
+        <span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">tabWidget</span><span class="o">.</span><span class="n">tabCloseRequested</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cerrar_pestana</span><span class="p">)</span>
+        <span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">btnHome</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">navegar_a_home</span><span class="p">)</span>
+        <span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">btnRefrescar</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">refrescar</span><span class="p">)</span>
+        <span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">btnAtras</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span> <span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">tabWidget</span><span class="o">.</span><span class="n">currentWidget</span><span class="p">()</span><span class="o">.</span><span class="n">back</span><span class="p">())</span>
+        <span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">btnAdelante</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span> <span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">tabWidget</span><span class="o">.</span><span class="n">currentWidget</span><span class="p">()</span><span class="o">.</span><span class="n">forward</span><span class="p">())</span>
+        <span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">btnMenu</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mostrar_menu</span><span class="p">)</span>
+        <span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">btnHist</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">abrir_historial</span><span class="p">)</span>
+        <span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">btnFav</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">anadir_favorito</span><span class="p">)</span>
+
+        <span class="c1"># conexion de funciones con acciones del navegador</span>
+        <span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">actionNewTab</span><span class="o">.</span><span class="n">triggered</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">nueva_pestana</span><span class="p">(</span><span class="n">var</span><span class="o">.</span><span class="n">URL_HOME</span><span class="p">))</span>
+        <span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">actionCloseTab</span><span class="o">.</span><span class="n">triggered</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">cerrar_pestana</span><span class="p">(</span><span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">tabWidget</span><span class="o">.</span><span class="n">indexOf</span><span class="p">(</span>
+            <span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">tabWidget</span><span class="o">.</span><span class="n">currentWidget</span><span class="p">())))</span>
+        <span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">actionHistorial</span><span class="o">.</span><span class="n">triggered</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">abrir_historial</span><span class="p">)</span>
+        <span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">actionSalir</span><span class="o">.</span><span class="n">triggered</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">close</span><span class="p">)</span>
+        <span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">actionMostrar_marcadores</span><span class="o">.</span><span class="n">triggered</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="k">lambda</span> <span class="n">_</span><span class="p">,</span> <span class="n">sett</span><span class="o">=</span><span class="n">settings</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">toggle_barra_marcadores</span><span class="p">(</span><span class="n">sett</span><span class="p">))</span>
+        <span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">actionAbrir</span><span class="o">.</span><span class="n">triggered</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">abrir_pagina</span><span class="p">)</span>
+        <span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">actionGuardar</span><span class="o">.</span><span class="n">triggered</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">guardar_pagina</span><span class="p">)</span>
+        <span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">actionBuscar</span><span class="o">.</span><span class="n">triggered</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">abrir_buscar</span><span class="p">)</span>
+        <span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">actionAcerca_de</span><span class="o">.</span><span class="n">triggered</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">abrir_about</span><span class="p">)</span>
+
+        <span class="c1"># Creación del widget de marcadores</span>
+        <span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">widgetMarcadores</span> <span class="o">=</span> <span class="n">QToolBar</span><span class="p">()</span>
+        <span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">widgetMarcadores</span><span class="o">.</span><span class="n">setToolButtonStyle</span><span class="p">(</span><span class="n">Qt</span><span class="o">.</span><span class="n">ToolButtonTextBesideIcon</span><span class="p">)</span>
+        <span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">verticalLayout</span><span class="o">.</span><span class="n">insertWidget</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">widgetMarcadores</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">settings</span><span class="o">.</span><span class="n">value</span><span class="p">(</span><span class="s2">&quot;mostrarMarcadores&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="nb">bool</span><span class="p">):</span>
+            <span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">widgetMarcadores</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+            <span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">actionMostrar_marcadores</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s2">&quot;Ocultar barra de marcadores&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">widgetMarcadores</span><span class="o">.</span><span class="n">hide</span><span class="p">()</span>
+            <span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">actionMostrar_marcadores</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s2">&quot;Mostrar barra de marcadores&quot;</span><span class="p">)</span>
+
+        <span class="c1"># al principio deshabilita los botones de atras y de delante</span>
+        <span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">btnAtras</span><span class="o">.</span><span class="n">setDisabled</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">btnAdelante</span><span class="o">.</span><span class="n">setDisabled</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="c1"># eventos relacionados con la barra de buscar en la pagina:</span>
+        <span class="c1"># al principio se oculta</span>
+        <span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">widgetBusqueda</span><span class="o">.</span><span class="n">hide</span><span class="p">()</span>
+
+        <span class="c1"># conexion de eventos</span>
+        <span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">btnCerrar</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cerrar_buscar</span><span class="p">)</span>
+        <span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">btnSig</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">buscar_siguiente</span><span class="p">)</span>
+        <span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">btnAnt</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">buscar_anterior</span><span class="p">)</span>
+        <span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">editBusqueda</span><span class="o">.</span><span class="n">textChanged</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">buscar_en_pagina</span><span class="p">)</span>
+
+        <span class="c1"># Crea una nueva instancia del hilo trabajador</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hilo_trab</span> <span class="o">=</span> <span class="n">HiloTrabajador</span><span class="p">()</span>
+
+        <span class="c1"># Conecta la señal emitida por el hilo al recibir las paginas favoritas de la BD con la funcion del navegador</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hilo_trab</span><span class="o">.</span><span class="n">favoritosRecibidos</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cargar_favoritos</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hilo_trab</span><span class="o">.</span><span class="n">anadir_tarea</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hilo_trab</span><span class="o">.</span><span class="n">cargar_favoritos</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">nueva_pestana</span><span class="p">(</span><span class="n">var</span><span class="o">.</span><span class="n">URL_HOME</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Main.nueva_pestana"><a class="viewcode-back" href="../src/main.html#main.Main.nueva_pestana">[documentos]</a>    <span class="k">def</span> <span class="nf">nueva_pestana</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Crea una pestaña nueva en el TabWidget del navegador y le asigna un widget QWebEngineView.</span>
+
+<span class="sd">        :param url: URL de la pagina a cargar en la nueva pestaña</span>
+<span class="sd">        :type url: str</span>
+<span class="sd">        :return: Objeto de la nueva pestaña</span>
+<span class="sd">        :rtype: QtWebEngineWidgets.QWebEngineView</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># crea un objeto QWebEngineView nuevo y lo asigna a una pestaña nueva del TabWidget</span>
+            <span class="n">navegador</span> <span class="o">=</span> <span class="n">QWebEngineView</span><span class="p">()</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">setWindowTitle</span><span class="p">(</span><span class="s2">&quot;PyQtBrowser - Pestaña nueva&quot;</span><span class="p">)</span>
+            <span class="n">i</span> <span class="o">=</span> <span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">tabWidget</span><span class="o">.</span><span class="n">addTab</span><span class="p">(</span><span class="n">navegador</span><span class="p">,</span> <span class="s2">&quot;Pestaña nueva&quot;</span><span class="p">)</span>
+            <span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">tabWidget</span><span class="o">.</span><span class="n">setCurrentIndex</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+
+            <span class="c1"># carga la url nueva en el nuevo objeto y en la barra de urls</span>
+            <span class="n">navegador</span><span class="o">.</span><span class="n">page</span><span class="p">()</span><span class="o">.</span><span class="n">setUrl</span><span class="p">(</span><span class="n">QUrl</span><span class="p">(</span><span class="n">url</span><span class="p">))</span>
+            <span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">editUrl</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+
+            <span class="c1"># conexion de eventos del objeto QWebEngineView con funciones del navegador</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">conectar_nav</span><span class="p">(</span><span class="n">navegador</span><span class="p">)</span>
+
+            <span class="c1"># para que la pestaña de añadir pestañas aparezca al final, la borra y la vuelve a añadir</span>
+            <span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">tabWidget</span><span class="o">.</span><span class="n">removeTab</span><span class="p">(</span><span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">tabWidget</span><span class="o">.</span><span class="n">indexOf</span><span class="p">(</span><span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">tabAnadir</span><span class="p">))</span>
+            <span class="n">i2</span> <span class="o">=</span> <span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">tabWidget</span><span class="o">.</span><span class="n">addTab</span><span class="p">(</span><span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">tabAnadir</span><span class="p">,</span> <span class="s2">&quot;+&quot;</span><span class="p">)</span>
+
+            <span class="c1"># esta funcion oculta el boton de cerrar de la pestaña de añadir</span>
+            <span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">tabWidget</span><span class="o">.</span><span class="n">tabBar</span><span class="p">()</span><span class="o">.</span><span class="n">tabButton</span><span class="p">(</span><span class="n">i2</span><span class="p">,</span> <span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">tabWidget</span><span class="o">.</span><span class="n">tabBar</span><span class="p">()</span><span class="o">.</span><span class="n">RightSide</span><span class="p">)</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+
+            <span class="k">return</span> <span class="n">navegador</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Error: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">error</span><span class="p">))</span>
+            <span class="k">return</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="Main.conectar_nav"><a class="viewcode-back" href="../src/main.html#main.Main.conectar_nav">[documentos]</a>    <span class="k">def</span> <span class="nf">conectar_nav</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">navegador</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Conecta los eventos emitidos por un objeto de tipo QWebEngineView con funciones de la aplicacion.</span>
+
+<span class="sd">        :param navegador: Objeto de navegador</span>
+<span class="sd">        :type navegador: QtWebEngineWidgets.QWebEngineView</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">navegador</span><span class="o">.</span><span class="n">urlChanged</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="k">lambda</span> <span class="n">qurl</span><span class="p">,</span> <span class="n">nav</span><span class="o">=</span><span class="n">navegador</span><span class="p">:</span>
+                                         <span class="bp">self</span><span class="o">.</span><span class="n">cambiar_url</span><span class="p">(</span><span class="n">qurl</span><span class="p">,</span> <span class="n">nav</span><span class="p">))</span>
+            <span class="n">navegador</span><span class="o">.</span><span class="n">iconChanged</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="k">lambda</span> <span class="n">icono</span><span class="p">,</span> <span class="n">nav</span><span class="o">=</span><span class="n">navegador</span><span class="p">:</span>
+                                          <span class="bp">self</span><span class="o">.</span><span class="n">actualizar_icono</span><span class="p">(</span><span class="n">icono</span><span class="p">,</span> <span class="n">nav</span><span class="p">))</span>
+
+            <span class="n">navegador</span><span class="o">.</span><span class="n">loadStarted</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="k">lambda</span> <span class="n">nav</span><span class="o">=</span><span class="n">navegador</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">carga_iniciada</span><span class="p">(</span><span class="n">nav</span><span class="p">))</span>
+            <span class="n">navegador</span><span class="o">.</span><span class="n">loadProgress</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="k">lambda</span> <span class="n">progreso</span><span class="p">,</span> <span class="n">nav</span><span class="o">=</span><span class="n">navegador</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">progreso_carga</span><span class="p">(</span><span class="n">progreso</span><span class="p">,</span> <span class="n">nav</span><span class="p">))</span>
+            <span class="n">navegador</span><span class="o">.</span><span class="n">loadFinished</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="k">lambda</span> <span class="n">_</span><span class="p">,</span> <span class="n">nav</span><span class="o">=</span><span class="n">navegador</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">carga_completada</span><span class="p">(</span><span class="n">nav</span><span class="p">))</span>
+
+            <span class="n">navegador</span><span class="o">.</span><span class="n">page</span><span class="p">()</span><span class="o">.</span><span class="n">findTextFinished</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">busqueda_cambiada</span><span class="p">)</span>
+
+            <span class="c1"># Sobreescribe la funcion de createWindow del QWebEngineView con la definida abajo</span>
+            <span class="c1"># Esta funcion es llamada por elementos javascript de las paginas que abren ventanas nuevas</span>
+            <span class="n">navegador</span><span class="o">.</span><span class="n">createWindow</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">crear_window</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Error: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">error</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="Main.crear_window"><a class="viewcode-back" href="../src/main.html#main.Main.crear_window">[documentos]</a>    <span class="k">def</span> <span class="nf">crear_window</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Funcion que sobreescribe el metodo nativo de createWindow de un objeto QWebEngineView</span>
+
+<span class="sd">        :param t:</span>
+<span class="sd">        :type t:</span>
+<span class="sd">        :return: Objeto de la pestaña nueva</span>
+<span class="sd">        :rtype: QtWebEngineWidgets.QWebEnginePage</span>
+
+<span class="sd">        Al intentar crear una pestaña nueva con javascript, este espera que el navegador en el que se ejecuta le</span>
+<span class="sd">        retorne un puntero a un objeto de tipo QWebEnginePage en el que pueda escribir una url nueva</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">nueva</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nueva_pestana</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+            <span class="n">nuevapag</span> <span class="o">=</span> <span class="n">QWebEnginePage</span><span class="p">()</span>
+            <span class="n">nueva</span><span class="o">.</span><span class="n">setAttribute</span><span class="p">(</span><span class="n">Qt</span><span class="o">.</span><span class="n">WA_NativeWindow</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+            <span class="n">nueva</span><span class="o">.</span><span class="n">setPage</span><span class="p">(</span><span class="n">nuevapag</span><span class="p">)</span>
+            <span class="n">nueva</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+            <span class="k">return</span> <span class="n">nueva</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Error: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">error</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="Main.carga_iniciada"><a class="viewcode-back" href="../src/main.html#main.Main.carga_iniciada">[documentos]</a>    <span class="k">def</span> <span class="nf">carga_iniciada</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">navegador</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Funcion conectada al evento loadStarted de un objeto QWebEngineView.</span>
+
+<span class="sd">        :param navegador: Objeto de navegador</span>
+<span class="sd">        :type navegador: QtWebEngineWidgets.QWebEngineView</span>
+
+<span class="sd">        Al empezar a cargar una página, comprobará si esta página está en los favoritos, y cambiará el boton de</span>
+<span class="sd">        refrescar por el de cancelar carga.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">comprobar_fav</span><span class="p">(</span><span class="n">navegador</span><span class="o">.</span><span class="n">page</span><span class="p">()</span><span class="o">.</span><span class="n">url</span><span class="p">()</span><span class="o">.</span><span class="n">toString</span><span class="p">())</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">cambiar_btnrefrescar</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Error: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">error</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="Main.progreso_carga"><a class="viewcode-back" href="../src/main.html#main.Main.progreso_carga">[documentos]</a>    <span class="k">def</span> <span class="nf">progreso_carga</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">progreso</span><span class="p">,</span> <span class="n">navegador</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Funcion conectada al evento loadProgress emitido por un objeto QWebEngineView. Emite un valor de progreso de</span>
+<span class="sd">        carga de la página que es un entero entre 0-100.</span>
+
+<span class="sd">        :param progreso: Progreso de carga</span>
+<span class="sd">        :type progreso: int</span>
+<span class="sd">        :param navegador: Objeto del navegador</span>
+<span class="sd">        :type navegador: QtWebEngineWidgets.QWebEngineView</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">progreso</span> <span class="o">==</span> <span class="mi">100</span><span class="p">:</span>
+                <span class="c1"># En algunas paginas como YouTube el evento loadFinished no es emitido, la unica forma que he encontrado</span>
+                <span class="c1"># de solucionar esto es con un timer</span>
+                <span class="n">QTimer</span><span class="o">.</span><span class="n">singleShot</span><span class="p">(</span><span class="mi">1000</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">nav</span><span class="o">=</span><span class="n">navegador</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">carga_completada</span><span class="p">(</span><span class="n">navegador</span><span class="p">))</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Error: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">error</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="Main.carga_completada"><a class="viewcode-back" href="../src/main.html#main.Main.carga_completada">[documentos]</a>    <span class="k">def</span> <span class="nf">carga_completada</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">navegador</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Función conectada al evento loadFinished del navegador. Se encargará de cambiar el boton de cancelar carga</span>
+<span class="sd">        al de refrescar, de actualizar el título y de insertar una nueva entrada en el historial, o en caso de que</span>
+<span class="sd">        la última entrada del historial sea la misma url, actualizar su título.</span>
+
+<span class="sd">        :param navegador: Objeto de navegador</span>
+<span class="sd">        :type navegador: QtWebEngineWidgets.QWebEngineView</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">navegador</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">navegador</span><span class="p">,</span> <span class="n">QWebEngineView</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">hilo_trab</span><span class="o">.</span><span class="n">anadir_tarea</span><span class="p">(</span><span class="k">lambda</span> <span class="n">nav</span><span class="o">=</span><span class="n">navegador</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">hilo_trab</span><span class="o">.</span><span class="n">anadir_historial</span><span class="p">(</span><span class="n">nav</span><span class="p">))</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">actualizacion_completada</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">actualizar_icono</span><span class="p">(</span><span class="n">navegador</span><span class="o">.</span><span class="n">page</span><span class="p">()</span><span class="o">.</span><span class="n">icon</span><span class="p">(),</span> <span class="n">navegador</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">actualizar_titulo</span><span class="p">(</span><span class="n">navegador</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Error en la funcion carga completada: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">error</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="Main.actualizar_titulo"><a class="viewcode-back" href="../src/main.html#main.Main.actualizar_titulo">[documentos]</a>    <span class="k">def</span> <span class="nf">actualizar_titulo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">navegador</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Funcion conectada al evento loadFinished de un objeto QWebEngineView. Cuando una página acabe de cargar,</span>
+<span class="sd">        cambiará el título de la pestaña asignada a ese QWebEngineView al título de la página web.</span>
+
+<span class="sd">        :param navegador: Objeto de navegador</span>
+<span class="sd">        :type navegador: QtWebEngineWidgets.QWebEngineView</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">titulo</span> <span class="o">=</span> <span class="n">navegador</span><span class="o">.</span><span class="n">page</span><span class="p">()</span><span class="o">.</span><span class="n">title</span><span class="p">()</span>
+
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">titulo</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">titulo</span> <span class="o">=</span> <span class="s2">&quot;Pestaña nueva&quot;</span>
+            <span class="c1"># Este código se asegurará de que los títulos de páginas largos se acortarán</span>
+            <span class="n">fm</span> <span class="o">=</span> <span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">tabWidget</span><span class="o">.</span><span class="n">fontMetrics</span><span class="p">()</span>
+            <span class="n">i</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">titulo</span><span class="p">)</span>
+            <span class="k">while</span> <span class="n">fm</span><span class="o">.</span><span class="n">width</span><span class="p">(</span><span class="n">titulo</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">185</span><span class="p">:</span>
+                <span class="n">titulo</span> <span class="o">=</span> <span class="n">titulo</span><span class="p">[:</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;...&quot;</span>
+                <span class="n">i</span> <span class="o">=</span> <span class="n">i</span> <span class="o">-</span> <span class="mi">1</span>
+
+            <span class="c1"># Si la pestaña que tenemos abierta es la del QWebEngineView que ha activado el evento, cambia el título</span>
+            <span class="c1"># de la ventana también</span>
+            <span class="k">if</span> <span class="n">navegador</span> <span class="o">==</span> <span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">tabWidget</span><span class="o">.</span><span class="n">currentWidget</span><span class="p">():</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">setWindowTitle</span><span class="p">(</span><span class="s2">&quot;PyQtBrowser - </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">titulo</span><span class="p">)</span>
+
+            <span class="c1"># Cambia el título de la pestaña del QWebEngineView que ha llamado al evento</span>
+            <span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">tabWidget</span><span class="o">.</span><span class="n">setTabText</span><span class="p">(</span><span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">tabWidget</span><span class="o">.</span><span class="n">indexOf</span><span class="p">(</span><span class="n">navegador</span><span class="p">),</span> <span class="n">titulo</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Error: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">error</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="Main.actualizar_icono"><a class="viewcode-back" href="../src/main.html#main.Main.actualizar_icono">[documentos]</a>    <span class="k">def</span> <span class="nf">actualizar_icono</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">icono</span><span class="p">,</span> <span class="n">navegador</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Esta función funciona igual que la funcion de actualizar_titulo, solo que en este caso es llamada por el</span>
+<span class="sd">        evento iconChanged de un QWebEngine view, y le asigna el icono de la página a la pestaña del objeto navegador.</span>
+
+<span class="sd">        :param icono: Icono de la pagina web</span>
+<span class="sd">        :type icono: QIcon, None</span>
+<span class="sd">        :param navegador: Objeto de navegador</span>
+<span class="sd">        :type navegador: QtWebEngineWidgets.QWebEngineView</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">icono</span> <span class="ow">and</span> <span class="n">icono</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">hilo_trab</span><span class="o">.</span><span class="n">anadir_tarea</span><span class="p">(</span><span class="k">lambda</span> <span class="n">nav</span><span class="o">=</span><span class="n">navegador</span><span class="p">,</span> <span class="n">i</span><span class="o">=</span><span class="n">icono</span><span class="p">:</span>
+                                            <span class="n">conexion</span><span class="o">.</span><span class="n">actualizar_icono_fav</span><span class="p">(</span><span class="n">nav</span><span class="o">.</span><span class="n">page</span><span class="p">()</span><span class="o">.</span><span class="n">url</span><span class="p">()</span><span class="o">.</span><span class="n">toString</span><span class="p">(),</span> <span class="n">i</span><span class="p">))</span>
+                <span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">tabWidget</span><span class="o">.</span><span class="n">setTabIcon</span><span class="p">(</span><span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">tabWidget</span><span class="o">.</span><span class="n">indexOf</span><span class="p">(</span><span class="n">navegador</span><span class="p">),</span> <span class="n">icono</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># Si la pagina ha pasado un icono nulo, pasa un objeto QIcon nuevo en blanco</span>
+                <span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">tabWidget</span><span class="o">.</span><span class="n">setTabIcon</span><span class="p">(</span><span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">tabWidget</span><span class="o">.</span><span class="n">indexOf</span><span class="p">(</span><span class="n">navegador</span><span class="p">),</span> <span class="n">QIcon</span><span class="p">())</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Error: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">error</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="Main.cambiar_url"><a class="viewcode-back" href="../src/main.html#main.Main.cambiar_url">[documentos]</a>    <span class="k">def</span> <span class="nf">cambiar_url</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">navegador</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Esta funcion es llamada por el evento urlChanged de un QWebEngineView. Cuando este evento se ejecute</span>
+<span class="sd">        cambiara la barra de url del navegador, el icono de la pestana, cambiara el icono de favorito habilitará los</span>
+<span class="sd">        botones de atras y adelante si es posible.</span>
+
+<span class="sd">        :param url: Objeto QUrl del enlace</span>
+<span class="sd">        :type url: QUrl</span>
+<span class="sd">        :param navegador: Objeto de navegador</span>
+<span class="sd">        :type navegador: QtWebEngineWidgets.QWebEngineView</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">navegador</span> <span class="o">==</span> <span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">tabWidget</span><span class="o">.</span><span class="n">currentWidget</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">url</span><span class="o">.</span><span class="n">scheme</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;http&quot;</span> <span class="ow">or</span> <span class="n">url</span><span class="o">.</span><span class="n">scheme</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;https&quot;</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">actualizar_icono</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">navegador</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">actualizar_url</span><span class="p">(</span><span class="n">url</span><span class="o">.</span><span class="n">toString</span><span class="p">())</span>
+
+                    <span class="bp">self</span><span class="o">.</span><span class="n">comprobar_fav</span><span class="p">(</span><span class="n">url</span><span class="o">.</span><span class="n">toString</span><span class="p">())</span>
+
+                <span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">btnAtras</span><span class="o">.</span><span class="n">setEnabled</span><span class="p">(</span><span class="n">navegador</span><span class="o">.</span><span class="n">history</span><span class="p">()</span><span class="o">.</span><span class="n">canGoBack</span><span class="p">())</span>
+                <span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">btnAdelante</span><span class="o">.</span><span class="n">setEnabled</span><span class="p">(</span><span class="n">navegador</span><span class="o">.</span><span class="n">history</span><span class="p">()</span><span class="o">.</span><span class="n">canGoForward</span><span class="p">())</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Error: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">error</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="Main.actualizar_url"><a class="viewcode-back" href="../src/main.html#main.Main.actualizar_url">[documentos]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">actualizar_url</span><span class="p">(</span><span class="n">url</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Esta funcion simplemente se encarga de actualizar el LineEdit de la URL del navegador.</span>
+
+<span class="sd">        :param url: URL de la pagina</span>
+<span class="sd">        :type url: str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">editUrl</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+            <span class="c1"># Asegura que veremos el principio de la url en el LineEdit</span>
+            <span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">editUrl</span><span class="o">.</span><span class="n">setCursorPosition</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Error: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">error</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="Main.actualizar_icono_fav"><a class="viewcode-back" href="../src/main.html#main.Main.actualizar_icono_fav">[documentos]</a>    <span class="k">def</span> <span class="nf">actualizar_icono_fav</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">id_entrada</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Esta funcion es la encargada de cambiar la apariencia del botón de favoritos si la página en la que estamos</span>
+<span class="sd">        Está marcada como favorita, y desconectará las funciones conectadas a su evento clicked y las reemplazará</span>
+<span class="sd">        por las indicadas.</span>
+
+<span class="sd">        :param id_entrada: Identificador del favorito en la base de datos, 0 si no está en los favoritos.</span>
+<span class="sd">        :type id_entrada: int</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">id_entrada</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">icono</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QIcon</span><span class="p">()</span>
+                <span class="n">icono</span><span class="o">.</span><span class="n">addPixmap</span><span class="p">(</span><span class="n">QtGui</span><span class="o">.</span><span class="n">QPixmap</span><span class="p">(</span><span class="s2">&quot;img/star_blue.png&quot;</span><span class="p">),</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QIcon</span><span class="o">.</span><span class="n">Normal</span><span class="p">,</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QIcon</span><span class="o">.</span><span class="n">Off</span><span class="p">)</span>
+                <span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">btnFav</span><span class="o">.</span><span class="n">setIcon</span><span class="p">(</span><span class="n">icono</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">btnFav</span><span class="o">.</span><span class="n">receivers</span><span class="p">(</span><span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">btnFav</span><span class="o">.</span><span class="n">clicked</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">btnFav</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">disconnect</span><span class="p">()</span>
+                <span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">btnFav</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="k">lambda</span> <span class="n">_</span><span class="p">,</span> <span class="n">idx</span><span class="o">=</span><span class="n">id_entrada</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">borrar_favorito</span><span class="p">(</span><span class="n">idx</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">icono</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QIcon</span><span class="p">()</span>
+                <span class="n">icono</span><span class="o">.</span><span class="n">addPixmap</span><span class="p">(</span><span class="n">QtGui</span><span class="o">.</span><span class="n">QPixmap</span><span class="p">(</span><span class="s2">&quot;img/star.png&quot;</span><span class="p">),</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QIcon</span><span class="o">.</span><span class="n">Normal</span><span class="p">,</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QIcon</span><span class="o">.</span><span class="n">Off</span><span class="p">)</span>
+                <span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">btnFav</span><span class="o">.</span><span class="n">setIcon</span><span class="p">(</span><span class="n">icono</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">btnFav</span><span class="o">.</span><span class="n">receivers</span><span class="p">(</span><span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">btnFav</span><span class="o">.</span><span class="n">clicked</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">btnFav</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">disconnect</span><span class="p">()</span>
+                <span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">btnFav</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">anadir_favorito</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Error: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">error</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="Main.cambiar_btnrefrescar"><a class="viewcode-back" href="../src/main.html#main.Main.cambiar_btnrefrescar">[documentos]</a>    <span class="k">def</span> <span class="nf">cambiar_btnrefrescar</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cargando</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Esta funcion es la encargada de cambiar el botón de refrescar por el de cancelar carga, segun el booleano</span>
+<span class="sd">        que se le pase en los parametros.</span>
+
+<span class="sd">        :param cargando: Estado de carga de la pagina</span>
+<span class="sd">        :type cargando: bool</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">cargando</span><span class="p">:</span>
+                <span class="n">icono</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QIcon</span><span class="p">()</span>
+                <span class="n">icono</span><span class="o">.</span><span class="n">addPixmap</span><span class="p">(</span><span class="n">QtGui</span><span class="o">.</span><span class="n">QPixmap</span><span class="p">(</span><span class="s2">&quot;img/close.png&quot;</span><span class="p">),</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QIcon</span><span class="o">.</span><span class="n">Normal</span><span class="p">,</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QIcon</span><span class="o">.</span><span class="n">Off</span><span class="p">)</span>
+                <span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">btnRefrescar</span><span class="o">.</span><span class="n">setIcon</span><span class="p">(</span><span class="n">icono</span><span class="p">)</span>
+                <span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">btnRefrescar</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cancelar_actualizacion</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">icono</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QIcon</span><span class="p">()</span>
+                <span class="n">icono</span><span class="o">.</span><span class="n">addPixmap</span><span class="p">(</span><span class="n">QtGui</span><span class="o">.</span><span class="n">QPixmap</span><span class="p">(</span><span class="s2">&quot;img/refresh.png&quot;</span><span class="p">),</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QIcon</span><span class="o">.</span><span class="n">Normal</span><span class="p">,</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QIcon</span><span class="o">.</span><span class="n">Off</span><span class="p">)</span>
+                <span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">btnRefrescar</span><span class="o">.</span><span class="n">setIcon</span><span class="p">(</span><span class="n">icono</span><span class="p">)</span>
+                <span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">btnRefrescar</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">disconnect</span><span class="p">()</span>
+                <span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">btnRefrescar</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">refrescar</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Error : </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">error</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="Main.refrescar"><a class="viewcode-back" href="../src/main.html#main.Main.refrescar">[documentos]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">refrescar</span><span class="p">():</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Funcion conectada al evento clicked del boton de refrescar. Refresca la página actual.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">tabWidget</span><span class="o">.</span><span class="n">currentWidget</span><span class="p">()</span><span class="o">.</span><span class="n">reload</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Error: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">error</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="Main.actualizacion_completada"><a class="viewcode-back" href="../src/main.html#main.Main.actualizacion_completada">[documentos]</a>    <span class="k">def</span> <span class="nf">actualizacion_completada</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Funcion conectada al evento loadFinished de un QWebEngineView que simplemente cambiará el boton de cancelar</span>
+<span class="sd">        carga por el de refrescar de nuevo.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cambiar_btnrefrescar</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Error: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">error</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="Main.cancelar_actualizacion"><a class="viewcode-back" href="../src/main.html#main.Main.cancelar_actualizacion">[documentos]</a>    <span class="k">def</span> <span class="nf">cancelar_actualizacion</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Funcion conectada al evento clicked del boton de cancelar carga que parará la carga de la pestaña actual</span>
+<span class="sd">        y cambiara el boton de cancelar carga por el de refrescar nuevamente.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">tabWidget</span><span class="o">.</span><span class="n">currentWidget</span><span class="p">()</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">actualizacion_completada</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Error: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">error</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="Main.navegar_a_url"><a class="viewcode-back" href="../src/main.html#main.Main.navegar_a_url">[documentos]</a>    <span class="k">def</span> <span class="nf">navegar_a_url</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Esta funcion esta conectada al evento returnPressed del lineEdit de la barra de URL. Es decir, se activará</span>
+<span class="sd">        cuando el usuario pulse Enter en la barra de url.</span>
+
+<span class="sd">        :param url: URL de la página a cargar</span>
+<span class="sd">        :type url: str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># Usa un patron de RegEx para comprobar si lo que el usuario ha introducido es un enlace o una IP</span>
+            <span class="n">es_enlace</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s2">&quot;(([a-zA-Z]|[0-9])[.]([a-zA-Z]|[0-9]))|[a-z][/]$&quot;</span><span class="p">,</span> <span class="n">url</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">es_enlace</span><span class="p">:</span>
+                <span class="c1"># Si es un enlace, creara un objeto QUrl con el enlace introducido</span>
+                <span class="n">qurl</span> <span class="o">=</span> <span class="n">QUrl</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+
+                <span class="c1"># Si el usuario no ha puesto http:// o https:// al principio, pondra el protocolo http automaticamente</span>
+                <span class="k">if</span> <span class="n">qurl</span><span class="o">.</span><span class="n">scheme</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span><span class="p">:</span>
+                    <span class="n">qurl</span><span class="o">.</span><span class="n">setScheme</span><span class="p">(</span><span class="s2">&quot;http&quot;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># Si lo que el usuario ha puesto no es un enlace, reemplaza los espacios en blanco por + y utiliza</span>
+                <span class="c1"># el enlace de busqueda establecido para buscar lo introducido en internet.</span>
+                <span class="n">qurl</span> <span class="o">=</span> <span class="n">QUrl</span><span class="p">(</span><span class="n">var</span><span class="o">.</span><span class="n">URL_BUSQUEDA</span> <span class="o">%</span> <span class="n">url</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="s2">&quot;+&quot;</span><span class="p">))</span>
+
+            <span class="c1"># Finalmente cambia a la QUrl generada.</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">tabWidget</span><span class="o">.</span><span class="n">currentWidget</span><span class="p">(),</span> <span class="n">QWebEngineView</span><span class="p">):</span>
+                <span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">tabWidget</span><span class="o">.</span><span class="n">currentWidget</span><span class="p">()</span><span class="o">.</span><span class="n">page</span><span class="p">()</span><span class="o">.</span><span class="n">setUrl</span><span class="p">(</span><span class="n">qurl</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">nueva_pestana</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Error: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">error</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="Main.navegar_a_home"><a class="viewcode-back" href="../src/main.html#main.Main.navegar_a_home">[documentos]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">navegar_a_home</span><span class="p">():</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Funcion conectada al boton home del navegador que simplemente navegara al enlace establecido como enlace home</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">tabWidget</span><span class="o">.</span><span class="n">currentWidget</span><span class="p">()</span><span class="o">.</span><span class="n">setUrl</span><span class="p">(</span><span class="n">QUrl</span><span class="p">(</span><span class="n">var</span><span class="o">.</span><span class="n">URL_HOME</span><span class="p">))</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Error: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">error</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="Main.pestana_cambiada"><a class="viewcode-back" href="../src/main.html#main.Main.pestana_cambiada">[documentos]</a>    <span class="k">def</span> <span class="nf">pestana_cambiada</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Funcion conectada al evento tabChanged del TabWidget del navegador que se encarga de cambiar el titulo de la</span>
+<span class="sd">        ventana principal, la url del line edit, el boton de refrescar y los botones de atras y adelante.</span>
+
+<span class="sd">        :param i: Indice de la pestaña a la que se ha cambiado</span>
+<span class="sd">        :type i: int</span>
+
+<span class="sd">        Tambien cierra la barra de buscar en pagina si está abierta para evitar fallos.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># Si la pestaña a la que el usuario se quiere desplazar es la pestaña de añadir, añade una nueva</span>
+            <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">tabWidget</span><span class="o">.</span><span class="n">indexOf</span><span class="p">(</span><span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">tabAnadir</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">nueva_pestana</span><span class="p">(</span><span class="n">var</span><span class="o">.</span><span class="n">URL_HOME</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">widget_actual</span> <span class="o">=</span> <span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">tabWidget</span><span class="o">.</span><span class="n">currentWidget</span><span class="p">()</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">widget_actual</span><span class="p">,</span> <span class="n">QWebEngineView</span><span class="p">):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">cambiar_btnrefrescar</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">actualizar_titulo</span><span class="p">(</span><span class="n">widget_actual</span><span class="p">)</span>
+
+                    <span class="k">if</span> <span class="n">widget_actual</span><span class="o">.</span><span class="n">url</span><span class="p">()</span><span class="o">.</span><span class="n">scheme</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;http&quot;</span> <span class="ow">or</span> <span class="n">widget_actual</span><span class="o">.</span><span class="n">url</span><span class="p">()</span><span class="o">.</span><span class="n">scheme</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;https&quot;</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">actualizar_url</span><span class="p">(</span><span class="n">widget_actual</span><span class="o">.</span><span class="n">url</span><span class="p">()</span><span class="o">.</span><span class="n">toString</span><span class="p">())</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">comprobar_fav</span><span class="p">(</span><span class="n">widget_actual</span><span class="o">.</span><span class="n">url</span><span class="p">()</span><span class="o">.</span><span class="n">toString</span><span class="p">())</span>
+
+                    <span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">btnAtras</span><span class="o">.</span><span class="n">setEnabled</span><span class="p">(</span><span class="n">widget_actual</span><span class="o">.</span><span class="n">history</span><span class="p">()</span><span class="o">.</span><span class="n">canGoBack</span><span class="p">())</span>
+                    <span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">btnAdelante</span><span class="o">.</span><span class="n">setEnabled</span><span class="p">(</span><span class="n">widget_actual</span><span class="o">.</span><span class="n">history</span><span class="p">()</span><span class="o">.</span><span class="n">canGoForward</span><span class="p">())</span>
+                <span class="c1"># Si el widget actual es la pestaña de historial, para evitar errores deshabilitará los botones de</span>
+                <span class="c1"># navegacion</span>
+                <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">widget_actual</span><span class="p">,</span> <span class="n">WidgetHistorial</span><span class="p">):</span>
+                    <span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">btnAtras</span><span class="o">.</span><span class="n">setEnabled</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+                    <span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">btnAdelante</span><span class="o">.</span><span class="n">setEnabled</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">setWindowTitle</span><span class="p">(</span><span class="s2">&quot;PyQtBrowser - Historial&quot;</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">actualizar_url</span><span class="p">(</span><span class="s2">&quot;pyqtbrowser:historial&quot;</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">actualizar_icono_fav</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">widgetBusqueda</span><span class="o">.</span><span class="n">isVisible</span><span class="p">():</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">cerrar_buscar</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Error: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">error</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="Main.cerrar_pestana"><a class="viewcode-back" href="../src/main.html#main.Main.cerrar_pestana">[documentos]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">cerrar_pestana</span><span class="p">(</span><span class="n">i</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Funcion conectada al evento tabCloseRequested del TabWidget del navegador que se activará cuando el usuario</span>
+<span class="sd">        cierre una de las pestañas.</span>
+
+<span class="sd">        :param i: Indice de la pestaña cerrada</span>
+<span class="sd">        :type i: int</span>
+<span class="sd">        :return: None</span>
+<span class="sd">        :rtype: None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># Si la pestaña a cerrar es la de añadir pestañas no hace nada</span>
+            <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">tabWidget</span><span class="o">.</span><span class="n">indexOf</span><span class="p">(</span><span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">tabAnadir</span><span class="p">):</span>
+                <span class="k">return</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># Cierra el objeto navegador</span>
+                <span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">tabWidget</span><span class="o">.</span><span class="n">widget</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+                <span class="c1"># Si la pestaña a cerrar esta justo antes de la de añadir, cambia la vista a una pestaña anterior, si es</span>
+                <span class="c1"># que la hay</span>
+                <span class="k">if</span> <span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">tabWidget</span><span class="o">.</span><span class="n">count</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">==</span> <span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">tabWidget</span><span class="o">.</span><span class="n">indexOf</span><span class="p">(</span><span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">tabAnadir</span><span class="p">):</span>
+                        <span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">tabWidget</span><span class="o">.</span><span class="n">setCurrentIndex</span><span class="p">(</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+
+                <span class="c1"># Finalmente borra la pestaña</span>
+                <span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">tabWidget</span><span class="o">.</span><span class="n">removeTab</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Error: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">error</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="Main.abrir_pagina"><a class="viewcode-back" href="../src/main.html#main.Main.abrir_pagina">[documentos]</a>    <span class="k">def</span> <span class="nf">abrir_pagina</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Funcion que cargará en el navegador un archivo de tipo HTML, que se escoja en un dialogo de tipo QFileDialog.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">filename</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">QFileDialog</span><span class="o">.</span><span class="n">getOpenFileName</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;Abrir archivo&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                                                  <span class="s2">&quot;Hypertext Markup Language (*.htm *.html)&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">filename</span><span class="p">:</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">html</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">nueva_pestana</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+            <span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">editUrl</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+            <span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">tabWidget</span><span class="o">.</span><span class="n">currentWidget</span><span class="p">()</span><span class="o">.</span><span class="n">setHtml</span><span class="p">(</span><span class="n">html</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Main.guardar_pagina"><a class="viewcode-back" href="../src/main.html#main.Main.guardar_pagina">[documentos]</a>    <span class="k">def</span> <span class="nf">guardar_pagina</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Funcion que guardará la página actual en un archivo HTML con el nombre y directiorio que se escoja en un dialogo</span>
+<span class="sd">        de tipo QFileDialog.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">filename</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">QFileDialog</span><span class="o">.</span><span class="n">getSaveFileName</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;Guardar Pagina Como&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                                                      <span class="s2">&quot;Hypertext Markup Language (*.htm *html);;&quot;</span>
+                                                      <span class="s2">&quot;Todos los archivos (*.*)&quot;</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">filename</span><span class="p">:</span>
+                <span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">tabWidget</span><span class="o">.</span><span class="n">currentWidget</span><span class="p">()</span><span class="o">.</span><span class="n">page</span><span class="p">()</span><span class="o">.</span><span class="n">toHtml</span><span class="p">(</span><span class="k">lambda</span> <span class="n">html</span><span class="p">,</span> <span class="n">f</span><span class="o">=</span><span class="n">filename</span><span class="p">:</span>
+                                                               <span class="bp">self</span><span class="o">.</span><span class="n">guardar_html</span><span class="p">(</span><span class="n">html</span><span class="p">,</span> <span class="n">f</span><span class="p">))</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Error en guardar pagina: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">error</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="Main.guardar_html"><a class="viewcode-back" href="../src/main.html#main.Main.guardar_html">[documentos]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">guardar_html</span><span class="p">(</span><span class="n">html</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Funcion auxiliar encargada de escribir el código recibido por la funcion toHtml del elemento QWebEnginePage en</span>
+<span class="sd">        el archivo que se le pasa en los parametros.</span>
+
+<span class="sd">        :param html: Codigo HTML de la página</span>
+<span class="sd">        :type html: str</span>
+<span class="sd">        :param filename: Nombre y directorio del archivo a guardar</span>
+<span class="sd">        :type filename: str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">html</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;ascii&#39;</span><span class="p">,</span> <span class="s1">&#39;xmlcharrefreplace&#39;</span><span class="p">)</span><span class="o">.</span><span class="fm">__str__</span><span class="p">()</span><span class="o">.</span><span class="n">removeprefix</span><span class="p">(</span><span class="s2">&quot;b&#39;&quot;</span><span class="p">))</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Error en guardar pagina: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">error</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="Main.abrir_buscar"><a class="viewcode-back" href="../src/main.html#main.Main.abrir_buscar">[documentos]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">abrir_buscar</span><span class="p">():</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Funcion conectada al evento triggered del QAction de buscar en pagina que se encarga de mostrar la barra de</span>
+<span class="sd">        busqueda.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">widgetBusqueda</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Error: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">error</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="Main.cerrar_buscar"><a class="viewcode-back" href="../src/main.html#main.Main.cerrar_buscar">[documentos]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">cerrar_buscar</span><span class="p">():</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Funcion conectada al boton de cerrar de la barra de búsqueda que cierra la misma y limpia el bufer de busqueda</span>
+<span class="sd">        de texto de la pagina actual.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">widgetBusqueda</span><span class="o">.</span><span class="n">hide</span><span class="p">()</span>
+
+            <span class="k">if</span> <span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">tabWidget</span><span class="o">.</span><span class="n">currentWidget</span><span class="p">()</span><span class="o">.</span><span class="n">page</span><span class="p">():</span>
+                <span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">tabWidget</span><span class="o">.</span><span class="n">currentWidget</span><span class="p">()</span><span class="o">.</span><span class="n">page</span><span class="p">()</span><span class="o">.</span><span class="n">findText</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">QWebEnginePage</span><span class="o">.</span><span class="n">FindFlags</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="k">lambda</span> <span class="n">result</span><span class="p">:</span> <span class="n">result</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Error: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">error</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="Main.buscar_en_pagina"><a class="viewcode-back" href="../src/main.html#main.Main.buscar_en_pagina">[documentos]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">buscar_en_pagina</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Funcion conectada al evento de textChanged del LineEdit de la barra de busqueda que buscará el texto introducido</span>
+<span class="sd">        en la página actual.</span>
+
+<span class="sd">        :param text: Texto del LineEdit de la barra de busqueda</span>
+<span class="sd">        :type text: str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">tabWidget</span><span class="o">.</span><span class="n">currentWidget</span><span class="p">()</span><span class="o">.</span><span class="n">page</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">text</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">text</span> <span class="o">!=</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
+                    <span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">tabWidget</span><span class="o">.</span><span class="n">currentWidget</span><span class="p">()</span><span class="o">.</span><span class="n">page</span><span class="p">()</span><span class="o">.</span><span class="n">findText</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">QWebEnginePage</span><span class="o">.</span><span class="n">FindFlags</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="k">lambda</span> <span class="n">result</span><span class="p">:</span> <span class="n">result</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Error: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">error</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="Main.buscar_siguiente"><a class="viewcode-back" href="../src/main.html#main.Main.buscar_siguiente">[documentos]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">buscar_siguiente</span><span class="p">():</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Funcion conectada al evento clicked del boton de siguiente en la barra de búsqueda que pasa al siguiente texto</span>
+<span class="sd">        encontrado en la página.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">text</span> <span class="o">=</span> <span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">editBusqueda</span><span class="o">.</span><span class="n">text</span><span class="p">()</span>
+
+            <span class="k">if</span> <span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">tabWidget</span><span class="o">.</span><span class="n">currentWidget</span><span class="p">()</span><span class="o">.</span><span class="n">page</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">text</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">text</span> <span class="o">!=</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
+                    <span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">tabWidget</span><span class="o">.</span><span class="n">currentWidget</span><span class="p">()</span><span class="o">.</span><span class="n">page</span><span class="p">()</span><span class="o">.</span><span class="n">findText</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">QWebEnginePage</span><span class="o">.</span><span class="n">FindFlags</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="k">lambda</span> <span class="n">result</span><span class="p">:</span> <span class="n">result</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Error: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">error</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="Main.buscar_anterior"><a class="viewcode-back" href="../src/main.html#main.Main.buscar_anterior">[documentos]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">buscar_anterior</span><span class="p">():</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Funcion conectada al evento clicked del boton de siguiente en la barra de búsqueda que pasa al texto anterior</span>
+<span class="sd">        encontrado en la página.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">text</span> <span class="o">=</span> <span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">editBusqueda</span><span class="o">.</span><span class="n">text</span><span class="p">()</span>
+
+            <span class="k">if</span> <span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">tabWidget</span><span class="o">.</span><span class="n">currentWidget</span><span class="p">()</span><span class="o">.</span><span class="n">page</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">text</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">text</span> <span class="o">!=</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
+                    <span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">tabWidget</span><span class="o">.</span><span class="n">currentWidget</span><span class="p">()</span><span class="o">.</span><span class="n">page</span><span class="p">()</span><span class="o">.</span><span class="n">findText</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">QWebEnginePage</span><span class="o">.</span><span class="n">FindFlags</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="k">lambda</span> <span class="n">result</span><span class="p">:</span> <span class="n">result</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Error: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">error</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="Main.busqueda_cambiada"><a class="viewcode-back" href="../src/main.html#main.Main.busqueda_cambiada">[documentos]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">busqueda_cambiada</span><span class="p">(</span><span class="n">result</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Funcion conectada al evento findTextFinished de una QWebEnginePage que recoge la cantidad de coincidencias de un</span>
+<span class="sd">        texto y la coincidencia actual de una página y las actualiza en la barra de búsqueda.</span>
+
+<span class="sd">        :param result: Resultado de la busqueda</span>
+<span class="sd">        :type result: QtWebEngineWidgets.QWebEngineFindTextResult</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">lblResult</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">activeMatch</span><span class="p">())</span> <span class="o">+</span> <span class="s2">&quot; / &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">numberOfMatches</span><span class="p">()))</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Error: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">error</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="Main.abrir_about"><a class="viewcode-back" href="../src/main.html#main.Main.abrir_about">[documentos]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">abrir_about</span><span class="p">():</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Funcion encargada de crear un nuevo dialogo About y mostrarlo.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">dlg</span> <span class="o">=</span> <span class="n">DialogAbout</span><span class="p">()</span>
+            <span class="n">dlg</span><span class="o">.</span><span class="n">exec_</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Error en abrir about: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">error</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="Main.abrir_historial"><a class="viewcode-back" href="../src/main.html#main.Main.abrir_historial">[documentos]</a>    <span class="k">def</span> <span class="nf">abrir_historial</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Funcion encargada de abrir una pestaña nueva que contiene el historial de búsqueda</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># Crea el objeto del Widget del historial pasándole la ventana del navegador como argumento</span>
+            <span class="n">historial</span> <span class="o">=</span> <span class="n">WidgetHistorial</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">setWindowTitle</span><span class="p">(</span><span class="s2">&quot;PyQtBrowser - Historial&quot;</span><span class="p">)</span>
+            <span class="n">icono</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QIcon</span><span class="p">()</span>
+            <span class="n">icono</span><span class="o">.</span><span class="n">addPixmap</span><span class="p">(</span><span class="n">QtGui</span><span class="o">.</span><span class="n">QPixmap</span><span class="p">(</span><span class="s2">&quot;img/history.png&quot;</span><span class="p">),</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QIcon</span><span class="o">.</span><span class="n">Active</span><span class="p">,</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QIcon</span><span class="o">.</span><span class="n">On</span><span class="p">)</span>
+            <span class="n">i</span> <span class="o">=</span> <span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">tabWidget</span><span class="o">.</span><span class="n">addTab</span><span class="p">(</span><span class="n">historial</span><span class="p">,</span> <span class="n">icono</span><span class="p">,</span> <span class="s2">&quot;Historial&quot;</span><span class="p">)</span>
+            <span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">tabWidget</span><span class="o">.</span><span class="n">setCurrentIndex</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+
+            <span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">editUrl</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s2">&quot;pyqtbrowser:historial&quot;</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">cargar_historial</span><span class="p">(</span><span class="n">historial</span><span class="p">)</span>
+
+            <span class="c1"># para que la pestaña de añadir pestañas aparezca al final, la borra y la vuelve a añadir</span>
+            <span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">tabWidget</span><span class="o">.</span><span class="n">removeTab</span><span class="p">(</span><span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">tabWidget</span><span class="o">.</span><span class="n">indexOf</span><span class="p">(</span><span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">tabAnadir</span><span class="p">))</span>
+            <span class="n">i2</span> <span class="o">=</span> <span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">tabWidget</span><span class="o">.</span><span class="n">addTab</span><span class="p">(</span><span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">tabAnadir</span><span class="p">,</span> <span class="s2">&quot;+&quot;</span><span class="p">)</span>
+
+            <span class="c1"># esta funcion oculta el boton de cerrar de la pestaña de añadir</span>
+            <span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">tabWidget</span><span class="o">.</span><span class="n">tabBar</span><span class="p">()</span><span class="o">.</span><span class="n">tabButton</span><span class="p">(</span><span class="n">i2</span><span class="p">,</span> <span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">tabWidget</span><span class="o">.</span><span class="n">tabBar</span><span class="p">()</span><span class="o">.</span><span class="n">RightSide</span><span class="p">)</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Error al abrir historial: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">error</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="Main.cargar_historial"><a class="viewcode-back" href="../src/main.html#main.Main.cargar_historial">[documentos]</a>    <span class="k">def</span> <span class="nf">cargar_historial</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">historial</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Funcion encargada de pasarle una tarea nueva al hilo trabajador del navegador de cargar el historial</span>
+<span class="sd">        de la base de datos.</span>
+
+<span class="sd">        :param historial: Objeto de tipo WidgetHistorial</span>
+<span class="sd">        :type historial: WidgetHistorial</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># Si ya hay una funcion escuchando el evento de historialRecibido, la desconecta</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">hilo_trab</span><span class="o">.</span><span class="n">receivers</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hilo_trab</span><span class="o">.</span><span class="n">historialRecibido</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">hilo_trab</span><span class="o">.</span><span class="n">historialRecibido</span><span class="o">.</span><span class="n">disconnect</span><span class="p">()</span>
+
+            <span class="c1"># Conecta el evento del hilo trabajador que emite al recibir el historial de la BD, con la funcion de</span>
+            <span class="c1"># cargar historial del objeto WidgetHistorial</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">hilo_trab</span><span class="o">.</span><span class="n">historialRecibido</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">historial</span><span class="o">.</span><span class="n">cargar_historial</span><span class="p">)</span>
+
+            <span class="c1"># Añade una tarea de carga de historial al hilo trabajador</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">hilo_trab</span><span class="o">.</span><span class="n">anadir_tarea</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hilo_trab</span><span class="o">.</span><span class="n">cargar_historial</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Error al cargar historial: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">error</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="Main.borrar_entrada_historial"><a class="viewcode-back" href="../src/main.html#main.Main.borrar_entrada_historial">[documentos]</a>    <span class="k">def</span> <span class="nf">borrar_entrada_historial</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">idx</span><span class="p">,</span> <span class="n">historial</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Esta funcion simplemente le pasa 2 tareas al hilo trabajador: borrar una entrada de historial con indice idx</span>
+<span class="sd">        y volver a cargar el historial en el widget de historial pasado en argumentos.</span>
+
+<span class="sd">        :param idx: Indice de entrada en la base de datos del historial a borrar</span>
+<span class="sd">        :type idx: int</span>
+<span class="sd">        :param historial: Objeto de tipo WidgetHistorial</span>
+<span class="sd">        :type historial: WidgetHistorial</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">hilo_trab</span><span class="o">.</span><span class="n">anadir_tarea</span><span class="p">(</span><span class="k">lambda</span> <span class="n">indice</span><span class="o">=</span><span class="n">idx</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">hilo_trab</span><span class="o">.</span><span class="n">borrar_entrada</span><span class="p">(</span><span class="n">indice</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hilo_trab</span><span class="o">.</span><span class="n">anadir_tarea</span><span class="p">(</span><span class="k">lambda</span> <span class="n">his</span><span class="o">=</span><span class="n">historial</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">cargar_historial</span><span class="p">(</span><span class="n">his</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="Main.anadir_favorito"><a class="viewcode-back" href="../src/main.html#main.Main.anadir_favorito">[documentos]</a>    <span class="k">def</span> <span class="nf">anadir_favorito</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Funcion encargada de añadir la página actual a favoritos en la base de datos, y de refrescarlos.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">tabWidget</span><span class="o">.</span><span class="n">currentWidget</span><span class="p">(),</span> <span class="n">QWebEngineView</span><span class="p">):</span>
+                <span class="c1"># Obtiene el objeto QWebEnginePage del widget actual</span>
+                <span class="n">curpage</span> <span class="o">=</span> <span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">tabWidget</span><span class="o">.</span><span class="n">currentWidget</span><span class="p">()</span><span class="o">.</span><span class="n">page</span><span class="p">()</span>
+
+                <span class="k">if</span> <span class="n">curpage</span><span class="o">.</span><span class="n">url</span><span class="p">()</span><span class="o">.</span><span class="n">scheme</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;http&quot;</span> <span class="ow">or</span> <span class="n">curpage</span><span class="o">.</span><span class="n">url</span><span class="p">()</span><span class="o">.</span><span class="n">scheme</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;https&quot;</span><span class="p">:</span>
+                    <span class="c1"># Pasa la tarea de añadir la pagina actual a favoritos a la base de datos al hilo trabajador</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">hilo_trab</span><span class="o">.</span><span class="n">anadir_tarea</span><span class="p">(</span><span class="k">lambda</span> <span class="n">pag</span><span class="o">=</span><span class="n">curpage</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">hilo_trab</span><span class="o">.</span><span class="n">anadir_favorito</span><span class="p">(</span><span class="n">pag</span><span class="p">))</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">hilo_trab</span><span class="o">.</span><span class="n">anadir_tarea</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hilo_trab</span><span class="o">.</span><span class="n">cargar_favoritos</span><span class="p">)</span>
+
+                    <span class="c1"># Actualiza el icono del boton de favoritos del navegador</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">comprobar_fav</span><span class="p">(</span><span class="n">curpage</span><span class="o">.</span><span class="n">url</span><span class="p">())</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Error al anadir favorito: </span><span class="si">%s</span><span class="s2"> &quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">error</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="Main.borrar_favorito"><a class="viewcode-back" href="../src/main.html#main.Main.borrar_favorito">[documentos]</a>    <span class="k">def</span> <span class="nf">borrar_favorito</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">id_entrada</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Funcion encargada de pasar la tarea de borrar de favoritos la pagina con el indice indicado en parametros, y de</span>
+<span class="sd">        refrescar los favoritos en la aplicacion.</span>
+
+<span class="sd">        :param id_entrada: Indice de marcador en la base de datos.</span>
+<span class="sd">        :type id_entrada: int</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">id_entrada</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">hilo_trab</span><span class="o">.</span><span class="n">anadir_tarea</span><span class="p">(</span><span class="k">lambda</span> <span class="n">idx</span><span class="o">=</span><span class="n">id_entrada</span><span class="p">:</span> <span class="n">conexion</span><span class="o">.</span><span class="n">borrar_favorito</span><span class="p">(</span><span class="n">idx</span><span class="p">))</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">comprobar_fav</span><span class="p">(</span><span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">tabWidget</span><span class="o">.</span><span class="n">currentWidget</span><span class="p">()</span><span class="o">.</span><span class="n">page</span><span class="p">()</span><span class="o">.</span><span class="n">url</span><span class="p">())</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">hilo_trab</span><span class="o">.</span><span class="n">anadir_tarea</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hilo_trab</span><span class="o">.</span><span class="n">cargar_favoritos</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Error al borrar favorito: </span><span class="si">%s</span><span class="s2"> &quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">error</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="Main.cargar_favoritos"><a class="viewcode-back" href="../src/main.html#main.Main.cargar_favoritos">[documentos]</a>    <span class="k">def</span> <span class="nf">cargar_favoritos</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">query</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Esta funcion recibe un objeto de QSqlQuery del evento favoritosRecibidos emitido por el hilo trabajador. Limpia</span>
+<span class="sd">        los marcadores y conecta el evento marcadoresLimpios emitido por la funcion de limpiar_marcadores con la funcion</span>
+<span class="sd">        de mostrar_favoritos, pasandole el objeto query.</span>
+
+<span class="sd">        :param query: Objeto de tipo QSqlQuery</span>
+<span class="sd">        :type query: QtSql.QSqlQuery</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">limpiar_marcadores</span><span class="p">()</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">receivers</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">marcadoresLimpios</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">marcadoresLimpios</span><span class="o">.</span><span class="n">disconnect</span><span class="p">()</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">marcadoresLimpios</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="k">lambda</span> <span class="n">q</span><span class="o">=</span><span class="n">query</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">mostrar_favoritos</span><span class="p">(</span><span class="n">q</span><span class="p">))</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Error al mostrar favoritos: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">error</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="Main.mostrar_favoritos"><a class="viewcode-back" href="../src/main.html#main.Main.mostrar_favoritos">[documentos]</a>    <span class="k">def</span> <span class="nf">mostrar_favoritos</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">query</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Funcion que itera el objeto QSqlQuery pasado en argumentos para insertar los marcadores en la barra.</span>
+
+<span class="sd">        :param query: Objeto de QSqlQuery</span>
+<span class="sd">        :type query: QtSql.QSqlQuery</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">while</span> <span class="n">query</span><span class="o">.</span><span class="n">next</span><span class="p">():</span>
+                <span class="n">pixmap</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QPixmap</span><span class="p">()</span>
+                <span class="k">if</span> <span class="n">query</span><span class="o">.</span><span class="n">value</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">query</span><span class="o">.</span><span class="n">value</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span> <span class="nb">str</span><span class="p">):</span>
+                    <span class="n">ba</span> <span class="o">=</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">QByteArray</span><span class="p">(</span><span class="n">query</span><span class="o">.</span><span class="n">value</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
+                    <span class="n">pixmap</span><span class="o">.</span><span class="n">loadFromData</span><span class="p">(</span><span class="n">ba</span><span class="p">,</span> <span class="s2">&quot;PNG&quot;</span><span class="p">)</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">insertar_marcador</span><span class="p">(</span><span class="n">query</span><span class="o">.</span><span class="n">value</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span> <span class="n">query</span><span class="o">.</span><span class="n">value</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="n">pixmap</span><span class="p">,</span> <span class="n">query</span><span class="o">.</span><span class="n">value</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Error: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">error</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="Main.limpiar_marcadores"><a class="viewcode-back" href="../src/main.html#main.Main.limpiar_marcadores">[documentos]</a>    <span class="k">def</span> <span class="nf">limpiar_marcadores</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Esta función borra todos los elementos del widgetMarcadores y emite una señal de tipo marcadoresLimpios despues</span>
+<span class="sd">        de 100ms.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">widgetMarcadores</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+            <span class="n">QTimer</span><span class="o">.</span><span class="n">singleShot</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">marcadoresLimpios</span><span class="o">.</span><span class="n">emit</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Error al limpiar marcadores: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">error</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="Main.insertar_marcador"><a class="viewcode-back" href="../src/main.html#main.Main.insertar_marcador">[documentos]</a>    <span class="k">def</span> <span class="nf">insertar_marcador</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">titulo</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">icono</span><span class="p">,</span> <span class="n">id_entrada</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Funcion encargada de crear un boton con los parametros indicados e insertarlo en la barra de marcadores</span>
+
+<span class="sd">        :param titulo: Titulo de la pagina</span>
+<span class="sd">        :type titulo: str</span>
+<span class="sd">        :param url: URL de la pagina</span>
+<span class="sd">        :type url: str</span>
+<span class="sd">        :param icono: Imagen de icono de la pagina</span>
+<span class="sd">        :type icono: QtGui.QPixmap</span>
+<span class="sd">        :param id_entrada: Indice del marcador en la base de datos</span>
+<span class="sd">        :type id_entrada: int</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">icon</span> <span class="o">=</span> <span class="n">QIcon</span><span class="p">()</span>
+            <span class="n">icon</span><span class="o">.</span><span class="n">addPixmap</span><span class="p">(</span><span class="n">icono</span><span class="p">,</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QIcon</span><span class="o">.</span><span class="n">Normal</span><span class="p">,</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QIcon</span><span class="o">.</span><span class="n">Off</span><span class="p">)</span>
+            <span class="n">action</span> <span class="o">=</span> <span class="n">QAction</span><span class="p">(</span><span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">widgetMarcadores</span><span class="p">)</span>
+            <span class="n">action</span><span class="o">.</span><span class="n">setIcon</span><span class="p">(</span><span class="n">icon</span><span class="p">)</span>
+
+            <span class="n">text</span> <span class="o">=</span> <span class="n">titulo</span>
+
+            <span class="n">fm</span> <span class="o">=</span> <span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">widgetMarcadores</span><span class="o">.</span><span class="n">fontMetrics</span><span class="p">()</span>
+            <span class="n">i</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+            <span class="k">while</span> <span class="n">fm</span><span class="o">.</span><span class="n">width</span><span class="p">(</span><span class="n">text</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">145</span><span class="p">:</span>
+                <span class="n">text</span> <span class="o">=</span> <span class="n">text</span><span class="p">[:</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;...&quot;</span>
+                <span class="n">i</span> <span class="o">=</span> <span class="n">i</span> <span class="o">-</span> <span class="mi">1</span>
+
+            <span class="n">action</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+            <span class="n">action</span><span class="o">.</span><span class="n">triggered</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="k">lambda</span> <span class="n">_</span><span class="p">,</span> <span class="n">url</span><span class="o">=</span><span class="n">url</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">navegar_a_url</span><span class="p">(</span><span class="n">url</span><span class="p">))</span>
+
+            <span class="n">menu</span> <span class="o">=</span> <span class="n">QMenu</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+            <span class="n">menu</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="s2">&quot;Abrir&quot;</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">url</span><span class="o">=</span><span class="n">url</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">navegar_a_url</span><span class="p">(</span><span class="n">url</span><span class="p">))</span>
+            <span class="n">menu</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="s2">&quot;Abrir en nueva pestaña&quot;</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">url</span><span class="o">=</span><span class="n">url</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">nueva_pestana</span><span class="p">(</span><span class="n">url</span><span class="p">))</span>
+            <span class="n">menu</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="s2">&quot;Borrar marcador&quot;</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">idx</span><span class="o">=</span><span class="n">id_entrada</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">borrar_favorito</span><span class="p">(</span><span class="n">idx</span><span class="p">))</span>
+            <span class="n">menu</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="s2">&quot;Editar&quot;</span><span class="p">,</span>
+                           <span class="k">lambda</span> <span class="n">idx</span><span class="o">=</span><span class="n">id_entrada</span><span class="p">,</span> <span class="n">titulo</span><span class="o">=</span><span class="n">titulo</span><span class="p">,</span> <span class="n">url</span><span class="o">=</span><span class="n">url</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">abrir_editar_marcador</span><span class="p">(</span><span class="n">idx</span><span class="p">,</span> <span class="n">titulo</span><span class="p">,</span> <span class="n">url</span><span class="p">))</span>
+
+            <span class="n">action</span><span class="o">.</span><span class="n">setMenu</span><span class="p">(</span><span class="n">menu</span><span class="p">)</span>
+            <span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">widgetMarcadores</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="n">action</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Error al insertar marcador: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">error</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="Main.abrir_editar_marcador"><a class="viewcode-back" href="../src/main.html#main.Main.abrir_editar_marcador">[documentos]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">abrir_editar_marcador</span><span class="p">(</span><span class="n">idx</span><span class="p">,</span> <span class="n">titulo</span><span class="p">,</span> <span class="n">url</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Funcion conectada a la opcion de editar del menu contextual de un marcador. Carga un dialogo del tipo</span>
+<span class="sd">        DialogEditMarcador con los datos que se le pasa en los argumentos.</span>
+
+<span class="sd">        :param idx: Indice del marcador en la base de datos</span>
+<span class="sd">        :type idx: int</span>
+<span class="sd">        :param titulo: Titulo del marcador</span>
+<span class="sd">        :type titulo: str</span>
+<span class="sd">        :param url: Url del marcador</span>
+<span class="sd">        :type url: str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">dlg</span> <span class="o">=</span> <span class="n">DialogEditMarcador</span><span class="p">(</span><span class="n">idx</span><span class="p">,</span> <span class="n">titulo</span><span class="p">,</span> <span class="n">url</span><span class="p">)</span>
+            <span class="n">dlg</span><span class="o">.</span><span class="n">exec_</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Error editar marcador: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">error</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="Main.comprobar_fav"><a class="viewcode-back" href="../src/main.html#main.Main.comprobar_fav">[documentos]</a>    <span class="k">def</span> <span class="nf">comprobar_fav</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Funcion que añade al hilo trabajador la tarea de comprobar si la pagina pasada en los parametros está en los</span>
+<span class="sd">        favoritos en la base de datos.</span>
+
+<span class="sd">        :param url: URL de la pagina a comprobar</span>
+<span class="sd">        :type url: str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">hilo_trab</span><span class="o">.</span><span class="n">receivers</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hilo_trab</span><span class="o">.</span><span class="n">paginaFavorita</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">hilo_trab</span><span class="o">.</span><span class="n">paginaFavorita</span><span class="o">.</span><span class="n">disconnect</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">hilo_trab</span><span class="o">.</span><span class="n">paginaFavorita</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">actualizar_icono_fav</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">hilo_trab</span><span class="o">.</span><span class="n">anadir_tarea</span><span class="p">(</span><span class="k">lambda</span> <span class="n">url</span><span class="o">=</span><span class="n">url</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">hilo_trab</span><span class="o">.</span><span class="n">comprobar_favorito</span><span class="p">(</span><span class="n">url</span><span class="p">))</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Error al comprobar favorito : </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">error</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="Main.mostrar_menu"><a class="viewcode-back" href="../src/main.html#main.Main.mostrar_menu">[documentos]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">mostrar_menu</span><span class="p">():</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Funcion que abre el menu contextual de la aplicación.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">btnMenu</span><span class="o">.</span><span class="n">showMenu</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Error: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">error</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="Main.toggle_barra_marcadores"><a class="viewcode-back" href="../src/main.html#main.Main.toggle_barra_marcadores">[documentos]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">toggle_barra_marcadores</span><span class="p">(</span><span class="n">settings</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Función que muestra o oculta la barra de marcadores y actualiza la configuración de la aplicación.</span>
+
+<span class="sd">        :param settings: Objeto de onfiguración de la aplicación</span>
+<span class="sd">        :type settings: QSettings</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">widgetMarcadores</span><span class="o">.</span><span class="n">isHidden</span><span class="p">():</span>
+                <span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">actionMostrar_marcadores</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s2">&quot;Ocultar barra de marcadores&quot;</span><span class="p">)</span>
+                <span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">widgetMarcadores</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+                <span class="n">settings</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="s2">&quot;mostrarMarcadores&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">actionMostrar_marcadores</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s2">&quot;Mostrar barra de marcadores&quot;</span><span class="p">)</span>
+                <span class="n">var</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">widgetMarcadores</span><span class="o">.</span><span class="n">hide</span><span class="p">()</span>
+                <span class="n">settings</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="s2">&quot;mostrarMarcadores&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Error: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">error</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="Main.resizeEvent"><a class="viewcode-back" href="../src/main.html#main.Main.resizeEvent">[documentos]</a>    <span class="k">def</span> <span class="nf">resizeEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Sobreescribe el método por defecto de resizeEvent de la aplicación.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># probablemente no sea lo mas eficiente del mundo pero si la opcion mas comoda</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hilo_trab</span><span class="o">.</span><span class="n">anadir_tarea</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hilo_trab</span><span class="o">.</span><span class="n">cargar_favoritos</span><span class="p">)</span></div></div>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">app</span> <span class="o">=</span> <span class="n">QApplication</span><span class="p">([])</span>
+    <span class="n">QWebEngineSettings</span><span class="o">.</span><span class="n">PluginsEnabled</span> <span class="o">=</span> <span class="kc">True</span>
+
+    <span class="n">var</span><span class="o">.</span><span class="n">nav</span> <span class="o">=</span> <span class="n">Main</span><span class="p">()</span>
+    <span class="n">var</span><span class="o">.</span><span class="n">nav</span><span class="o">.</span><span class="n">showMaximized</span><span class="p">()</span>
+    <span class="n">icon</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QIcon</span><span class="p">()</span>
+    <span class="n">icon</span><span class="o">.</span><span class="n">addPixmap</span><span class="p">(</span><span class="n">QtGui</span><span class="o">.</span><span class="n">QPixmap</span><span class="p">(</span><span class="s2">&quot;img/pyqtbrowser.png&quot;</span><span class="p">),</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QIcon</span><span class="o">.</span><span class="n">Active</span><span class="p">,</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QIcon</span><span class="o">.</span><span class="n">On</span><span class="p">)</span>
+    <span class="n">var</span><span class="o">.</span><span class="n">nav</span><span class="o">.</span><span class="n">setWindowIcon</span><span class="p">(</span><span class="n">icon</span><span class="p">)</span>
+
+    <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="n">app</span><span class="o">.</span><span class="n">exec</span><span class="p">())</span>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">PYQTBROWSER</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navegación</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="index.html">Código de módulo</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Búsqueda rápida</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Ir a" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2021, Willy Najberg.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.4.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

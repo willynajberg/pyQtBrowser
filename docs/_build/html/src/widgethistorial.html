@@ -1,0 +1,163 @@
+
+<!DOCTYPE html>
+
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>widgethistorial module &#8212; documentación de PYQTBROWSER - 0.5.1</title>
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/translations.js"></script>
+    <link rel="index" title="Índice" href="../genindex.html" />
+    <link rel="search" title="Búsqueda" href="../search.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="module-widgethistorial">
+<span id="widgethistorial-module"></span><h1>widgethistorial module<a class="headerlink" href="#module-widgethistorial" title="Enlazar permanentemente con este título">¶</a></h1>
+<dl class="py class">
+<dt id="widgethistorial.WidgetHistorial">
+<em class="property">class </em><code class="sig-prename descclassname">widgethistorial.</code><code class="sig-name descname">WidgetHistorial</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">nav</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/widgethistorial.html#WidgetHistorial"><span class="viewcode-link">[fuente]</span></a><a class="headerlink" href="#widgethistorial.WidgetHistorial" title="Enlazar permanentemente con esta definición">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">PyQt5.QtWidgets.QWidget</span></code></p>
+<p>Clase que instancia un QWidget nuevo que contiene la tabla de entradas del historial, y define su comportamiento.</p>
+<dl class="py method">
+<dt id="widgethistorial.WidgetHistorial.borrar_entrada">
+<code class="sig-name descname">borrar_entrada</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">idx</span><span class="o">=</span><span class="default_value">0</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/widgethistorial.html#WidgetHistorial.borrar_entrada"><span class="viewcode-link">[fuente]</span></a><a class="headerlink" href="#widgethistorial.WidgetHistorial.borrar_entrada" title="Enlazar permanentemente con esta definición">¶</a></dt>
+<dd><p>Función llamada por la QAction de borrar entrada del menú contextual de una entrada en la tabla.
+Llamará a la función de borrar_entrada_historial de la ventana principal.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parámetros</dt>
+<dd class="field-odd"><p><strong>idx</strong> (<em>int</em>) – Indice de la entrada</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="widgethistorial.WidgetHistorial.borrar_seleccion">
+<code class="sig-name descname">borrar_seleccion</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/widgethistorial.html#WidgetHistorial.borrar_seleccion"><span class="viewcode-link">[fuente]</span></a><a class="headerlink" href="#widgethistorial.WidgetHistorial.borrar_seleccion" title="Enlazar permanentemente con esta definición">¶</a></dt>
+<dd><p>Función llamada por el botón de borrar seleccion del widget. Recoge todos los items seleccionados en la tabla,
+coge los valores de la columna 4 que contienen el indice de entrada, y llama a la función de
+borrar_entrada_historial de la ventana principal secuencialmente usando el índice.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="widgethistorial.WidgetHistorial.cargar_historial">
+<code class="sig-name descname">cargar_historial</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">query</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/widgethistorial.html#WidgetHistorial.cargar_historial"><span class="viewcode-link">[fuente]</span></a><a class="headerlink" href="#widgethistorial.WidgetHistorial.cargar_historial" title="Enlazar permanentemente con esta definición">¶</a></dt>
+<dd><p>Recibe un objeto QSqlQuery que contiene las entradas en el historial y las carga en la tabla iterando este
+objeto.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parámetros</dt>
+<dd class="field-odd"><p><strong>query</strong> (<em>QtSql.QSqlQuery</em>) – Objeto QSqlQuery que contiene el resultado de la búsqueda.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="widgethistorial.WidgetHistorial.eventFilter">
+<code class="sig-name descname">eventFilter</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">source</span></em>, <em class="sig-param"><span class="n">event</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/widgethistorial.html#WidgetHistorial.eventFilter"><span class="viewcode-link">[fuente]</span></a><a class="headerlink" href="#widgethistorial.WidgetHistorial.eventFilter" title="Enlazar permanentemente con esta definición">¶</a></dt>
+<dd><p>Se encarga de filtrar los eventos de la tabla de entradas de historial.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="widgethistorial.WidgetHistorial.generar_menu">
+<code class="sig-name descname">generar_menu</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">pos</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/widgethistorial.html#WidgetHistorial.generar_menu"><span class="viewcode-link">[fuente]</span></a><a class="headerlink" href="#widgethistorial.WidgetHistorial.generar_menu" title="Enlazar permanentemente con esta definición">¶</a></dt>
+<dd><p>Genera un menú contextual en la posición indicada.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="widgethistorial.WidgetHistorial.historialRecibido">
+<code class="sig-name descname">historialRecibido</code><a class="headerlink" href="#widgethistorial.WidgetHistorial.historialRecibido" title="Enlazar permanentemente con esta definición">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="widgethistorial.WidgetHistorial.reload">
+<code class="sig-name descname">reload</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/widgethistorial.html#WidgetHistorial.reload"><span class="viewcode-link">[fuente]</span></a><a class="headerlink" href="#widgethistorial.WidgetHistorial.reload" title="Enlazar permanentemente con esta definición">¶</a></dt>
+<dd><p>Recarga las entradas al historial llamando a la función cargar_historial de la ventana principal.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">PYQTBROWSER</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navegación</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Búsqueda rápida</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Ir a" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2021, Willy Najberg.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.4.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../_sources/src/widgethistorial.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

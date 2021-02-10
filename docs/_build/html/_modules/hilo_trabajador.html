@@ -1,0 +1,275 @@
+
+<!DOCTYPE html>
+
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>hilo_trabajador &#8212; documentación de PYQTBROWSER - 0.5.1</title>
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/translations.js"></script>
+    <link rel="index" title="Índice" href="../genindex.html" />
+    <link rel="search" title="Búsqueda" href="../search.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Código fuente para hilo_trabajador</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">PyQt5</span> <span class="kn">import</span> <span class="n">QtCore</span>
+<span class="kn">from</span> <span class="nn">PyQt5.QtCore</span> <span class="kn">import</span> <span class="n">QThread</span>
+
+<span class="kn">import</span> <span class="nn">conexion</span>
+<span class="kn">import</span> <span class="nn">var</span>
+
+
+<div class="viewcode-block" id="HiloTrabajador"><a class="viewcode-back" href="../src/hilo_trabajador.html#hilo_trabajador.HiloTrabajador">[documentos]</a><span class="k">class</span> <span class="nc">HiloTrabajador</span><span class="p">(</span><span class="n">QThread</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    Clase auxiliar que instancia un nuevo hilo que se encargue de ejecutar las operaciones CRUD. Se ejecutarán en un</span>
+<span class="sd">    hilo separado del hilo principal para optimizar el rendimiento.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Creación de pyqtSignals propios de la clase para gestionar eventos.</span>
+    <span class="n">historialRecibido</span> <span class="o">=</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">pyqtSignal</span><span class="p">(</span><span class="nb">object</span><span class="p">)</span>
+    <span class="n">favoritoAnadido</span> <span class="o">=</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">pyqtSignal</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+    <span class="n">favoritosRecibidos</span> <span class="o">=</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">pyqtSignal</span><span class="p">(</span><span class="nb">object</span><span class="p">)</span>
+    <span class="n">paginaFavorita</span> <span class="o">=</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">pyqtSignal</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Se ejecuta al instanciar la clase. Crea una lista nueva vacía que contendrá las tareas a ejecutar. Asigna el</span>
+<span class="sd">        valor de running a False.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">HiloTrabajador</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">running</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tareas</span> <span class="o">=</span> <span class="p">[]</span>
+
+<div class="viewcode-block" id="HiloTrabajador.run"><a class="viewcode-back" href="../src/hilo_trabajador.html#hilo_trabajador.HiloTrabajador.run">[documentos]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Establece una conexión del hilo con la base de datos usando la funcion de conectardb del módulo conexion.</span>
+<span class="sd">        Asigna el valor de running a true. Crea un bucle que se ejecutará con una frecuencia de 20ms, que ejecutará las</span>
+<span class="sd">        tareas guardadas en la lista en modo FIFO.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">conexion</span><span class="o">.</span><span class="n">conectardb</span><span class="p">(</span><span class="n">var</span><span class="o">.</span><span class="n">NOMBRE_BD</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">running</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">running</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">tarea</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">tareas</span><span class="p">:</span>
+                <span class="n">tarea</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">tareas</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">tarea</span><span class="p">)</span>
+
+            <span class="c1"># Ahorra recursos reduciendo la frecuencia con la que se ejecuta el hilo</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">msleep</span><span class="p">(</span><span class="mi">20</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="HiloTrabajador.anadir_tarea"><a class="viewcode-back" href="../src/hilo_trabajador.html#hilo_trabajador.HiloTrabajador.anadir_tarea">[documentos]</a>    <span class="k">def</span> <span class="nf">anadir_tarea</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tarea</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Añade una tarea nueva, en forma de lambda, a la cola.</span>
+
+<span class="sd">        :param tarea: Función a ejecutar</span>
+<span class="sd">        :type tarea: lambda</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tareas</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tarea</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">running</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">start</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="HiloTrabajador.anadir_historial"><a class="viewcode-back" href="../src/hilo_trabajador.html#hilo_trabajador.HiloTrabajador.anadir_historial">[documentos]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">anadir_historial</span><span class="p">(</span><span class="n">navegador</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Método auxiliar de la clase para agregar una nueva entrada en la tabla historial de la base de datos, a partir</span>
+<span class="sd">        del objeto de la página actual que se le pasa en argumentos.</span>
+
+<span class="sd">        :param navegador: Objeto de tipo QWebEngineView actual</span>
+<span class="sd">        :type navegador: QtWebEngineWidgets.QWebEngineView</span>
+
+<span class="sd">        Comprobará si lo que debe hacer es introducir una entrada nueva o cambiar el título de una entrada previa.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">no_insertar</span> <span class="o">=</span> <span class="p">(</span><span class="n">conexion</span><span class="o">.</span><span class="n">seleccionar_ultima_url</span><span class="p">()</span> <span class="ow">and</span> <span class="nb">str</span><span class="p">(</span><span class="n">conexion</span><span class="o">.</span><span class="n">seleccionar_ultima_url</span><span class="p">())</span> <span class="o">==</span> <span class="nb">str</span><span class="p">(</span>
+            <span class="n">navegador</span><span class="o">.</span><span class="n">url</span><span class="p">()</span><span class="o">.</span><span class="n">toString</span><span class="p">()))</span> <span class="ow">or</span> <span class="n">navegador</span><span class="o">.</span><span class="n">url</span><span class="p">()</span><span class="o">.</span><span class="n">toString</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;about:blank&quot;</span> <span class="ow">or</span> <span class="p">(</span><span class="n">navegador</span><span class="o">.</span><span class="n">url</span><span class="p">()</span><span class="o">.</span><span class="n">scheme</span><span class="p">()</span> <span class="o">!=</span>
+                                                                                            <span class="s2">&quot;http&quot;</span> <span class="ow">and</span>
+                                                                                            <span class="n">navegador</span><span class="o">.</span><span class="n">url</span><span class="p">()</span><span class="o">.</span><span class="n">scheme</span><span class="p">()</span> <span class="o">!=</span>
+                                                                                            <span class="s2">&quot;https&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">no_insertar</span><span class="p">:</span>
+            <span class="n">conexion</span><span class="o">.</span><span class="n">insertar_historial</span><span class="p">(</span><span class="n">navegador</span><span class="o">.</span><span class="n">url</span><span class="p">()</span><span class="o">.</span><span class="n">toString</span><span class="p">(),</span> <span class="n">navegador</span><span class="o">.</span><span class="n">page</span><span class="p">()</span><span class="o">.</span><span class="n">title</span><span class="p">())</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">conexion</span><span class="o">.</span><span class="n">cambiar_titulo_historial</span><span class="p">(</span><span class="n">var</span><span class="o">.</span><span class="n">LAST_INSERT_HISTORIAL</span><span class="p">,</span> <span class="n">navegador</span><span class="o">.</span><span class="n">page</span><span class="p">()</span><span class="o">.</span><span class="n">title</span><span class="p">())</span></div>
+
+<div class="viewcode-block" id="HiloTrabajador.cargar_historial"><a class="viewcode-back" href="../src/hilo_trabajador.html#hilo_trabajador.HiloTrabajador.cargar_historial">[documentos]</a>    <span class="k">def</span> <span class="nf">cargar_historial</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Método auxiliar que carga todas las entradas de la tabla de historial usando el metodo cargar_historial del</span>
+<span class="sd">        módulo conexion. El objeto QSqlQuery que este devuelve, lo emite en una señal de historialRecibido, para</span>
+<span class="sd">        tratarlo posteriormente.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="n">conexion</span><span class="o">.</span><span class="n">cargar_historial</span><span class="p">()</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">historialRecibido</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Error: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">error</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="HiloTrabajador.anadir_favorito"><a class="viewcode-back" href="../src/hilo_trabajador.html#hilo_trabajador.HiloTrabajador.anadir_favorito">[documentos]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">anadir_favorito</span><span class="p">(</span><span class="n">pag</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Método auxiliar que recibe un objeto de tipo QWebEnginePage y lo añade a la tabla de favoritos usando el módulo</span>
+<span class="sd">        de conexion.</span>
+
+<span class="sd">        :param pag: Página a añadir</span>
+<span class="sd">        :type pag: QtWebEngineWidgets.QWebEnginePage</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">conexion</span><span class="o">.</span><span class="n">anadir_favorito</span><span class="p">(</span><span class="n">pag</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="HiloTrabajador.editar_favorito"><a class="viewcode-back" href="../src/hilo_trabajador.html#hilo_trabajador.HiloTrabajador.editar_favorito">[documentos]</a>    <span class="k">def</span> <span class="nf">editar_favorito</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">idx</span><span class="p">,</span> <span class="n">titulo</span><span class="p">,</span> <span class="n">url</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Método auxiliar para editar una entrada en la tabla de favoritos de la base de datos a partir de los parametros</span>
+<span class="sd">        indicados. Tras ejecutar la orden, cargará los favoritos nuevamente usando el metodo cargar_favoritos.</span>
+
+<span class="sd">        :param idx:</span>
+<span class="sd">        :param titulo:</span>
+<span class="sd">        :param url:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">conexion</span><span class="o">.</span><span class="n">editar_favorito</span><span class="p">(</span><span class="n">idx</span><span class="p">,</span> <span class="n">titulo</span><span class="p">,</span> <span class="n">url</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cargar_favoritos</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="HiloTrabajador.cargar_favoritos"><a class="viewcode-back" href="../src/hilo_trabajador.html#hilo_trabajador.HiloTrabajador.cargar_favoritos">[documentos]</a>    <span class="k">def</span> <span class="nf">cargar_favoritos</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Método auxiliar que carga todas las entradas de la tabla de favoritos usando el metodo cargar_favoritos del</span>
+<span class="sd">        módulo conexion. El objeto QSqlQuery que este devuelve, lo emite en una señal de favoritosRecibidos, para</span>
+<span class="sd">        tratarlo posteriormente.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="n">conexion</span><span class="o">.</span><span class="n">cargar_favoritos</span><span class="p">()</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">favoritosRecibidos</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Error: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">error</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="HiloTrabajador.comprobar_favorito"><a class="viewcode-back" href="../src/hilo_trabajador.html#hilo_trabajador.HiloTrabajador.comprobar_favorito">[documentos]</a>    <span class="k">def</span> <span class="nf">comprobar_favorito</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Método auxiliar que comprueba si la URL indicada en argumentos se encuentra en la tabla de favoritos usando el</span>
+<span class="sd">        método comprobar_favorito del modulo conexion, el booleano que recibe del método, lo emite usando la señal</span>
+<span class="sd">        paginaFavorita, para que el resultado sea gestionado como un evento.</span>
+
+<span class="sd">        :param url: URL de la página a comprobar.</span>
+<span class="sd">        :type url: str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">es_fav</span> <span class="o">=</span> <span class="n">conexion</span><span class="o">.</span><span class="n">comprobar_favorito</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">paginaFavorita</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="n">es_fav</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="HiloTrabajador.borrar_entrada"><a class="viewcode-back" href="../src/hilo_trabajador.html#hilo_trabajador.HiloTrabajador.borrar_entrada">[documentos]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">borrar_entrada</span><span class="p">(</span><span class="n">idx</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Método auxiliar que borra una URL del historial usando el módulo conexion-</span>
+
+<span class="sd">        :param idx: Índice de la página a borrar</span>
+<span class="sd">        :type idx: int</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">conexion</span><span class="o">.</span><span class="n">borrar_entrada_historial</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="HiloTrabajador.parar"><a class="viewcode-back" href="../src/hilo_trabajador.html#hilo_trabajador.HiloTrabajador.parar">[documentos]</a>    <span class="k">def</span> <span class="nf">parar</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Tras ejecutar todas las tareas restantes, detendrá la ejecución del bucle estableciendo el valor de running a</span>
+<span class="sd">        False.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tareas</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">continue</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">running</span> <span class="o">=</span> <span class="kc">False</span></div></div>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">PYQTBROWSER</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navegación</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="index.html">Código de módulo</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Búsqueda rápida</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Ir a" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2021, Willy Najberg.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.4.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

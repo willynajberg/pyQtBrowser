@@ -1,6 +1,8 @@
 from PyQt5 import QtSql
 from datetime import datetime
 import var
+import os
+import pathlib
 from ventana import *
 
 
@@ -14,7 +16,12 @@ def conectardb(dbname):
     """
     try:
         db = QtSql.QSqlDatabase.addDatabase('QSQLITE')
-        db.setDatabaseName(dbname)
+        rootPath = str(os.getenv("APPDATA") + "\\pyQtBrowser\\")
+
+        if not os.path.exists(rootPath):
+            os.makedirs(rootPath)
+
+        db.setDatabaseName(rootPath + dbname)
         if db.open():
             print('Conexión Establecida')
             crear_tablas()

@@ -1,0 +1,610 @@
+
+<!DOCTYPE html>
+
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>main module &#8212; documentación de PYQTBROWSER - 0.5.1</title>
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/translations.js"></script>
+    <link rel="index" title="Índice" href="../genindex.html" />
+    <link rel="search" title="Búsqueda" href="../search.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="module-main">
+<span id="main-module"></span><h1>main module<a class="headerlink" href="#module-main" title="Enlazar permanentemente con este título">¶</a></h1>
+<dl class="py class">
+<dt id="main.DialogAbout">
+<em class="property">class </em><code class="sig-prename descclassname">main.</code><code class="sig-name descname">DialogAbout</code><a class="reference internal" href="../_modules/main.html#DialogAbout"><span class="viewcode-link">[fuente]</span></a><a class="headerlink" href="#main.DialogAbout" title="Enlazar permanentemente con esta definición">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">PyQt5.QtWidgets.QDialog</span></code></p>
+<p>Clase que instancia el dialogo de about.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt id="main.DialogEditMarcador">
+<em class="property">class </em><code class="sig-prename descclassname">main.</code><code class="sig-name descname">DialogEditMarcador</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">idx</span></em>, <em class="sig-param"><span class="n">titulo</span></em>, <em class="sig-param"><span class="n">url</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/main.html#DialogEditMarcador"><span class="viewcode-link">[fuente]</span></a><a class="headerlink" href="#main.DialogEditMarcador" title="Enlazar permanentemente con esta definición">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">PyQt5.QtWidgets.QDialog</span></code></p>
+<p>Clase que instancia el dialogo de edición de un marcador.</p>
+<dl class="py method">
+<dt id="main.DialogEditMarcador.ejecutar">
+<code class="sig-name descname">ejecutar</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">idx</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/main.html#DialogEditMarcador.ejecutar"><span class="viewcode-link">[fuente]</span></a><a class="headerlink" href="#main.DialogEditMarcador.ejecutar" title="Enlazar permanentemente con esta definición">¶</a></dt>
+<dd><p>Funcion llamada por el botón de OK del dialogo que recoge los datos del formulario y edita el marcador en la
+base de datos.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parámetros</dt>
+<dd class="field-odd"><p><strong>idx</strong> (<em>int</em>) – Indice del marcador en la base de datos</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="main.Main">
+<em class="property">class </em><code class="sig-prename descclassname">main.</code><code class="sig-name descname">Main</code><a class="reference internal" href="../_modules/main.html#Main"><span class="viewcode-link">[fuente]</span></a><a class="headerlink" href="#main.Main" title="Enlazar permanentemente con esta definición">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">PyQt5.QtWidgets.QMainWindow</span></code></p>
+<p>Clase que instancia la ventana principal de la aplicacion.</p>
+<dl class="py method">
+<dt id="main.Main.abrir_about">
+<em class="property">static </em><code class="sig-name descname">abrir_about</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/main.html#Main.abrir_about"><span class="viewcode-link">[fuente]</span></a><a class="headerlink" href="#main.Main.abrir_about" title="Enlazar permanentemente con esta definición">¶</a></dt>
+<dd><p>Funcion encargada de crear un nuevo dialogo About y mostrarlo.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="main.Main.abrir_buscar">
+<em class="property">static </em><code class="sig-name descname">abrir_buscar</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/main.html#Main.abrir_buscar"><span class="viewcode-link">[fuente]</span></a><a class="headerlink" href="#main.Main.abrir_buscar" title="Enlazar permanentemente con esta definición">¶</a></dt>
+<dd><p>Funcion conectada al evento triggered del QAction de buscar en pagina que se encarga de mostrar la barra de
+busqueda.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="main.Main.abrir_editar_marcador">
+<em class="property">static </em><code class="sig-name descname">abrir_editar_marcador</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">idx</span></em>, <em class="sig-param"><span class="n">titulo</span></em>, <em class="sig-param"><span class="n">url</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/main.html#Main.abrir_editar_marcador"><span class="viewcode-link">[fuente]</span></a><a class="headerlink" href="#main.Main.abrir_editar_marcador" title="Enlazar permanentemente con esta definición">¶</a></dt>
+<dd><p>Funcion conectada a la opcion de editar del menu contextual de un marcador. Carga un dialogo del tipo
+DialogEditMarcador con los datos que se le pasa en los argumentos.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parámetros</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>idx</strong> (<em>int</em>) – Indice del marcador en la base de datos</p></li>
+<li><p><strong>titulo</strong> (<em>str</em>) – Titulo del marcador</p></li>
+<li><p><strong>url</strong> (<em>str</em>) – Url del marcador</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="main.Main.abrir_historial">
+<code class="sig-name descname">abrir_historial</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/main.html#Main.abrir_historial"><span class="viewcode-link">[fuente]</span></a><a class="headerlink" href="#main.Main.abrir_historial" title="Enlazar permanentemente con esta definición">¶</a></dt>
+<dd><p>Funcion encargada de abrir una pestaña nueva que contiene el historial de búsqueda</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="main.Main.abrir_pagina">
+<code class="sig-name descname">abrir_pagina</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/main.html#Main.abrir_pagina"><span class="viewcode-link">[fuente]</span></a><a class="headerlink" href="#main.Main.abrir_pagina" title="Enlazar permanentemente con esta definición">¶</a></dt>
+<dd><p>Funcion que cargará en el navegador un archivo de tipo HTML, que se escoja en un dialogo de tipo QFileDialog.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="main.Main.actualizacion_completada">
+<code class="sig-name descname">actualizacion_completada</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/main.html#Main.actualizacion_completada"><span class="viewcode-link">[fuente]</span></a><a class="headerlink" href="#main.Main.actualizacion_completada" title="Enlazar permanentemente con esta definición">¶</a></dt>
+<dd><p>Funcion conectada al evento loadFinished de un QWebEngineView que simplemente cambiará el boton de cancelar
+carga por el de refrescar de nuevo.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="main.Main.actualizar_icono">
+<code class="sig-name descname">actualizar_icono</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">icono</span></em>, <em class="sig-param"><span class="n">navegador</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/main.html#Main.actualizar_icono"><span class="viewcode-link">[fuente]</span></a><a class="headerlink" href="#main.Main.actualizar_icono" title="Enlazar permanentemente con esta definición">¶</a></dt>
+<dd><p>Esta función funciona igual que la funcion de actualizar_titulo, solo que en este caso es llamada por el
+evento iconChanged de un QWebEngine view, y le asigna el icono de la página a la pestaña del objeto navegador.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parámetros</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>icono</strong> (<em>QIcon</em><em>, </em><em>None</em>) – Icono de la pagina web</p></li>
+<li><p><strong>navegador</strong> (<em>QtWebEngineWidgets.QWebEngineView</em>) – Objeto de navegador</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="main.Main.actualizar_icono_fav">
+<code class="sig-name descname">actualizar_icono_fav</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">id_entrada</span><span class="o">=</span><span class="default_value">0</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/main.html#Main.actualizar_icono_fav"><span class="viewcode-link">[fuente]</span></a><a class="headerlink" href="#main.Main.actualizar_icono_fav" title="Enlazar permanentemente con esta definición">¶</a></dt>
+<dd><p>Esta funcion es la encargada de cambiar la apariencia del botón de favoritos si la página en la que estamos
+Está marcada como favorita, y desconectará las funciones conectadas a su evento clicked y las reemplazará
+por las indicadas.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parámetros</dt>
+<dd class="field-odd"><p><strong>id_entrada</strong> (<em>int</em>) – Identificador del favorito en la base de datos, 0 si no está en los favoritos.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="main.Main.actualizar_titulo">
+<code class="sig-name descname">actualizar_titulo</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">navegador</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/main.html#Main.actualizar_titulo"><span class="viewcode-link">[fuente]</span></a><a class="headerlink" href="#main.Main.actualizar_titulo" title="Enlazar permanentemente con esta definición">¶</a></dt>
+<dd><p>Funcion conectada al evento loadFinished de un objeto QWebEngineView. Cuando una página acabe de cargar,
+cambiará el título de la pestaña asignada a ese QWebEngineView al título de la página web.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parámetros</dt>
+<dd class="field-odd"><p><strong>navegador</strong> (<em>QtWebEngineWidgets.QWebEngineView</em>) – Objeto de navegador</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="main.Main.actualizar_url">
+<em class="property">static </em><code class="sig-name descname">actualizar_url</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">url</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/main.html#Main.actualizar_url"><span class="viewcode-link">[fuente]</span></a><a class="headerlink" href="#main.Main.actualizar_url" title="Enlazar permanentemente con esta definición">¶</a></dt>
+<dd><p>Esta funcion simplemente se encarga de actualizar el LineEdit de la URL del navegador.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parámetros</dt>
+<dd class="field-odd"><p><strong>url</strong> (<em>str</em>) – URL de la pagina</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="main.Main.anadir_favorito">
+<code class="sig-name descname">anadir_favorito</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/main.html#Main.anadir_favorito"><span class="viewcode-link">[fuente]</span></a><a class="headerlink" href="#main.Main.anadir_favorito" title="Enlazar permanentemente con esta definición">¶</a></dt>
+<dd><p>Funcion encargada de añadir la página actual a favoritos en la base de datos, y de refrescarlos.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="main.Main.borrar_entrada_historial">
+<code class="sig-name descname">borrar_entrada_historial</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">idx</span></em>, <em class="sig-param"><span class="n">historial</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/main.html#Main.borrar_entrada_historial"><span class="viewcode-link">[fuente]</span></a><a class="headerlink" href="#main.Main.borrar_entrada_historial" title="Enlazar permanentemente con esta definición">¶</a></dt>
+<dd><p>Esta funcion simplemente le pasa 2 tareas al hilo trabajador: borrar una entrada de historial con indice idx
+y volver a cargar el historial en el widget de historial pasado en argumentos.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parámetros</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>idx</strong> (<em>int</em>) – Indice de entrada en la base de datos del historial a borrar</p></li>
+<li><p><strong>historial</strong> (<a class="reference internal" href="widgethistorial.html#widgethistorial.WidgetHistorial" title="widgethistorial.WidgetHistorial"><em>WidgetHistorial</em></a>) – Objeto de tipo WidgetHistorial</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="main.Main.borrar_favorito">
+<code class="sig-name descname">borrar_favorito</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">id_entrada</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/main.html#Main.borrar_favorito"><span class="viewcode-link">[fuente]</span></a><a class="headerlink" href="#main.Main.borrar_favorito" title="Enlazar permanentemente con esta definición">¶</a></dt>
+<dd><p>Funcion encargada de pasar la tarea de borrar de favoritos la pagina con el indice indicado en parametros, y de
+refrescar los favoritos en la aplicacion.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parámetros</dt>
+<dd class="field-odd"><p><strong>id_entrada</strong> (<em>int</em>) – Indice de marcador en la base de datos.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="main.Main.buscar_anterior">
+<em class="property">static </em><code class="sig-name descname">buscar_anterior</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/main.html#Main.buscar_anterior"><span class="viewcode-link">[fuente]</span></a><a class="headerlink" href="#main.Main.buscar_anterior" title="Enlazar permanentemente con esta definición">¶</a></dt>
+<dd><p>Funcion conectada al evento clicked del boton de siguiente en la barra de búsqueda que pasa al texto anterior
+encontrado en la página.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="main.Main.buscar_en_pagina">
+<em class="property">static </em><code class="sig-name descname">buscar_en_pagina</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">text</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/main.html#Main.buscar_en_pagina"><span class="viewcode-link">[fuente]</span></a><a class="headerlink" href="#main.Main.buscar_en_pagina" title="Enlazar permanentemente con esta definición">¶</a></dt>
+<dd><p>Funcion conectada al evento de textChanged del LineEdit de la barra de busqueda que buscará el texto introducido
+en la página actual.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parámetros</dt>
+<dd class="field-odd"><p><strong>text</strong> (<em>str</em>) – Texto del LineEdit de la barra de busqueda</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="main.Main.buscar_siguiente">
+<em class="property">static </em><code class="sig-name descname">buscar_siguiente</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/main.html#Main.buscar_siguiente"><span class="viewcode-link">[fuente]</span></a><a class="headerlink" href="#main.Main.buscar_siguiente" title="Enlazar permanentemente con esta definición">¶</a></dt>
+<dd><p>Funcion conectada al evento clicked del boton de siguiente en la barra de búsqueda que pasa al siguiente texto
+encontrado en la página.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="main.Main.busqueda_cambiada">
+<em class="property">static </em><code class="sig-name descname">busqueda_cambiada</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">result</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/main.html#Main.busqueda_cambiada"><span class="viewcode-link">[fuente]</span></a><a class="headerlink" href="#main.Main.busqueda_cambiada" title="Enlazar permanentemente con esta definición">¶</a></dt>
+<dd><p>Funcion conectada al evento findTextFinished de una QWebEnginePage que recoge la cantidad de coincidencias de un
+texto y la coincidencia actual de una página y las actualiza en la barra de búsqueda.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parámetros</dt>
+<dd class="field-odd"><p><strong>result</strong> (<em>QtWebEngineWidgets.QWebEngineFindTextResult</em>) – Resultado de la busqueda</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="main.Main.cambiar_btnrefrescar">
+<code class="sig-name descname">cambiar_btnrefrescar</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cargando</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/main.html#Main.cambiar_btnrefrescar"><span class="viewcode-link">[fuente]</span></a><a class="headerlink" href="#main.Main.cambiar_btnrefrescar" title="Enlazar permanentemente con esta definición">¶</a></dt>
+<dd><p>Esta funcion es la encargada de cambiar el botón de refrescar por el de cancelar carga, segun el booleano
+que se le pase en los parametros.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parámetros</dt>
+<dd class="field-odd"><p><strong>cargando</strong> (<em>bool</em>) – Estado de carga de la pagina</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="main.Main.cambiar_url">
+<code class="sig-name descname">cambiar_url</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">url</span></em>, <em class="sig-param"><span class="n">navegador</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/main.html#Main.cambiar_url"><span class="viewcode-link">[fuente]</span></a><a class="headerlink" href="#main.Main.cambiar_url" title="Enlazar permanentemente con esta definición">¶</a></dt>
+<dd><p>Esta funcion es llamada por el evento urlChanged de un QWebEngineView. Cuando este evento se ejecute
+cambiara la barra de url del navegador, el icono de la pestana, cambiara el icono de favorito habilitará los
+botones de atras y adelante si es posible.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parámetros</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>url</strong> (<em>QUrl</em>) – Objeto QUrl del enlace</p></li>
+<li><p><strong>navegador</strong> (<em>QtWebEngineWidgets.QWebEngineView</em>) – Objeto de navegador</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="main.Main.cancelar_actualizacion">
+<code class="sig-name descname">cancelar_actualizacion</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/main.html#Main.cancelar_actualizacion"><span class="viewcode-link">[fuente]</span></a><a class="headerlink" href="#main.Main.cancelar_actualizacion" title="Enlazar permanentemente con esta definición">¶</a></dt>
+<dd><p>Funcion conectada al evento clicked del boton de cancelar carga que parará la carga de la pestaña actual
+y cambiara el boton de cancelar carga por el de refrescar nuevamente.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="main.Main.carga_completada">
+<code class="sig-name descname">carga_completada</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">navegador</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/main.html#Main.carga_completada"><span class="viewcode-link">[fuente]</span></a><a class="headerlink" href="#main.Main.carga_completada" title="Enlazar permanentemente con esta definición">¶</a></dt>
+<dd><p>Función conectada al evento loadFinished del navegador. Se encargará de cambiar el boton de cancelar carga
+al de refrescar, de actualizar el título y de insertar una nueva entrada en el historial, o en caso de que
+la última entrada del historial sea la misma url, actualizar su título.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parámetros</dt>
+<dd class="field-odd"><p><strong>navegador</strong> (<em>QtWebEngineWidgets.QWebEngineView</em>) – Objeto de navegador</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="main.Main.carga_iniciada">
+<code class="sig-name descname">carga_iniciada</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">navegador</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/main.html#Main.carga_iniciada"><span class="viewcode-link">[fuente]</span></a><a class="headerlink" href="#main.Main.carga_iniciada" title="Enlazar permanentemente con esta definición">¶</a></dt>
+<dd><p>Funcion conectada al evento loadStarted de un objeto QWebEngineView.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parámetros</dt>
+<dd class="field-odd"><p><strong>navegador</strong> (<em>QtWebEngineWidgets.QWebEngineView</em>) – Objeto de navegador</p>
+</dd>
+</dl>
+<p>Al empezar a cargar una página, comprobará si esta página está en los favoritos, y cambiará el boton de
+refrescar por el de cancelar carga.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="main.Main.cargar_favoritos">
+<code class="sig-name descname">cargar_favoritos</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">query</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/main.html#Main.cargar_favoritos"><span class="viewcode-link">[fuente]</span></a><a class="headerlink" href="#main.Main.cargar_favoritos" title="Enlazar permanentemente con esta definición">¶</a></dt>
+<dd><p>Esta funcion recibe un objeto de QSqlQuery del evento favoritosRecibidos emitido por el hilo trabajador. Limpia
+los marcadores y conecta el evento marcadoresLimpios emitido por la funcion de limpiar_marcadores con la funcion
+de mostrar_favoritos, pasandole el objeto query.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parámetros</dt>
+<dd class="field-odd"><p><strong>query</strong> (<em>QtSql.QSqlQuery</em>) – Objeto de tipo QSqlQuery</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="main.Main.cargar_historial">
+<code class="sig-name descname">cargar_historial</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">historial</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/main.html#Main.cargar_historial"><span class="viewcode-link">[fuente]</span></a><a class="headerlink" href="#main.Main.cargar_historial" title="Enlazar permanentemente con esta definición">¶</a></dt>
+<dd><p>Funcion encargada de pasarle una tarea nueva al hilo trabajador del navegador de cargar el historial
+de la base de datos.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parámetros</dt>
+<dd class="field-odd"><p><strong>historial</strong> (<a class="reference internal" href="widgethistorial.html#widgethistorial.WidgetHistorial" title="widgethistorial.WidgetHistorial"><em>WidgetHistorial</em></a>) – Objeto de tipo WidgetHistorial</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="main.Main.cerrar_buscar">
+<em class="property">static </em><code class="sig-name descname">cerrar_buscar</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/main.html#Main.cerrar_buscar"><span class="viewcode-link">[fuente]</span></a><a class="headerlink" href="#main.Main.cerrar_buscar" title="Enlazar permanentemente con esta definición">¶</a></dt>
+<dd><p>Funcion conectada al boton de cerrar de la barra de búsqueda que cierra la misma y limpia el bufer de busqueda
+de texto de la pagina actual.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="main.Main.cerrar_pestana">
+<em class="property">static </em><code class="sig-name descname">cerrar_pestana</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">i</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/main.html#Main.cerrar_pestana"><span class="viewcode-link">[fuente]</span></a><a class="headerlink" href="#main.Main.cerrar_pestana" title="Enlazar permanentemente con esta definición">¶</a></dt>
+<dd><p>Funcion conectada al evento tabCloseRequested del TabWidget del navegador que se activará cuando el usuario
+cierre una de las pestañas.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parámetros</dt>
+<dd class="field-odd"><p><strong>i</strong> (<em>int</em>) – Indice de la pestaña cerrada</p>
+</dd>
+<dt class="field-even">Devuelve</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+<dt class="field-odd">Tipo del valor devuelto</dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="main.Main.comprobar_fav">
+<code class="sig-name descname">comprobar_fav</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">url</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/main.html#Main.comprobar_fav"><span class="viewcode-link">[fuente]</span></a><a class="headerlink" href="#main.Main.comprobar_fav" title="Enlazar permanentemente con esta definición">¶</a></dt>
+<dd><p>Funcion que añade al hilo trabajador la tarea de comprobar si la pagina pasada en los parametros está en los
+favoritos en la base de datos.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parámetros</dt>
+<dd class="field-odd"><p><strong>url</strong> (<em>str</em>) – URL de la pagina a comprobar</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="main.Main.conectar_nav">
+<code class="sig-name descname">conectar_nav</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">navegador</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/main.html#Main.conectar_nav"><span class="viewcode-link">[fuente]</span></a><a class="headerlink" href="#main.Main.conectar_nav" title="Enlazar permanentemente con esta definición">¶</a></dt>
+<dd><p>Conecta los eventos emitidos por un objeto de tipo QWebEngineView con funciones de la aplicacion.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parámetros</dt>
+<dd class="field-odd"><p><strong>navegador</strong> (<em>QtWebEngineWidgets.QWebEngineView</em>) – Objeto de navegador</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="main.Main.crear_window">
+<code class="sig-name descname">crear_window</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">t</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/main.html#Main.crear_window"><span class="viewcode-link">[fuente]</span></a><a class="headerlink" href="#main.Main.crear_window" title="Enlazar permanentemente con esta definición">¶</a></dt>
+<dd><p>Funcion que sobreescribe el metodo nativo de createWindow de un objeto QWebEngineView</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parámetros</dt>
+<dd class="field-odd"><p><strong>t</strong> – </p>
+</dd>
+<dt class="field-even">Devuelve</dt>
+<dd class="field-even"><p>Objeto de la pestaña nueva</p>
+</dd>
+<dt class="field-odd">Tipo del valor devuelto</dt>
+<dd class="field-odd"><p>QtWebEngineWidgets.QWebEnginePage</p>
+</dd>
+</dl>
+<p>Al intentar crear una pestaña nueva con javascript, este espera que el navegador en el que se ejecuta le
+retorne un puntero a un objeto de tipo QWebEnginePage en el que pueda escribir una url nueva</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="main.Main.guardar_html">
+<em class="property">static </em><code class="sig-name descname">guardar_html</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">html</span></em>, <em class="sig-param"><span class="n">filename</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/main.html#Main.guardar_html"><span class="viewcode-link">[fuente]</span></a><a class="headerlink" href="#main.Main.guardar_html" title="Enlazar permanentemente con esta definición">¶</a></dt>
+<dd><p>Funcion auxiliar encargada de escribir el código recibido por la funcion toHtml del elemento QWebEnginePage en
+el archivo que se le pasa en los parametros.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parámetros</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>html</strong> (<em>str</em>) – Codigo HTML de la página</p></li>
+<li><p><strong>filename</strong> (<em>str</em>) – Nombre y directorio del archivo a guardar</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="main.Main.guardar_pagina">
+<code class="sig-name descname">guardar_pagina</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/main.html#Main.guardar_pagina"><span class="viewcode-link">[fuente]</span></a><a class="headerlink" href="#main.Main.guardar_pagina" title="Enlazar permanentemente con esta definición">¶</a></dt>
+<dd><p>Funcion que guardará la página actual en un archivo HTML con el nombre y directiorio que se escoja en un dialogo
+de tipo QFileDialog.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="main.Main.insertar_marcador">
+<code class="sig-name descname">insertar_marcador</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">titulo</span></em>, <em class="sig-param"><span class="n">url</span></em>, <em class="sig-param"><span class="n">icono</span></em>, <em class="sig-param"><span class="n">id_entrada</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/main.html#Main.insertar_marcador"><span class="viewcode-link">[fuente]</span></a><a class="headerlink" href="#main.Main.insertar_marcador" title="Enlazar permanentemente con esta definición">¶</a></dt>
+<dd><p>Funcion encargada de crear un boton con los parametros indicados e insertarlo en la barra de marcadores</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parámetros</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>titulo</strong> (<em>str</em>) – Titulo de la pagina</p></li>
+<li><p><strong>url</strong> (<em>str</em>) – URL de la pagina</p></li>
+<li><p><strong>icono</strong> (<em>QtGui.QPixmap</em>) – Imagen de icono de la pagina</p></li>
+<li><p><strong>id_entrada</strong> (<em>int</em>) – Indice del marcador en la base de datos</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="main.Main.limpiar_marcadores">
+<code class="sig-name descname">limpiar_marcadores</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/main.html#Main.limpiar_marcadores"><span class="viewcode-link">[fuente]</span></a><a class="headerlink" href="#main.Main.limpiar_marcadores" title="Enlazar permanentemente con esta definición">¶</a></dt>
+<dd><p>Esta función borra todos los elementos del widgetMarcadores y emite una señal de tipo marcadoresLimpios despues
+de 100ms.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="main.Main.marcadoresLimpios">
+<code class="sig-name descname">marcadoresLimpios</code><a class="headerlink" href="#main.Main.marcadoresLimpios" title="Enlazar permanentemente con esta definición">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="main.Main.mostrar_favoritos">
+<code class="sig-name descname">mostrar_favoritos</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">query</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/main.html#Main.mostrar_favoritos"><span class="viewcode-link">[fuente]</span></a><a class="headerlink" href="#main.Main.mostrar_favoritos" title="Enlazar permanentemente con esta definición">¶</a></dt>
+<dd><p>Funcion que itera el objeto QSqlQuery pasado en argumentos para insertar los marcadores en la barra.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parámetros</dt>
+<dd class="field-odd"><p><strong>query</strong> (<em>QtSql.QSqlQuery</em>) – Objeto de QSqlQuery</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="main.Main.mostrar_menu">
+<em class="property">static </em><code class="sig-name descname">mostrar_menu</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/main.html#Main.mostrar_menu"><span class="viewcode-link">[fuente]</span></a><a class="headerlink" href="#main.Main.mostrar_menu" title="Enlazar permanentemente con esta definición">¶</a></dt>
+<dd><p>Funcion que abre el menu contextual de la aplicación.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="main.Main.navegar_a_home">
+<em class="property">static </em><code class="sig-name descname">navegar_a_home</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/main.html#Main.navegar_a_home"><span class="viewcode-link">[fuente]</span></a><a class="headerlink" href="#main.Main.navegar_a_home" title="Enlazar permanentemente con esta definición">¶</a></dt>
+<dd><p>Funcion conectada al boton home del navegador que simplemente navegara al enlace establecido como enlace home</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="main.Main.navegar_a_url">
+<code class="sig-name descname">navegar_a_url</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">url</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/main.html#Main.navegar_a_url"><span class="viewcode-link">[fuente]</span></a><a class="headerlink" href="#main.Main.navegar_a_url" title="Enlazar permanentemente con esta definición">¶</a></dt>
+<dd><p>Esta funcion esta conectada al evento returnPressed del lineEdit de la barra de URL. Es decir, se activará
+cuando el usuario pulse Enter en la barra de url.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parámetros</dt>
+<dd class="field-odd"><p><strong>url</strong> (<em>str</em>) – URL de la página a cargar</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="main.Main.nueva_pestana">
+<code class="sig-name descname">nueva_pestana</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">url</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/main.html#Main.nueva_pestana"><span class="viewcode-link">[fuente]</span></a><a class="headerlink" href="#main.Main.nueva_pestana" title="Enlazar permanentemente con esta definición">¶</a></dt>
+<dd><p>Crea una pestaña nueva en el TabWidget del navegador y le asigna un widget QWebEngineView.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parámetros</dt>
+<dd class="field-odd"><p><strong>url</strong> (<em>str</em>) – URL de la pagina a cargar en la nueva pestaña</p>
+</dd>
+<dt class="field-even">Devuelve</dt>
+<dd class="field-even"><p>Objeto de la nueva pestaña</p>
+</dd>
+<dt class="field-odd">Tipo del valor devuelto</dt>
+<dd class="field-odd"><p>QtWebEngineWidgets.QWebEngineView</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="main.Main.pestana_cambiada">
+<code class="sig-name descname">pestana_cambiada</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">i</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/main.html#Main.pestana_cambiada"><span class="viewcode-link">[fuente]</span></a><a class="headerlink" href="#main.Main.pestana_cambiada" title="Enlazar permanentemente con esta definición">¶</a></dt>
+<dd><p>Funcion conectada al evento tabChanged del TabWidget del navegador que se encarga de cambiar el titulo de la
+ventana principal, la url del line edit, el boton de refrescar y los botones de atras y adelante.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parámetros</dt>
+<dd class="field-odd"><p><strong>i</strong> (<em>int</em>) – Indice de la pestaña a la que se ha cambiado</p>
+</dd>
+</dl>
+<p>Tambien cierra la barra de buscar en pagina si está abierta para evitar fallos.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="main.Main.progreso_carga">
+<code class="sig-name descname">progreso_carga</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">progreso</span></em>, <em class="sig-param"><span class="n">navegador</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/main.html#Main.progreso_carga"><span class="viewcode-link">[fuente]</span></a><a class="headerlink" href="#main.Main.progreso_carga" title="Enlazar permanentemente con esta definición">¶</a></dt>
+<dd><p>Funcion conectada al evento loadProgress emitido por un objeto QWebEngineView. Emite un valor de progreso de
+carga de la página que es un entero entre 0-100.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parámetros</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>progreso</strong> (<em>int</em>) – Progreso de carga</p></li>
+<li><p><strong>navegador</strong> (<em>QtWebEngineWidgets.QWebEngineView</em>) – Objeto del navegador</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="main.Main.refrescar">
+<em class="property">static </em><code class="sig-name descname">refrescar</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/main.html#Main.refrescar"><span class="viewcode-link">[fuente]</span></a><a class="headerlink" href="#main.Main.refrescar" title="Enlazar permanentemente con esta definición">¶</a></dt>
+<dd><p>Funcion conectada al evento clicked del boton de refrescar. Refresca la página actual.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="main.Main.resizeEvent">
+<code class="sig-name descname">resizeEvent</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/main.html#Main.resizeEvent"><span class="viewcode-link">[fuente]</span></a><a class="headerlink" href="#main.Main.resizeEvent" title="Enlazar permanentemente con esta definición">¶</a></dt>
+<dd><p>Sobreescribe el método por defecto de resizeEvent de la aplicación.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="main.Main.toggle_barra_marcadores">
+<em class="property">static </em><code class="sig-name descname">toggle_barra_marcadores</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">settings</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/main.html#Main.toggle_barra_marcadores"><span class="viewcode-link">[fuente]</span></a><a class="headerlink" href="#main.Main.toggle_barra_marcadores" title="Enlazar permanentemente con esta definición">¶</a></dt>
+<dd><p>Función que muestra o oculta la barra de marcadores y actualiza la configuración de la aplicación.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parámetros</dt>
+<dd class="field-odd"><p><strong>settings</strong> (<em>QSettings</em>) – Objeto de onfiguración de la aplicación</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">PYQTBROWSER</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navegación</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Búsqueda rápida</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Ir a" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2021, Willy Najberg.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.4.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../_sources/src/main.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

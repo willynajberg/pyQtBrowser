@@ -1,0 +1,236 @@
+
+<!DOCTYPE html>
+
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>hilo_trabajador module &#8212; documentación de PYQTBROWSER - 0.5.1</title>
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/translations.js"></script>
+    <link rel="index" title="Índice" href="../genindex.html" />
+    <link rel="search" title="Búsqueda" href="../search.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="module-hilo_trabajador">
+<span id="hilo-trabajador-module"></span><h1>hilo_trabajador module<a class="headerlink" href="#module-hilo_trabajador" title="Enlazar permanentemente con este título">¶</a></h1>
+<dl class="py class">
+<dt id="hilo_trabajador.HiloTrabajador">
+<em class="property">class </em><code class="sig-prename descclassname">hilo_trabajador.</code><code class="sig-name descname">HiloTrabajador</code><a class="reference internal" href="../_modules/hilo_trabajador.html#HiloTrabajador"><span class="viewcode-link">[fuente]</span></a><a class="headerlink" href="#hilo_trabajador.HiloTrabajador" title="Enlazar permanentemente con esta definición">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">PyQt5.QtCore.QThread</span></code></p>
+<p>Clase auxiliar que instancia un nuevo hilo que se encargue de ejecutar las operaciones CRUD. Se ejecutarán en un
+hilo separado del hilo principal para optimizar el rendimiento.</p>
+<dl class="py method">
+<dt id="hilo_trabajador.HiloTrabajador.anadir_favorito">
+<em class="property">static </em><code class="sig-name descname">anadir_favorito</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">pag</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hilo_trabajador.html#HiloTrabajador.anadir_favorito"><span class="viewcode-link">[fuente]</span></a><a class="headerlink" href="#hilo_trabajador.HiloTrabajador.anadir_favorito" title="Enlazar permanentemente con esta definición">¶</a></dt>
+<dd><p>Método auxiliar que recibe un objeto de tipo QWebEnginePage y lo añade a la tabla de favoritos usando el módulo
+de conexion.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parámetros</dt>
+<dd class="field-odd"><p><strong>pag</strong> (<em>QtWebEngineWidgets.QWebEnginePage</em>) – Página a añadir</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="hilo_trabajador.HiloTrabajador.anadir_historial">
+<em class="property">static </em><code class="sig-name descname">anadir_historial</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">navegador</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hilo_trabajador.html#HiloTrabajador.anadir_historial"><span class="viewcode-link">[fuente]</span></a><a class="headerlink" href="#hilo_trabajador.HiloTrabajador.anadir_historial" title="Enlazar permanentemente con esta definición">¶</a></dt>
+<dd><p>Método auxiliar de la clase para agregar una nueva entrada en la tabla historial de la base de datos, a partir
+del objeto de la página actual que se le pasa en argumentos.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parámetros</dt>
+<dd class="field-odd"><p><strong>navegador</strong> (<em>QtWebEngineWidgets.QWebEngineView</em>) – Objeto de tipo QWebEngineView actual</p>
+</dd>
+</dl>
+<p>Comprobará si lo que debe hacer es introducir una entrada nueva o cambiar el título de una entrada previa.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="hilo_trabajador.HiloTrabajador.anadir_tarea">
+<code class="sig-name descname">anadir_tarea</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">tarea</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hilo_trabajador.html#HiloTrabajador.anadir_tarea"><span class="viewcode-link">[fuente]</span></a><a class="headerlink" href="#hilo_trabajador.HiloTrabajador.anadir_tarea" title="Enlazar permanentemente con esta definición">¶</a></dt>
+<dd><p>Añade una tarea nueva, en forma de lambda, a la cola.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parámetros</dt>
+<dd class="field-odd"><p><strong>tarea</strong> (<em>lambda</em>) – Función a ejecutar</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="hilo_trabajador.HiloTrabajador.borrar_entrada">
+<em class="property">static </em><code class="sig-name descname">borrar_entrada</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">idx</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hilo_trabajador.html#HiloTrabajador.borrar_entrada"><span class="viewcode-link">[fuente]</span></a><a class="headerlink" href="#hilo_trabajador.HiloTrabajador.borrar_entrada" title="Enlazar permanentemente con esta definición">¶</a></dt>
+<dd><p>Método auxiliar que borra una URL del historial usando el módulo conexion-</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parámetros</dt>
+<dd class="field-odd"><p><strong>idx</strong> (<em>int</em>) – Índice de la página a borrar</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="hilo_trabajador.HiloTrabajador.cargar_favoritos">
+<code class="sig-name descname">cargar_favoritos</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hilo_trabajador.html#HiloTrabajador.cargar_favoritos"><span class="viewcode-link">[fuente]</span></a><a class="headerlink" href="#hilo_trabajador.HiloTrabajador.cargar_favoritos" title="Enlazar permanentemente con esta definición">¶</a></dt>
+<dd><p>Método auxiliar que carga todas las entradas de la tabla de favoritos usando el metodo cargar_favoritos del
+módulo conexion. El objeto QSqlQuery que este devuelve, lo emite en una señal de favoritosRecibidos, para
+tratarlo posteriormente.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="hilo_trabajador.HiloTrabajador.cargar_historial">
+<code class="sig-name descname">cargar_historial</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hilo_trabajador.html#HiloTrabajador.cargar_historial"><span class="viewcode-link">[fuente]</span></a><a class="headerlink" href="#hilo_trabajador.HiloTrabajador.cargar_historial" title="Enlazar permanentemente con esta definición">¶</a></dt>
+<dd><p>Método auxiliar que carga todas las entradas de la tabla de historial usando el metodo cargar_historial del
+módulo conexion. El objeto QSqlQuery que este devuelve, lo emite en una señal de historialRecibido, para
+tratarlo posteriormente.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="hilo_trabajador.HiloTrabajador.comprobar_favorito">
+<code class="sig-name descname">comprobar_favorito</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">url</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hilo_trabajador.html#HiloTrabajador.comprobar_favorito"><span class="viewcode-link">[fuente]</span></a><a class="headerlink" href="#hilo_trabajador.HiloTrabajador.comprobar_favorito" title="Enlazar permanentemente con esta definición">¶</a></dt>
+<dd><p>Método auxiliar que comprueba si la URL indicada en argumentos se encuentra en la tabla de favoritos usando el
+método comprobar_favorito del modulo conexion, el booleano que recibe del método, lo emite usando la señal
+paginaFavorita, para que el resultado sea gestionado como un evento.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parámetros</dt>
+<dd class="field-odd"><p><strong>url</strong> (<em>str</em>) – URL de la página a comprobar.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="hilo_trabajador.HiloTrabajador.editar_favorito">
+<code class="sig-name descname">editar_favorito</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">idx</span></em>, <em class="sig-param"><span class="n">titulo</span></em>, <em class="sig-param"><span class="n">url</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hilo_trabajador.html#HiloTrabajador.editar_favorito"><span class="viewcode-link">[fuente]</span></a><a class="headerlink" href="#hilo_trabajador.HiloTrabajador.editar_favorito" title="Enlazar permanentemente con esta definición">¶</a></dt>
+<dd><p>Método auxiliar para editar una entrada en la tabla de favoritos de la base de datos a partir de los parametros
+indicados. Tras ejecutar la orden, cargará los favoritos nuevamente usando el metodo cargar_favoritos.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parámetros</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>idx</strong> – </p></li>
+<li><p><strong>titulo</strong> – </p></li>
+<li><p><strong>url</strong> – </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="hilo_trabajador.HiloTrabajador.favoritoAnadido">
+<code class="sig-name descname">favoritoAnadido</code><a class="headerlink" href="#hilo_trabajador.HiloTrabajador.favoritoAnadido" title="Enlazar permanentemente con esta definición">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="hilo_trabajador.HiloTrabajador.favoritosRecibidos">
+<code class="sig-name descname">favoritosRecibidos</code><a class="headerlink" href="#hilo_trabajador.HiloTrabajador.favoritosRecibidos" title="Enlazar permanentemente con esta definición">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="hilo_trabajador.HiloTrabajador.historialRecibido">
+<code class="sig-name descname">historialRecibido</code><a class="headerlink" href="#hilo_trabajador.HiloTrabajador.historialRecibido" title="Enlazar permanentemente con esta definición">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="hilo_trabajador.HiloTrabajador.paginaFavorita">
+<code class="sig-name descname">paginaFavorita</code><a class="headerlink" href="#hilo_trabajador.HiloTrabajador.paginaFavorita" title="Enlazar permanentemente con esta definición">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="hilo_trabajador.HiloTrabajador.parar">
+<code class="sig-name descname">parar</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hilo_trabajador.html#HiloTrabajador.parar"><span class="viewcode-link">[fuente]</span></a><a class="headerlink" href="#hilo_trabajador.HiloTrabajador.parar" title="Enlazar permanentemente con esta definición">¶</a></dt>
+<dd><p>Tras ejecutar todas las tareas restantes, detendrá la ejecución del bucle estableciendo el valor de running a
+False.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="hilo_trabajador.HiloTrabajador.run">
+<code class="sig-name descname">run</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hilo_trabajador.html#HiloTrabajador.run"><span class="viewcode-link">[fuente]</span></a><a class="headerlink" href="#hilo_trabajador.HiloTrabajador.run" title="Enlazar permanentemente con esta definición">¶</a></dt>
+<dd><p>Establece una conexión del hilo con la base de datos usando la funcion de conectardb del módulo conexion.
+Asigna el valor de running a true. Crea un bucle que se ejecutará con una frecuencia de 20ms, que ejecutará las
+tareas guardadas en la lista en modo FIFO.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">PYQTBROWSER</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navegación</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Búsqueda rápida</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Ir a" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2021, Willy Najberg.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.4.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../_sources/src/hilo_trabajador.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
