@@ -5,6 +5,13 @@ from ventana import *
 
 
 def conectardb(dbname):
+    """
+
+    Establece una conexión con la base de datos de usuario en el hilo actual.
+
+    :param dbname: Nombre del archivo de base de datos
+    :type dbname: str
+    """
     try:
         db = QtSql.QSqlDatabase.addDatabase('QSQLITE')
         db.setDatabaseName(dbname)
@@ -16,6 +23,11 @@ def conectardb(dbname):
 
 
 def crear_tablas():
+    """
+
+    Ejecuta los queries necesarios para crear las tablas en la base de datos.
+
+    """
     try:
         query = QtSql.QSqlQuery()
         if not query.exec_(
@@ -49,6 +61,18 @@ def crear_tablas():
 
 
 def insertar_historial(url, titulo=""):
+    """
+
+    Inserta una entrada nueva en el historial a partir de los parámetros pasados en argumentos.
+
+    :param url: URL de la entrada
+    :type url: str
+    :param titulo: Título de la entrada
+    :type titulo: str
+
+    Tras insertar la nueva entrada, selecciona su identificador y establece la variable global LAST_INSERT_HISTORIAL
+    a ese identificador, para posteriores operaciones.
+    """
     try:
         query = QtSql.QSqlQuery()
         query.prepare("INSERT INTO historial (url, titulo, fecha, hora) VALUES "
@@ -72,6 +96,14 @@ def insertar_historial(url, titulo=""):
 
 
 def seleccionar_ultima_url():
+    """
+
+    Recoge la última URL que se insertó en el historial en la base de datos, usando el comando de SQL
+    last_insert_rowid()
+
+    :return: Última URL insertada en el historial
+    :rtype: str
+    """
     try:
         query = QtSql.QSqlQuery()
         query.prepare("SELECT url FROM historial WHERE idEntrada=last_insert_rowid()")
@@ -89,6 +121,15 @@ def seleccionar_ultima_url():
 
 
 def cambiar_titulo_historial(idx, titulo=""):
+    """
+
+    Cambia el título que se ha puesto en una entrada de historial.
+
+    :param idx: Índice de la entrada a cambiar
+    :type idx: int
+    :param titulo: Nuevo título a poner a la entrada
+    :type titulo: str
+    """
     try:
         query = QtSql.QSqlQuery()
         query.prepare("UPDATE historial SET titulo=:titulo WHERE idEntrada=:id")
@@ -100,6 +141,14 @@ def cambiar_titulo_historial(idx, titulo=""):
 
 
 def cargar_historial():
+    """
+
+    Selecciona todas las entradas en el historial en la base de datos en orden descendiente y devuelve el resultado del
+    query.
+
+    :return: Resultado del query
+    :rtype: QtSql.QSqlQuery
+    """
     try:
         query = QtSql.QSqlQuery()
         query.prepare("SELECT * FROM historial ORDER BY idEntrada DESC")
@@ -110,6 +159,13 @@ def cargar_historial():
 
 
 def borrar_entrada_historial(idx):
+    """
+
+    Borra una entrada del historial en la base de datos.
+
+    :param idx: Índice de la entrada a borrar
+    :type idx: int
+    """
     try:
         query = QtSql.QSqlQuery()
         query.prepare("DELETE FROM historial WHERE idEntrada=:id")
@@ -122,6 +178,16 @@ def borrar_entrada_historial(idx):
 
 
 def anadir_favorito(pag):
+    """
+
+    Añade la página que se le pasa en parámetros a favoritos en la base de datos. Devuelve el identificador de esta
+    nueva entrada en la base de datos para posteriores modificaciones.
+
+    :param pag: Página a guardar en favoritos
+    :type pag: QtWebEngineWidgets.QWebEnginePage
+    :return: Identificador de la página en la base de datos
+    :rtype: int
+    """
     try:
         query = QtSql.QSqlQuery()
         query.prepare("INSERT INTO favoritos (url, titulo, icono) VALUES (:url, :titulo, :icono)")
@@ -147,6 +213,17 @@ def anadir_favorito(pag):
 
 
 def editar_favorito(idx, titulo, url):
+    """
+
+    Edita una entrada de favoritos en la base de datos con los parametros pasados en argumentos.
+
+    :param idx: Índice de la entrada a editar
+    :type idx: int
+    :param titulo: Nuevo título de la entrada
+    :type titulo: str
+    :param url: Nueva URL de la entrada
+    :type url: str
+    """
     try:
         query = QtSql.QSqlQuery()
         query.prepare("UPDATE favoritos SET titulo=:titulo, url=:url WHERE idEntrada=:idx")
@@ -161,6 +238,13 @@ def editar_favorito(idx, titulo, url):
 
 
 def borrar_favorito(idx):
+    """
+
+    Borra una entrada de la tabla de favoritos de la base de datos.
+
+    :param idx: Índice de la entrada a borrar
+    :type idx: int
+    """
     try:
         query = QtSql.QSqlQuery()
         query.prepare("DELETE FROM favoritos WHERE idEntrada=:id")
@@ -173,6 +257,14 @@ def borrar_favorito(idx):
 
 
 def cargar_favoritos():
+    """
+
+    Selecciona todas las entradas en la tabla de favoritos de la base de datos en orden ascendiente y devuelve el
+    resultado del query.
+
+    :return: Resultado del query
+    :rtype: QtSql.QSqlQuery
+    """
     try:
         query = QtSql.QSqlQuery()
         query.prepare("SELECT * FROM favoritos ORDER BY idEntrada ASC")
@@ -184,6 +276,15 @@ def cargar_favoritos():
 
 
 def comprobar_favorito(url):
+    """
+
+    Comprueba si la URL pasada en argumentos se encuentra en la tabla de favoritos mediante un query.
+
+    :param url: URL a comprobar.
+    :type url: str
+    :return: Índice de entrada, si es que existe, si no 0.
+    :rtype: int
+    """
     try:
         query = QtSql.QSqlQuery()
         query.prepare("SELECT idEntrada FROM favoritos WHERE url=:url")
@@ -202,12 +303,22 @@ def comprobar_favorito(url):
 
 
 def actualizar_icono_fav(url, icono):
+    """
+
+    Actualiza el icono de la página guardada en favoritos.
+
+    :param url: URL de la página
+    :type url: str
+    :param icono: Nuevo icono
+    :type icono: QIcon
+    """
     try:
         query = QtSql.QSqlQuery()
         query.prepare("UPDATE favoritos SET icono=:icono WHERE url=:url")
 
         pixmap = icono.pixmap(icono.actualSize(QtCore.QSize(16, 16)))
 
+        # Pasa el pixmap del icono a un array de bytes para guardarlo como Blob en la BBDD
         ba = QtCore.QByteArray()
         buff = QtCore.QBuffer(ba)
         buff.open(QtCore.QIODevice.WriteOnly)

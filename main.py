@@ -1,5 +1,3 @@
-from PyQt5.QtPrintSupport import QPrintPreviewDialog
-
 import conexion
 import re
 import sys
@@ -18,6 +16,11 @@ from ventana import *
 
 
 class DialogEditMarcador(QtWidgets.QDialog):
+    """
+
+    Clase que instancia el dialogo de edición de un marcador.
+
+    """
     def __init__(self, idx, titulo, url):
         super(DialogEditMarcador, self).__init__()
         self.ui = Ui_dlgEditMarcador()
@@ -31,11 +34,24 @@ class DialogEditMarcador(QtWidgets.QDialog):
         self.ui.buttonBox.button(QtWidgets.QDialogButtonBox.Cancel).clicked.connect(lambda: self.close())
 
     def ejecutar(self, idx):
+        """
+
+        Funcion llamada por el botón de OK del dialogo que recoge los datos del formulario y edita el marcador en la
+        base de datos.
+
+        :param idx: Indice del marcador en la base de datos
+        :type idx: int
+        """
         var.nav.hilo_trab.anadir_tarea(lambda indice=idx, titulo=self.ui.txtTitulo.text(), url=self.ui.txtURL.text():
                                        var.nav.hilo_trab.editar_favorito(indice, titulo, url))
 
 
 class DialogAbout(QtWidgets.QDialog):
+    """
+
+    Clase que instancia el dialogo de about.
+
+    """
     def __init__(self):
         super(DialogAbout, self).__init__()
         self.ui = Ui_dlgAbout()
@@ -46,6 +62,13 @@ class DialogAbout(QtWidgets.QDialog):
 
 
 class Main(QMainWindow):
+    """
+
+    Clase que instancia la ventana principal de la aplicacion.
+
+    """
+
+    # Creacion pyqtSignals propios de la ventana principal
     marcadoresLimpios = pyqtSignal()
 
     def __init__(self):
@@ -96,6 +119,7 @@ class Main(QMainWindow):
         var.ui.actionBuscar.triggered.connect(self.abrir_buscar)
         var.ui.actionAcerca_de.triggered.connect(self.abrir_about)
 
+        # Creación del widget de marcadores
         var.ui.widgetMarcadores = QToolBar()
         var.ui.widgetMarcadores.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
         var.ui.verticalLayout.insertWidget(1, var.ui.widgetMarcadores)
@@ -117,6 +141,8 @@ class Main(QMainWindow):
 
         # conexion de eventos
         var.ui.btnCerrar.clicked.connect(self.cerrar_buscar)
+        var.ui.btnSig.clicked.connect(self.buscar_siguiente)
+        var.ui.btnAnt.clicked.connect(self.buscar_anterior)
         var.ui.editBusqueda.textChanged.connect(self.buscar_en_pagina)
 
         # Crea una nueva instancia del hilo trabajador
@@ -420,7 +446,9 @@ class Main(QMainWindow):
     @staticmethod
     def refrescar():
         """
+
         Funcion conectada al evento clicked del boton de refrescar. Refresca la página actual.
+
         """
         try:
             var.ui.tabWidget.currentWidget().reload()
@@ -429,8 +457,10 @@ class Main(QMainWindow):
 
     def actualizacion_completada(self):
         """
+
         Funcion conectada al evento loadFinished de un QWebEngineView que simplemente cambiará el boton de cancelar
         carga por el de refrescar de nuevo.
+
         """
         try:
             self.cambiar_btnrefrescar(False)
@@ -439,8 +469,10 @@ class Main(QMainWindow):
 
     def cancelar_actualizacion(self):
         """
+
         Funcion conectada al evento clicked del boton de cancelar carga que parará la carga de la pestaña actual
         y cambiara el boton de cancelar carga por el de refrescar nuevamente.
+
         """
         try:
             var.ui.tabWidget.currentWidget().stop()
@@ -484,7 +516,9 @@ class Main(QMainWindow):
     @staticmethod
     def navegar_a_home():
         """
+
         Funcion conectada al boton home del navegador que simplemente navegara al enlace establecido como enlace home
+
         """
         try:
             var.ui.tabWidget.currentWidget().setUrl(QUrl(var.URL_HOME))
@@ -499,6 +533,8 @@ class Main(QMainWindow):
 
         :param i: Indice de la pestaña a la que se ha cambiado
         :type i: int
+
+        Tambien cierra la barra de buscar en pagina si está abierta para evitar fallos.
         """
         try:
             # Si la pestaña a la que el usuario se quiere desplazar es la pestaña de añadir, añade una nueva
@@ -509,8 +545,10 @@ class Main(QMainWindow):
                 if isinstance(widget_actual, QWebEngineView):
                     self.cambiar_btnrefrescar(False)
                     self.actualizar_titulo(widget_actual)
-                    self.actualizar_url(widget_actual.url().toString())
-                    self.comprobar_fav(widget_actual.url().toString())
+
+                    if widget_actual.url().scheme() == "http" or widget_actual.url().scheme() == "https":
+                        self.actualizar_url(widget_actual.url().toString())
+                        self.comprobar_fav(widget_actual.url().toString())
 
                     var.ui.btnAtras.setEnabled(widget_actual.history().canGoBack())
                     var.ui.btnAdelante.setEnabled(widget_actual.history().canGoForward())
@@ -522,6 +560,9 @@ class Main(QMainWindow):
                     self.setWindowTitle("PyQtBrowser - Historial")
                     self.actualizar_url("pyqtbrowser:historial")
                     self.actualizar_icono_fav(0)
+
+            if var.ui.widgetBusqueda.isVisible():
+                self.cerrar_buscar()
         except Exception as error:
             print("Error: %s" % str(error))
 
@@ -558,7 +599,9 @@ class Main(QMainWindow):
 
     def abrir_pagina(self):
         """
+
         Funcion que cargará en el navegador un archivo de tipo HTML, que se escoja en un dialogo de tipo QFileDialog.
+
         """
         filename, _ = QFileDialog.getOpenFileName(self, "Abrir archivo", "",
                                                   "Hypertext Markup Language (*.htm *.html)")
@@ -573,8 +616,10 @@ class Main(QMainWindow):
 
     def guardar_pagina(self):
         """
+
         Funcion que guardará la página actual en un archivo HTML con el nombre y directiorio que se escoja en un dialogo
         de tipo QFileDialog.
+
         """
         try:
             filename, _ = QFileDialog.getSaveFileName(self, "Guardar Pagina Como", "",
@@ -605,13 +650,27 @@ class Main(QMainWindow):
         except Exception as error:
             print("Error en guardar pagina: %s" % str(error))
 
-    def abrir_buscar(self):
+    @staticmethod
+    def abrir_buscar():
+        """
+
+        Funcion conectada al evento triggered del QAction de buscar en pagina que se encarga de mostrar la barra de
+        busqueda.
+
+        """
         try:
             var.ui.widgetBusqueda.show()
         except Exception as error:
             print("Error: %s" % str(error))
 
-    def cerrar_buscar(self):
+    @staticmethod
+    def cerrar_buscar():
+        """
+
+        Funcion conectada al boton de cerrar de la barra de búsqueda que cierra la misma y limpia el bufer de busqueda
+        de texto de la pagina actual.
+
+        """
         try:
             var.ui.widgetBusqueda.hide()
 
@@ -620,7 +679,16 @@ class Main(QMainWindow):
         except Exception as error:
             print("Error: %s" % str(error))
 
-    def buscar_en_pagina(self, text):
+    @staticmethod
+    def buscar_en_pagina(text):
+        """
+
+        Funcion conectada al evento de textChanged del LineEdit de la barra de busqueda que buscará el texto introducido
+        en la página actual.
+
+        :param text: Texto del LineEdit de la barra de busqueda
+        :type text: str
+        """
         try:
             if var.ui.tabWidget.currentWidget().page():
                 if text is not None and text != '':
@@ -628,7 +696,50 @@ class Main(QMainWindow):
         except Exception as error:
             print("Error: %s" % str(error))
 
-    def busqueda_cambiada(self, result):
+    @staticmethod
+    def buscar_siguiente():
+        """
+
+        Funcion conectada al evento clicked del boton de siguiente en la barra de búsqueda que pasa al siguiente texto
+        encontrado en la página.
+
+        """
+        try:
+            text = var.ui.editBusqueda.text()
+
+            if var.ui.tabWidget.currentWidget().page():
+                if text is not None and text != '':
+                    var.ui.tabWidget.currentWidget().page().findText(text, QWebEnginePage.FindFlags(0), lambda result: result)
+        except Exception as error:
+            print("Error: %s" % str(error))
+
+    @staticmethod
+    def buscar_anterior():
+        """
+
+        Funcion conectada al evento clicked del boton de siguiente en la barra de búsqueda que pasa al texto anterior
+        encontrado en la página.
+
+        """
+        try:
+            text = var.ui.editBusqueda.text()
+
+            if var.ui.tabWidget.currentWidget().page():
+                if text is not None and text != '':
+                    var.ui.tabWidget.currentWidget().page().findText(text, QWebEnginePage.FindFlags(1), lambda result: result)
+        except Exception as error:
+            print("Error: %s" % str(error))
+
+    @staticmethod
+    def busqueda_cambiada(result):
+        """
+
+        Funcion conectada al evento findTextFinished de una QWebEnginePage que recoge la cantidad de coincidencias de un
+        texto y la coincidencia actual de una página y las actualiza en la barra de búsqueda.
+
+        :param result: Resultado de la busqueda
+        :type result: QtWebEngineWidgets.QWebEngineFindTextResult
+        """
         try:
             var.ui.lblResult.setText(str(result.activeMatch()) + " / " + str(result.numberOfMatches()))
         except Exception as error:
@@ -637,7 +748,9 @@ class Main(QMainWindow):
     @staticmethod
     def abrir_about():
         """
+
         Funcion encargada de crear un nuevo dialogo About y mostrarlo.
+
         """
         try:
             dlg = DialogAbout()
@@ -647,7 +760,9 @@ class Main(QMainWindow):
 
     def abrir_historial(self):
         """
+
         Funcion encargada de abrir una pestaña nueva que contiene el historial de búsqueda
+
         """
         try:
             # Crea el objeto del Widget del historial pasándole la ventana del navegador como argumento
@@ -712,7 +827,9 @@ class Main(QMainWindow):
 
     def anadir_favorito(self):
         """
+
         Funcion encargada de añadir la página actual a favoritos en la base de datos, y de refrescarlos.
+
         """
         try:
             if isinstance(var.ui.tabWidget.currentWidget(), QWebEngineView):
@@ -787,8 +904,10 @@ class Main(QMainWindow):
 
     def limpiar_marcadores(self):
         """
+
         Esta función borra todos los elementos del widgetMarcadores y emite una señal de tipo marcadoresLimpios despues
         de 100ms.
+
         """
         try:
             var.ui.widgetMarcadores.clear()
@@ -879,7 +998,9 @@ class Main(QMainWindow):
     @staticmethod
     def mostrar_menu():
         """
+
         Funcion que abre el menu contextual de la aplicación.
+
         """
         try:
             var.ui.btnMenu.showMenu()
@@ -910,7 +1031,9 @@ class Main(QMainWindow):
 
     def resizeEvent(self, *args, **kwargs):
         """
+
         Sobreescribe el método por defecto de resizeEvent de la aplicación.
+
         """
 
         # probablemente no sea lo mas eficiente del mundo pero si la opcion mas comoda

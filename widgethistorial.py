@@ -5,9 +5,21 @@ from PyQt5.QtWidgets import QWidget, QMenu
 
 
 class WidgetHistorial(QWidget):
+    """
+
+    Clase que instancia un QWidget nuevo que contiene la tabla de entradas del historial, y define su comportamiento.
+
+    """
     historialRecibido = QtCore.pyqtSignal(QtSql.QSqlQuery)
 
     def __init__(self, nav):
+        """
+
+        Crea una nueva instancia de la clase. Recibe el objeto de la ventana principal.
+
+        :param nav: Ventana principal
+        :type nav: Main
+        """
         super(WidgetHistorial, self).__init__()
 
         self.menu = QMenu(self)
@@ -29,6 +41,8 @@ class WidgetHistorial(QWidget):
         self.tableWidget.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
         self.tableWidget.setColumnCount(5)
         self.tableWidget.setRowCount(0)
+
+        # Oculta la columna con índice 4, esta es la columna que contiene el indice de entrada de historial.
         self.tableWidget.hideColumn(4)
 
         item = QtWidgets.QTableWidgetItem()
@@ -80,13 +94,20 @@ class WidgetHistorial(QWidget):
 
         self.btnBorrarSel.setText("Borrar selección")
 
+        # Gestión de eventos
         self.tableWidget.viewport().installEventFilter(self)
         self.tableWidget.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
         self.tableWidget.customContextMenuRequested.connect(self.generar_menu)
         self.btnBorrarSel.clicked.connect(self.borrar_seleccion)
 
     def eventFilter(self, source, event):
+        """
+
+        Se encarga de filtrar los eventos de la tabla de entradas de historial.
+
+        """
         try:
+            # Si el evento es un click derecho en la tabla, abre un menú contextual
             if (event.type() == QtCore.QEvent.MouseButtonPress and
                     event.buttons() == QtCore.Qt.RightButton and
                     source is self.tableWidget.viewport()):
@@ -95,6 +116,8 @@ class WidgetHistorial(QWidget):
                 if item is not None:
                     self.menu = QMenu()
                     self.tableWidget.selectRow(item.row())
+
+                    # Crea los QAction necesarios para gestionar la entrada del historial
                     if self.nav:
                         self.menu.addAction("Ir a sitio", lambda i=item: self.nav.nueva_pestana(
                             self.tableWidget.selectedItems()[3].text()))
@@ -105,12 +128,30 @@ class WidgetHistorial(QWidget):
         return super(WidgetHistorial, self).eventFilter(source, event)
 
     def reload(self):
+        """
+
+        Recarga las entradas al historial llamando a la función cargar_historial de la ventana principal.
+
+        """
         self.nav.cargar_historial(self)
 
     def generar_menu(self, pos):
+        """
+
+        Genera un menú contextual en la posición indicada.
+
+        """
         self.menu.exec_(self.tableWidget.mapToGlobal(pos))
 
     def cargar_historial(self, query):
+        """
+
+        Recibe un objeto QSqlQuery que contiene las entradas en el historial y las carga en la tabla iterando este
+        objeto.
+
+        :param query: Objeto QSqlQuery que contiene el resultado de la búsqueda.
+        :type query: QtSql.QSqlQuery
+        """
         try:
             index = 1
             self.tableWidget.clearContents()
@@ -129,6 +170,14 @@ class WidgetHistorial(QWidget):
             print("Error al cargar historial en la pestana: %s" % str(error))
 
     def borrar_entrada(self, idx=0):
+        """
+
+        Función llamada por la QAction de borrar entrada del menú contextual de una entrada en la tabla.
+        Llamará a la función de borrar_entrada_historial de la ventana principal.
+
+        :param idx: Indice de la entrada
+        :type idx: int
+        """
         try:
             if idx > 0:
                 self.nav.borrar_entrada_historial(idx, self)
@@ -136,6 +185,13 @@ class WidgetHistorial(QWidget):
             print("Error al borrar entrada: %s" % str(error))
 
     def borrar_seleccion(self):
+        """
+
+        Función llamada por el botón de borrar seleccion del widget. Recoge todos los items seleccionados en la tabla,
+        coge los valores de la columna 4 que contienen el indice de entrada, y llama a la función de
+        borrar_entrada_historial de la ventana principal secuencialmente usando el índice.
+
+        """
         try:
             for x in range(0, len(self.tableWidget.selectedItems()), 4):
                 self.nav.borrar_entrada_historial(int(self.tableWidget.item(
